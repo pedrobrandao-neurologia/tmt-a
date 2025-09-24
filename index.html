@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trail Making Test A (TMT-A) - Teste de Trilhas Parte A</title>
-    <meta name="description" content="Implementação digital do Trail Making Test Parte A para avaliação neuropsicológica">
+    <title>Trail Making Test A (TMT-A) - Versão Aprimorada</title>
+    <meta name="description" content="Implementação digital aprimorada do Trail Making Test Parte A para avaliação neuropsicológica">
     <meta name="author" content="Laboratório de Neurociência Cognitiva">
-    <meta name="version" content="2.0.0">
+    <meta name="version" content="3.0.0">
     
     <style>
         :root {
@@ -16,8 +16,8 @@
             --error-color: #f44336;
             --warning-color: #FF9800;
             --info-color: #00BCD4;
-            --bg-gradient-start: #667eea;
-            --bg-gradient-end: #764ba2;
+            --bg-gradient-start: #f4f6f9;
+            --bg-gradient-end: #e9ecf1;
             --text-primary: #212121;
             --text-secondary: #666;
             --border-color: #e0e0e0;
@@ -46,6 +46,18 @@
             padding: 1rem;
             color: var(--text-primary);
         }
+        
+        /* NOVO: Classe para ocultar elementos durante o teste */
+        .test-in-progress .stats-grid,
+        .test-in-progress .progress-bar {
+            visibility: hidden;
+            opacity: 0;
+        }
+        .test-in-progress .stat-card-timer { /* Manter o timer visível */
+             visibility: visible !important;
+             opacity: 1 !important;
+        }
+
 
         .container {
             background: white;
@@ -136,6 +148,26 @@
             box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
         }
 
+        /* NOVO: Estilo para a contagem regressiva */
+        .countdown-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            z-index: 100;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+
         .circle-node {
             position: absolute;
             width: var(--circle-size);
@@ -180,6 +212,12 @@
             border-color: var(--error-color);
             background: rgba(244, 67, 54, 0.1);
         }
+        
+        /* NOVO: Estilo para guiar o usuário de volta ao último acerto */
+        .circle-node.guide-back {
+            animation: guide-pulse 0.7s 2;
+        }
+
 
         .trail-line {
             position: absolute;
@@ -200,6 +238,13 @@
                 box-shadow: 0 0 0 10px rgba(33, 150, 243, 0);
             }
         }
+        
+        /* NOVO: Animação para guiar o usuário de volta */
+        @keyframes guide-pulse {
+            0% { background-color: var(--success-color); opacity: 0.5; }
+            50% { background-color: var(--success-color); opacity: 1; transform: scale(1.1); }
+            100% { background-color: var(--success-color); opacity: 0.5; }
+        }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
@@ -212,6 +257,7 @@
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 1rem;
             margin: 2rem 0;
+            transition: all var(--transition-speed);
         }
 
         .stat-card {
@@ -322,31 +368,13 @@
             padding: 1.5rem;
             border-radius: 8px;
             margin: 2rem 0;
+            line-height: 1.6;
         }
 
         .instructions-panel h3 {
             color: var(--primary-color);
             margin-bottom: 1rem;
             font-size: 1.25rem;
-        }
-
-        .instructions-panel ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .instructions-panel li {
-            padding: 0.5rem 0;
-            padding-left: 2rem;
-            position: relative;
-        }
-
-        .instructions-panel li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: var(--success-color);
-            font-weight: bold;
         }
 
         .message-box {
@@ -389,6 +417,7 @@
             border-radius: 4px;
             overflow: hidden;
             margin: 1rem 0;
+            transition: all var(--transition-speed);
         }
 
         .progress-fill {
@@ -556,6 +585,22 @@
             flex-wrap: wrap;
         }
 
+        /* NOVO: Estilos para o seletor de idade e tabela normativa */
+        .normative-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .normative-controls label {
+            font-weight: 500;
+        }
+        #age-range-selector {
+            padding: 0.5rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
         .normative-table {
             width: 100%;
             border-collapse: collapse;
@@ -573,10 +618,29 @@
             background: var(--primary-color);
             color: white;
         }
+        
+        .normative-table tr {
+            transition: background-color 0.3s;
+        }
+
+        .normative-table tr.highlighted {
+            background-color: rgba(33, 150, 243, 0.15);
+            font-weight: bold;
+        }
 
         .normative-table tr:nth-child(even) {
             background: #f5f5f5;
         }
+        .normative-table tr.highlighted:nth-child(even) {
+            background-color: rgba(33, 150, 243, 0.15);
+        }
+        
+        .normative-footer {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
 
         .performance-badge {
             display: inline-block;
@@ -694,22 +758,20 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="container">
         <header class="header">
-            <h1>Trail Making Test - Parte A (TMT-A)</h1>
-            <p>Teste de Trilhas para Avaliação de Atenção e Velocidade de Processamento</p>
+            <h1>Teste de Trilhas - Parte A (TMT-A)</h1>
+            <p>Avaliação da Atenção e Velocidade de Processamento</p>
         </header>
 
         <main class="main-content">
-            <!-- Indicador de Fases -->
             <div class="phase-indicator">
                 <div class="phase-dot" id="phase-1" data-label="Instruções">1</div>
-                <div class="phase-dot" id="phase-2" data-label="Prática">2</div>
+                <div class="phase-dot" id="phase-2" data-label="Aquecimento">2</div>
                 <div class="phase-dot" id="phase-3" data-label="Teste">3</div>
                 <div class="phase-dot" id="phase-4" data-label="Resultados">4</div>
             </div>
 
-            <!-- Painel de Configurações -->
             <div class="settings-panel">
                 <button class="setting-btn" id="sound-toggle">🔊 Som</button>
                 <button class="setting-btn" id="contrast-toggle">🎨 Alto Contraste</button>
@@ -717,29 +779,23 @@
                 <button class="setting-btn" id="trails-toggle">📍 Mostrar Trilhas</button>
             </div>
 
-            <!-- Painel de Instruções -->
             <div class="instructions-panel" id="instructions">
                 <h3>📋 Como Realizar o Teste</h3>
-                <ul>
-                    <li>Conecte os números em ordem crescente (1 → 2 → 3 → ... → 25)</li>
-                    <li>Clique ou toque em cada círculo na sequência correta</li>
-                    <li>Seja o mais rápido e preciso possível</li>
-                    <li>Não pule nenhum número da sequência</li>
-                    <li>O teste tem tempo limite de 5 minutos</li>
-                </ul>
+                <p>
+                    Nesta tela, você verá alguns círculos com números dentro. Sua tarefa é clicar nos círculos em ordem crescente, começando pelo número 1, depois o 2, o 3, e assim por diante, até o último número. Tente fazer isso o mais rápido que puder, sem cometer erros.
+                    <br><br>
+                    Vamos começar com um pequeno aquecimento para você praticar.
+                </p>
             </div>
 
-            <!-- Barra de Progresso -->
             <div class="progress-bar">
                 <div class="progress-fill" id="progress"></div>
             </div>
 
-            <!-- Área do Teste -->
             <div class="test-canvas" id="testCanvas"></div>
 
-            <!-- Painel de Estatísticas -->
             <div class="stats-grid">
-                <div class="stat-card">
+                <div class="stat-card stat-card-timer">
                     <div class="stat-value" id="timer">00:00</div>
                     <div class="stat-label">Tempo</div>
                 </div>
@@ -757,15 +813,13 @@
                 </div>
             </div>
 
-            <!-- Mensagem de Feedback -->
             <div class="message-box message-info" id="message">
-                Bem-vindo ao TMT-A! Clique em "Iniciar Prática" para começar com um exemplo simples.
+                Bem-vindo! Clique em "Começar Aquecimento" para praticar.
             </div>
 
-            <!-- Controles -->
             <div class="controls">
-                <button class="btn btn-secondary" id="practiceBtn">Iniciar Prática</button>
-                <button class="btn btn-primary" id="startBtn" disabled>Iniciar Teste</button>
+                <button class="btn btn-secondary" id="practiceBtn">Começar Aquecimento</button>
+                <button class="btn btn-primary" id="startBtn" disabled>Começar Teste Principal</button>
                 <button class="btn btn-secondary" id="pauseBtn" style="display:none;">Pausar</button>
                 <button class="btn btn-success" id="resultsBtn" style="display:none;">Ver Resultados</button>
                 <button class="btn btn-secondary" id="resetBtn">Reiniciar</button>
@@ -773,7 +827,6 @@
         </main>
     </div>
 
-    <!-- Modal de Resultados -->
     <div class="modal" id="resultsModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -827,6 +880,12 @@
 
             <div class="results-section">
                 <h3>Comparação Normativa</h3>
+                <div class="normative-controls">
+                    <label for="age-range-selector">Selecione sua faixa etária:</label>
+                    <select id="age-range-selector">
+                        <option value="">--Escolha--</option>
+                    </select>
+                </div>
                 <table class="normative-table">
                     <thead>
                         <tr>
@@ -838,9 +897,11 @@
                         </tr>
                     </thead>
                     <tbody id="normative-data">
-                        <!-- Dados normativos serão inseridos aqui -->
-                    </tbody>
+                        </tbody>
                 </table>
+                <p class="normative-footer">
+                    <strong>*Percentil:</strong> Indica que seu desempenho foi melhor que X% das pessoas na sua faixa etária. Valores mais altos são melhores.
+                </p>
             </div>
 
             <div class="results-section">
@@ -893,6 +954,7 @@
                 this.initializeElements();
                 this.bindEvents();
                 this.loadSettings();
+                this.populateAgeSelector(); // NOVO
             }
 
             initializeState() {
@@ -920,7 +982,7 @@
             }
 
             initializeElements() {
-                // Canvas e containers principais
+                this.container = document.getElementById('container'); // NOVO
                 this.canvas = document.getElementById('testCanvas');
                 this.timerDisplay = document.getElementById('timer');
                 this.currentDisplay = document.getElementById('current');
@@ -929,30 +991,26 @@
                 this.progressBar = document.getElementById('progress');
                 this.messageBox = document.getElementById('message');
                 
-                // Botões
                 this.practiceBtn = document.getElementById('practiceBtn');
                 this.startBtn = document.getElementById('startBtn');
                 this.pauseBtn = document.getElementById('pauseBtn');
                 this.resultsBtn = document.getElementById('resultsBtn');
                 this.resetBtn = document.getElementById('resetBtn');
                 
-                // Configurações
                 this.soundToggle = document.getElementById('sound-toggle');
                 this.contrastToggle = document.getElementById('contrast-toggle');
                 this.sizeToggle = document.getElementById('size-toggle');
                 this.trailsToggle = document.getElementById('trails-toggle');
                 
-                // Modal
                 this.modal = document.getElementById('resultsModal');
                 this.closeModal = document.getElementById('closeModal');
+                this.ageRangeSelector = document.getElementById('age-range-selector'); // NOVO
                 
-                // Export buttons
                 this.exportCSV = document.getElementById('exportCSV');
                 this.exportJSON = document.getElementById('exportJSON');
                 this.exportPDF = document.getElementById('exportPDF');
                 this.saveLocal = document.getElementById('saveLocal');
                 
-                // Fases
                 this.phases = {
                     1: document.getElementById('phase-1'),
                     2: document.getElementById('phase-2'),
@@ -962,36 +1020,42 @@
             }
 
             bindEvents() {
-                // Botões principais
                 this.practiceBtn.addEventListener('click', () => this.startPractice());
                 this.startBtn.addEventListener('click', () => this.startTest());
                 this.pauseBtn.addEventListener('click', () => this.togglePause());
                 this.resultsBtn.addEventListener('click', () => this.showResults());
                 this.resetBtn.addEventListener('click', () => this.reset());
                 
-                // Configurações
                 this.soundToggle.addEventListener('click', () => this.toggleSound());
                 this.contrastToggle.addEventListener('click', () => this.toggleContrast());
                 this.sizeToggle.addEventListener('click', () => this.toggleSize());
                 this.trailsToggle.addEventListener('click', () => this.toggleTrails());
                 
-                // Modal
                 this.closeModal.addEventListener('click', () => this.hideModal());
                 this.modal.addEventListener('click', (e) => {
                     if (e.target === this.modal) this.hideModal();
                 });
                 
-                // Export
+                this.ageRangeSelector.addEventListener('change', (e) => this.highlightNormativeRow(e.target.value)); // NOVO
+                
                 this.exportCSV.addEventListener('click', () => this.exportToCSV());
                 this.exportJSON.addEventListener('click', () => this.exportToJSON());
                 this.exportPDF.addEventListener('click', () => this.generatePDF());
                 this.saveLocal.addEventListener('click', () => this.saveToLocal());
                 
-                // Teclado
                 document.addEventListener('keydown', (e) => this.handleKeyPress(e));
                 
-                // Redimensionamento
                 window.addEventListener('resize', () => this.handleResize());
+            }
+
+            // NOVO: Preenche o seletor de idade dinamicamente
+            populateAgeSelector() {
+                Object.keys(NORMATIVE_DATA).forEach(ageGroup => {
+                    const option = document.createElement('option');
+                    option.value = ageGroup;
+                    option.textContent = `${ageGroup} anos`;
+                    this.ageRangeSelector.appendChild(option);
+                });
             }
 
             loadSettings() {
@@ -1018,18 +1082,11 @@
             }
 
             applySettings() {
-                // Som
                 this.soundToggle.classList.toggle('active', CONFIG.SOUND_ENABLED);
-                
-                // Contraste
                 this.contrastToggle.classList.toggle('active', CONFIG.HIGH_CONTRAST);
                 document.body.classList.toggle('high-contrast', CONFIG.HIGH_CONTRAST);
-                
-                // Tamanho
                 this.sizeToggle.classList.toggle('active', CONFIG.LARGE_CIRCLES);
                 document.body.classList.toggle('accessibility-mode', CONFIG.LARGE_CIRCLES);
-                
-                // Trilhas
                 this.trailsToggle.classList.toggle('active', CONFIG.SHOW_TRAILS);
                 
                 if (CONFIG.LARGE_CIRCLES) {
@@ -1067,7 +1124,6 @@
                 CONFIG.SHOW_TRAILS = !CONFIG.SHOW_TRAILS;
                 this.trailsToggle.classList.toggle('active');
                 
-                // Mostrar/ocultar trilhas existentes
                 const trails = this.canvas.querySelectorAll('.trail-line');
                 trails.forEach(trail => {
                     trail.style.display = CONFIG.SHOW_TRAILS ? 'block' : 'none';
@@ -1088,19 +1144,47 @@
                 this.phases[phaseNumber].classList.add('active');
             }
 
+            // NOVO: Função de contagem regressiva
+            showCountdown(callback) {
+                const countdownOverlay = document.createElement('div');
+                countdownOverlay.className = 'countdown-overlay';
+                this.canvas.appendChild(countdownOverlay);
+
+                let count = 3;
+                countdownOverlay.textContent = count;
+
+                const interval = setInterval(() => {
+                    count--;
+                    if (count > 0) {
+                        countdownOverlay.textContent = count;
+                    } else if (count === 0) {
+                        countdownOverlay.textContent = 'JÁ!';
+                    } else {
+                        clearInterval(interval);
+                        this.canvas.removeChild(countdownOverlay);
+                        callback();
+                    }
+                }, 1000);
+            }
+
+
             startPractice() {
                 this.updatePhase(2);
                 this.state.isPractice = true;
                 this.state.phase = 'practice';
                 
-                this.showMessage('Prática: Conecte os números de 1 a 8', 'info');
+                this.showMessage('Prepare-se para o aquecimento...', 'info');
                 this.generateNodes(CONFIG.PRACTICE_NUMBERS);
                 
                 this.practiceBtn.style.display = 'none';
-                this.startBtn.disabled = false;
-                this.startBtn.textContent = 'Iniciar Teste Real';
+                this.startBtn.disabled = true;
+                this.startBtn.textContent = 'Começar Teste Principal';
                 
-                this.startTimer();
+                // NOVO: Adiciona contagem regressiva antes de iniciar
+                this.showCountdown(() => {
+                    this.container.classList.add('test-in-progress');
+                    this.startTimer();
+                });
             }
 
             startTest() {
@@ -1109,14 +1193,19 @@
                 this.state.phase = 'test';
                 this.reset(false);
                 
-                this.showMessage('Teste iniciado! Conecte os números de 1 a 25', 'info');
+                this.showMessage('Prepare-se para o teste principal...', 'info');
                 this.generateNodes(CONFIG.TOTAL_NUMBERS);
                 
                 this.startBtn.style.display = 'none';
                 this.pauseBtn.style.display = 'inline-block';
                 
-                this.startTimer();
+                // NOVO: Adiciona contagem regressiva antes de iniciar
+                this.showCountdown(() => {
+                    this.container.classList.add('test-in-progress');
+                    this.startTimer();
+                });
             }
+
 
             generateNodes(count) {
                 this.clearCanvas();
@@ -1129,7 +1218,6 @@
                 const height = rect.height;
                 const margin = CONFIG.CIRCLE_SIZE;
                 
-                // Gerar posições aleatórias com distância mínima
                 for (let i = 1; i <= count; i++) {
                     let position;
                     let attempts = 0;
@@ -1148,10 +1236,8 @@
                     this.createNode(position);
                 }
                 
-                // Calcular distância ótima
                 this.calculateOptimalDistance();
                 
-                // Destacar o primeiro nó
                 this.highlightTarget(1);
             }
 
@@ -1203,12 +1289,10 @@
                 const node = this.state.nodes[number - 1];
                 node.classList.add('correct');
                 
-                // Adicionar trilha se não for o primeiro
                 if (number > 1 && CONFIG.SHOW_TRAILS) {
                     this.drawTrail(number - 1, number);
                 }
                 
-                // Registrar tempo de conexão
                 if (this.state.clicks.length > 1) {
                     const lastCorrect = [...this.state.clicks]
                         .reverse()
@@ -1220,7 +1304,6 @@
                     }
                 }
                 
-                // Atualizar distância total
                 if (number > 1) {
                     const prev = this.state.positions[number - 2];
                     const curr = this.state.positions[number - 1];
@@ -1234,7 +1317,6 @@
                 this.playSound('success');
                 this.state.currentNumber++;
                 
-                // Verificar conclusão
                 const maxNumber = this.state.isPractice ? CONFIG.PRACTICE_NUMBERS : CONFIG.TOTAL_NUMBERS;
                 if (this.state.currentNumber > maxNumber) {
                     this.completeTest();
@@ -1260,8 +1342,10 @@
                 this.errorsDisplay.textContent = this.state.errors.length;
                 
                 this.playSound('error');
-                this.showMessage(`Erro! Clique no número ${this.state.currentNumber}`, 'warning');
+                // ALTERADO: Mensagem de erro mais construtiva
+                this.showMessage(`Atenção! Por favor, clique no número ${this.state.currentNumber}`, 'warning');
             }
+
 
             classifyError(clicked) {
                 const expected = this.state.currentNumber;
@@ -1319,7 +1403,6 @@
                 this.timer = setInterval(() => {
                     const elapsed = Date.now() - this.state.startTime;
                     
-                    // Verificar tempo limite
                     if (elapsed > CONFIG.MAX_TIME) {
                         this.timeout();
                         return;
@@ -1358,9 +1441,10 @@
                 this.stopTimer();
                 this.state.endTime = Date.now();
                 this.state.phase = 'completed';
+                this.container.classList.remove('test-in-progress'); // NOVO: Restaura UI
                 
                 if (this.state.isPractice) {
-                    this.showMessage('Prática concluída! Agora você está pronto para o teste real.', 'success');
+                    this.showMessage('Ótimo, aquecimento concluído! Quando estiver pronto, clique em "Começar Teste Principal".', 'success');
                     this.startBtn.disabled = false;
                     this.pauseBtn.style.display = 'none';
                 } else {
@@ -1378,6 +1462,7 @@
             timeout() {
                 this.stopTimer();
                 this.state.endTime = Date.now();
+                this.container.classList.remove('test-in-progress');
                 this.showMessage('Tempo limite excedido!', 'error');
                 this.calculateResults();
                 this.showResults();
@@ -1399,7 +1484,6 @@
                 const totalTime = (this.state.endTime - this.state.startTime) / 1000;
                 const completed = this.state.currentNumber - 1;
                 
-                // Estatísticas temporais
                 const avgConnectionTime = this.state.connectionTimes.length > 0
                     ? this.state.connectionTimes.reduce((a, b) => a + b, 0) / this.state.connectionTimes.length
                     : 0;
@@ -1412,7 +1496,6 @@
                 const stdDev = Math.sqrt(variance);
                 const cv = avgConnectionTime > 0 ? (stdDev / avgConnectionTime) * 100 : 0;
                 
-                // Velocidade inicial vs final
                 const firstThird = this.state.connectionTimes.slice(0, Math.floor(this.state.connectionTimes.length / 3));
                 const lastThird = this.state.connectionTimes.slice(-Math.floor(this.state.connectionTimes.length / 3));
                 
@@ -1424,12 +1507,10 @@
                     ? lastThird.reduce((a, b) => a + b, 0) / lastThird.length / 1000
                     : 0;
                 
-                // Eficiência espacial
                 const efficiency = this.state.optimalDistance > 0
                     ? (this.state.optimalDistance / this.state.totalDistance) * 100
                     : 0;
                 
-                // Análise de erros
                 const errorsByType = {
                     repetition: 0,
                     anticipation: 0,
@@ -1440,7 +1521,6 @@
                     errorsByType[error.type]++;
                 });
                 
-                // Comparação normativa
                 const normativeComparison = this.compareToNorms(totalTime);
                 
                 this.results = {
@@ -1465,7 +1545,8 @@
                 
                 Object.entries(NORMATIVE_DATA).forEach(([ageGroup, data]) => {
                     const zScore = (time - data.mean) / data.sd;
-                    const percentile = this.zScoreToPercentile(zScore);
+                    // ALTERADO: Percentil invertido para testes de tempo (menor tempo = maior percentil)
+                    const percentile = 100 - this.zScoreToPercentile(zScore);
                     
                     comparisons[ageGroup] = {
                         mean: data.mean,
@@ -1480,7 +1561,6 @@
             }
 
             zScoreToPercentile(z) {
-                // Aproximação da função de distribuição cumulativa normal
                 const a1 =  0.254829592;
                 const a2 = -0.284496736;
                 const a3 =  1.421413741;
@@ -1492,38 +1572,34 @@
                 z = Math.abs(z) / Math.sqrt(2);
                 
                 const t = 1 / (1 + p * z);
-                const t2 = t * t;
-                const t3 = t2 * t;
-                const t4 = t3 * t;
-                const t5 = t4 * t;
+                const erf = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * Math.exp(-z * z);
                 
-                const erf = 1 - ((a1 * t + a2 * t2 + a3 * t3 + a4 * t4 + a5 * t5) * Math.exp(-z * z));
-                
-                return Math.round((1 + sign * erf) * 50);
+                const percentile = (1 + sign * erf) / 2 * 100;
+                return Math.round(percentile);
             }
 
             classifyPerformance(percentile) {
+                if (percentile >= 98) return { label: 'Muito Superior', badge: 'badge-superior' };
                 if (percentile >= 84) return { label: 'Superior', badge: 'badge-superior' };
-                if (percentile >= 75) return { label: 'Acima da Média', badge: 'badge-average' };
                 if (percentile >= 25) return { label: 'Médio', badge: 'badge-average' };
-                if (percentile >= 16) return { label: 'Abaixo da Média', badge: 'badge-below' };
-                return { label: 'Comprometido', badge: 'badge-below' };
+                if (percentile >= 16) return { label: 'Médio Inferior', badge: 'badge-average' };
+                if (percentile >= 2) return { label: 'Limítrofe', badge: 'badge-below' };
+                return { label: 'Muito Baixo', badge: 'badge-below' };
             }
+
 
             showResults() {
                 if (!this.results) return;
                 
-                // Preencher dados gerais
                 document.getElementById('result-time').textContent = 
                     `${this.results.totalTime.toFixed(2)}s`;
                 document.getElementById('result-connected').textContent = 
-                    `${this.results.completed}/25`;
+                    `${this.results.completed}/${CONFIG.TOTAL_NUMBERS}`;
                 document.getElementById('result-errors').textContent = 
                     this.results.totalErrors;
                 document.getElementById('result-efficiency').textContent = 
                     `${this.results.efficiency.toFixed(1)}%`;
                 
-                // Dados temporais
                 document.getElementById('result-avg-time').textContent = 
                     `${this.results.avgConnectionTime.toFixed(2)}s`;
                 document.getElementById('result-variability').textContent = 
@@ -1533,10 +1609,8 @@
                 document.getElementById('result-final-speed').textContent = 
                     `${this.results.finalSpeed.toFixed(2)}s`;
                 
-                // Tabela normativa
                 this.fillNormativeTable();
                 
-                // Mostrar modal
                 this.modal.classList.add('show');
             }
 
@@ -1546,22 +1620,34 @@
                 
                 Object.entries(this.results.normativeComparison).forEach(([ageGroup, data]) => {
                     const row = document.createElement('tr');
+                    row.dataset.ageGroup = ageGroup; // NOVO: data-attribute para identificar a linha
                     const classification = data.classification;
                     
                     row.innerHTML = `
                         <td>${ageGroup} anos</td>
                         <td>${data.mean.toFixed(2)}</td>
                         <td>${data.sd.toFixed(2)}</td>
-                        <td>${data.percentile}º</td>
+                        <td>${data.percentile}</td>
                         <td>
                             ${classification.label}
                             <span class="performance-badge ${classification.badge}">
-                                ${data.percentile}%
+                                P${data.percentile}
                             </span>
                         </td>
                     `;
                     
                     tbody.appendChild(row);
+                });
+            }
+            
+            // NOVO: Função para destacar a linha da tabela
+            highlightNormativeRow(ageGroup) {
+                const rows = document.querySelectorAll('#normative-data tr');
+                rows.forEach(row => {
+                    row.classList.remove('highlighted');
+                    if (row.dataset.ageGroup === ageGroup) {
+                        row.classList.add('highlighted');
+                    }
                 });
             }
 
@@ -1641,7 +1727,6 @@
                 
                 localStorage.setItem(key, JSON.stringify(data));
                 
-                // Manter índice de todos os testes
                 let index = JSON.parse(localStorage.getItem('tmt-a-index') || '[]');
                 index.push({
                     key,
@@ -1693,11 +1778,11 @@
                 this.messageBox.textContent = text;
                 this.messageBox.className = `message-box message-${type}`;
                 
-                // Auto-hide após 5 segundos para mensagens não críticas
-                if (type !== 'error') {
+                if (type !== 'error' && type !== 'warning') {
                     setTimeout(() => {
                         if (this.messageBox.textContent === text) {
                             this.messageBox.className = 'message-box message-info';
+                            this.messageBox.textContent = 'Siga as instruções ou os botões abaixo.';
                         }
                     }, 5000);
                 }
@@ -1710,6 +1795,9 @@
                         if (!this.state.isRunning && this.startBtn.disabled === false) {
                             e.preventDefault();
                             this.startTest();
+                        } else if (!this.state.isRunning && this.practiceBtn.style.display !== 'none') {
+                            e.preventDefault();
+                            this.startPractice();
                         }
                         break;
                     case 'Escape':
@@ -1729,10 +1817,8 @@
             }
 
             handleResize() {
-                // Recalcular posições se necessário
                 if (this.state.isRunning && this.state.nodes.length > 0) {
-                    // Apenas mostrar aviso, não reorganizar durante o teste
-                    this.showMessage('Redimensionamento detectado. Complete o teste para melhores resultados.', 'warning');
+                    this.showMessage('A tela foi redimensionada. Para melhores resultados, evite alterar o tamanho da janela durante o teste.', 'warning');
                 }
             }
 
@@ -1744,15 +1830,14 @@
             reset(fullReset = true) {
                 this.stopTimer();
                 this.clearCanvas();
+                this.container.classList.remove('test-in-progress'); // NOVO: Garante que a UI seja restaurada
                 this.initializeState();
                 
                 if (fullReset) {
                     this.updatePhase(1);
                     this.practiceBtn.style.display = 'inline-block';
-                    this.practiceBtn.textContent = 'Iniciar Prática';
                     this.startBtn.style.display = 'inline-block';
                     this.startBtn.disabled = true;
-                    this.startBtn.textContent = 'Iniciar Teste';
                     this.pauseBtn.style.display = 'none';
                     this.resultsBtn.style.display = 'none';
                     
@@ -1762,14 +1847,12 @@
                     this.progressDisplay.textContent = '0%';
                     this.progressBar.style.width = '0%';
                     
-                    this.showMessage('Bem-vindo ao TMT-A! Clique em "Iniciar Prática" para começar.', 'info');
+                    this.showMessage('Bem-vindo! Clique em "Começar Aquecimento" para praticar.', 'info');
                 }
             }
         }
 
-        // Funções utilitárias globais
         window.TMTUtils = {
-            // Análise agregada de múltiplas sessões
             analyzeAllSessions() {
                 const index = JSON.parse(localStorage.getItem('tmt-a-index') || '[]');
                 if (index.length === 0) {
@@ -1796,7 +1879,6 @@
                 return sessions;
             },
             
-            // Limpar dados locais
             clearAllData() {
                 if (!confirm('Tem certeza que deseja limpar todos os dados salvos?')) return;
                 
@@ -1810,7 +1892,6 @@
                 console.log('Todos os dados foram removidos');
             },
             
-            // Exportar todos os dados
             exportAllData() {
                 const index = JSON.parse(localStorage.getItem('tmt-a-index') || '[]');
                 const allData = index.map(item => {
@@ -1827,32 +1908,13 @@
             }
         };
 
-        // Inicialização
         document.addEventListener('DOMContentLoaded', () => {
             const tmt = new TMTTest();
-            
-            // Tornar instância acessível globalmente para debug
             window.tmtInstance = tmt;
             
-            console.log('%cTMT-A v2.0 Carregado', 'color: #2196F3; font-size: 14px; font-weight: bold;');
-            console.log('Comandos disponíveis:');
-            console.log('- TMTUtils.analyzeAllSessions() - Analisar todas as sessões');
-            console.log('- TMTUtils.exportAllData() - Exportar todos os dados');
-            console.log('- TMTUtils.clearAllData() - Limpar dados salvos');
+            console.log('%cTMT-A v3.0 Carregado', 'color: #2196F3; font-size: 14px; font-weight: bold;');
         });
 
-        // Suporte para impressão
-        window.addEventListener('beforeprint', () => {
-            document.querySelectorAll('.btn, .setting-btn').forEach(el => {
-                el.style.display = 'none';
-            });
-        });
-
-        window.addEventListener('afterprint', () => {
-            document.querySelectorAll('.btn, .setting-btn').forEach(el => {
-                el.style.display = '';
-            });
-        });
     </script>
 </body>
 </html>
