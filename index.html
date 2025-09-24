@@ -1,681 +1,1858 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>TMT-A Web (v2.0) — Trail Making Test A</title>
-<meta name="description" content="Implementação web do TMT-A com treino, temporização precisa, layout reprodutível e exportação de dados.">
-<style>
-:root{
-  --bg:#f6f8fb; --fg:#0f172a; --muted:#64748b; --primary:#2563eb; --ok:#16a34a; --warn:#f59e0b; --err:#dc2626;
-  --card:#ffffff; --radius:14px; --shadow:0 10px 30px rgba(2,8,23,.08);
-  --circle:52px; --min-gap:80px;
-}
-*{box-sizing:border-box}
-html,body{height:100%}
-body{margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif; color:var(--fg); background:var(--bg); display:flex; align-items:center; justify-content:center; padding:12px}
-button{appearance:none; border:none; border-radius:12px; font-weight:600; cursor:pointer; padding:10px 14px}
-.btn{background:var(--primary); color:#fff}
-.btn:hover{opacity:.95}
-.btn.ghost{background:#e2e8f0; color:#0f172a}
-.btn.dark{background:#0f172a; color:#fff}
-.btn.ok{background:var(--ok); color:#fff}
-.btn.warn{background:var(--warn); color:#fff}
-.btn.err{background:var(--err); color:#fff}
-#app{width:100%; max-width:980px; background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px 18px 22px}
-header{display:flex; align-items:center; justify-content:space-between; gap:10px}
-h1{font-size:1.2rem; margin:0; font-weight:800}
-.small{font-size:.85rem; color:var(--muted)}
-.row{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
-.sep{height:1px; background:#eef2f7; margin:12px 0}
-label{font-size:.92rem}
-input[type="text"],select{
-  padding:10px 12px; border:1px solid #e5e7eb; border-radius:10px; min-width:220px; font-size:1rem;
-}
-.grid{display:grid; gap:10px}
-.grid.two{grid-template-columns:1fr 1fr}
-@media (max-width:800px){.grid.two{grid-template-columns:1fr}}
-.card{border:1px solid #e5e7eb; border-radius:12px; padding:10px}
-#boardWrap{position:relative; width:100%; height:min(70vh,640px); min-height:420px; border:1px solid #e5e7eb; border-radius:12px; background:#fff; overflow:hidden}
-#board{position:absolute; inset:0}
-#trace{position:absolute; inset:0}
-.node{
-  width:var(--circle); height:var(--circle); position:absolute; display:flex; align-items:center; justify-content:center;
-  border-radius:999px; border:3px solid #0f172a; background:#fff; font-weight:800; user-select:none; touch-action:manipulation;
-  box-shadow:0 2px 8px rgba(2,8,23,.08); transition:transform .08s ease
-}
-.node:hover{transform:scale(1.06)}
-.node.target{outline:4px solid rgba(37,99,235,.35); border-color:var(--primary)}
-.node.correct{background:linear-gradient(135deg,#16a34a,#22c55e); color:#fff; border-color:#16a34a}
-.node.err{background:linear-gradient(135deg,#dc2626,#ef4444); color:#fff; border-color:#dc2626}
-.info{padding:10px; border:1px solid #dbe2ea; border-radius:10px; background:#f8fafc}
-.warn{background:#fffbeb; border-color:#fde68a}
-.ok{background:#f0fdf4; border-color:#bbf7d0}
-.stat{display:flex; justify-content:space-between; padding:6px 0}
-.stat .k{color:var(--muted)}
-.stat .v{font-weight:800}
-#phases{display:flex; gap:8px; flex-wrap:wrap; margin:6px 0}
-.pill{padding:6px 10px; border-radius:999px; background:#e5e7eb; font-weight:700; font-size:.85rem}
-.pill.active{background:var(--primary); color:#fff}
-.pill.done{background:var(--ok); color:#fff}
-.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; font-size:.9rem}
-.smallmuted{font-size:.85rem; color:var(--muted)}
-.controls{display:flex; gap:8px; flex-wrap:wrap}
-.progress{height:8px; width:100%; background:#e5e7eb; border-radius:999px; overflow:hidden}
-.fill{height:100%; width:0%; background:linear-gradient(90deg,var(--primary),var(--ok)); transition:width .2s ease}
-.high-contrast{--primary:#000080; --fg:#000; --card:#fff}
-.high-contrast .node{border-width:4px}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trail Making Test A (TMT-A) - Teste de Trilhas Parte A</title>
+    <meta name="description" content="Implementação digital do Trail Making Test Parte A para avaliação neuropsicológica">
+    <meta name="author" content="Laboratório de Neurociência Cognitiva">
+    <meta name="version" content="2.0.0">
+    
+    <style>
+        :root {
+            --primary-color: #2196F3;
+            --primary-dark: #1976D2;
+            --success-color: #4CAF50;
+            --error-color: #f44336;
+            --warning-color: #FF9800;
+            --info-color: #00BCD4;
+            --bg-gradient-start: #667eea;
+            --bg-gradient-end: #764ba2;
+            --text-primary: #212121;
+            --text-secondary: #666;
+            --border-color: #e0e0e0;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 8px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 16px rgba(0,0,0,0.2);
+            --border-radius: 12px;
+            --transition-speed: 0.3s;
+            --circle-size: 48px;
+            --min-distance: 75px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            color: var(--text-primary);
+        }
+
+        .container {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            max-width: 1200px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        .phase-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .phase-dot {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            background: #f5f5f5;
+            color: var(--text-secondary);
+            position: relative;
+            transition: all var(--transition-speed);
+        }
+
+        .phase-dot.active {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.2);
+        }
+
+        .phase-dot.completed {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .phase-dot::after {
+            content: attr(data-label);
+            position: absolute;
+            bottom: -20px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            color: var(--text-secondary);
+        }
+
+        .test-canvas {
+            width: 100%;
+            max-width: 900px;
+            height: 500px;
+            border: 3px solid var(--border-color);
+            border-radius: var(--border-radius);
+            position: relative;
+            margin: 2rem auto;
+            background: #fafafa;
+            overflow: hidden;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .circle-node {
+            position: absolute;
+            width: var(--circle-size);
+            height: var(--circle-size);
+            border-radius: 50%;
+            border: 3px solid var(--text-primary);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            transition: all var(--transition-speed);
+            z-index: 10;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .circle-node:hover {
+            transform: scale(1.15);
+            box-shadow: var(--shadow-md);
+            z-index: 20;
+        }
+
+        .circle-node.target {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(33, 150, 243, 0.05));
+            animation: pulse 1.5s infinite;
+        }
+
+        .circle-node.correct {
+            background: var(--success-color);
+            color: white;
+            border-color: var(--success-color);
+            transform: scale(0.95);
+            pointer-events: none;
+        }
+
+        .circle-node.error {
+            animation: shake 0.5s;
+            border-color: var(--error-color);
+            background: rgba(244, 67, 54, 0.1);
+        }
+
+        .trail-line {
+            position: absolute;
+            background: var(--success-color);
+            height: 3px;
+            transform-origin: left center;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.4);
+            }
+            50% { 
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(33, 150, 243, 0);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f5f5f5, #fafafa);
+            padding: 1.25rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: all var(--transition-speed);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            min-width: 150px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #45a049);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .instructions-panel {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.05), rgba(33, 150, 243, 0.02));
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+
+        .instructions-panel h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .instructions-panel ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .instructions-panel li {
+            padding: 0.5rem 0;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .instructions-panel li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .message-box {
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+            font-weight: 500;
+            transition: all var(--transition-speed);
+        }
+
+        .message-info {
+            background: rgba(0, 188, 212, 0.1);
+            color: var(--info-color);
+            border: 1px solid rgba(0, 188, 212, 0.3);
+        }
+
+        .message-success {
+            background: rgba(76, 175, 80, 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .message-warning {
+            background: rgba(255, 152, 0, 0.1);
+            color: var(--warning-color);
+            border: 1px solid rgba(255, 152, 0, 0.3);
+        }
+
+        .message-error {
+            background: rgba(244, 67, 54, 0.1);
+            color: var(--error-color);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+            transition: width var(--transition-speed);
+            width: 0%;
+        }
+
+        .settings-panel {
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .setting-btn {
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            font-size: 0.9rem;
+        }
+
+        .setting-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .setting-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .modal-header h2 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: color var(--transition-speed);
+        }
+
+        .modal-close:hover {
+            color: var(--error-color);
+        }
+
+        .results-section {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: #fafafa;
+            border-radius: 8px;
+        }
+
+        .results-section h3 {
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .result-item {
+            padding: 0.75rem;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .result-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .result-value {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .normative-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .normative-table th,
+        .normative-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
+
+        .normative-table th {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .normative-table tr:nth-child(even) {
+            background: #f5f5f5;
+        }
+
+        .performance-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
+        }
+
+        .badge-superior {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .badge-average {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .badge-below {
+            background: var(--error-color);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .test-canvas {
+                height: 400px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            :root {
+                --circle-size: 42px;
+                --min-distance: 65px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .test-canvas {
+                height: 350px;
+            }
+
+            :root {
+                --circle-size: 38px;
+                --min-distance: 55px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .container {
+                box-shadow: none;
+            }
+
+            .controls,
+            .settings-panel,
+            .btn,
+            .modal-close {
+                display: none !important;
+            }
+        }
+
+        .accessibility-mode {
+            --circle-size: 56px;
+            --min-distance: 85px;
+        }
+
+        .high-contrast {
+            --primary-color: #000080;
+            --success-color: #008000;
+            --error-color: #800000;
+            --warning-color: #FF6600;
+        }
+
+        .high-contrast .circle-node {
+            border-width: 4px;
+            font-size: 1.5rem;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-<div id="app" role="main" aria-live="polite">
-  <header>
-    <h1>TMT-A Web <span class="small">v2.0</span></h1>
-    <div class="row">
-      <button id="helpBtn" class="btn ghost">Ajuda</button>
-      <button id="fsBtn" class="btn ghost" title="Tela cheia">Tela cheia</button>
-    </div>
-  </header>
+    <div class="container">
+        <header class="header">
+            <h1>Trail Making Test - Parte A (TMT-A)</h1>
+            <p>Teste de Trilhas para Avaliação de Atenção e Velocidade de Processamento</p>
+        </header>
 
-  <div class="grid two">
-    <div class="card">
-      <div class="row">
-        <div>
-          <label for="pid">ID participante</label><br/>
-          <input id="pid" type="text" placeholder="ex.: BR-001-A" autocomplete="off">
+        <main class="main-content">
+            <!-- Indicador de Fases -->
+            <div class="phase-indicator">
+                <div class="phase-dot" id="phase-1" data-label="Instruções">1</div>
+                <div class="phase-dot" id="phase-2" data-label="Prática">2</div>
+                <div class="phase-dot" id="phase-3" data-label="Teste">3</div>
+                <div class="phase-dot" id="phase-4" data-label="Resultados">4</div>
+            </div>
+
+            <!-- Painel de Configurações -->
+            <div class="settings-panel">
+                <button class="setting-btn" id="sound-toggle">🔊 Som</button>
+                <button class="setting-btn" id="contrast-toggle">🎨 Alto Contraste</button>
+                <button class="setting-btn" id="size-toggle">🔍 Círculos Maiores</button>
+                <button class="setting-btn" id="trails-toggle">📍 Mostrar Trilhas</button>
+            </div>
+
+            <!-- Painel de Instruções -->
+            <div class="instructions-panel" id="instructions">
+                <h3>📋 Como Realizar o Teste</h3>
+                <ul>
+                    <li>Conecte os números em ordem crescente (1 → 2 → 3 → ... → 25)</li>
+                    <li>Clique ou toque em cada círculo na sequência correta</li>
+                    <li>Seja o mais rápido e preciso possível</li>
+                    <li>Não pule nenhum número da sequência</li>
+                    <li>O teste tem tempo limite de 5 minutos</li>
+                </ul>
+            </div>
+
+            <!-- Barra de Progresso -->
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress"></div>
+            </div>
+
+            <!-- Área do Teste -->
+            <div class="test-canvas" id="testCanvas"></div>
+
+            <!-- Painel de Estatísticas -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="timer">00:00</div>
+                    <div class="stat-label">Tempo</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="current">1</div>
+                    <div class="stat-label">Próximo</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="errors">0</div>
+                    <div class="stat-label">Erros</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="progress-stat">0%</div>
+                    <div class="stat-label">Progresso</div>
+                </div>
+            </div>
+
+            <!-- Mensagem de Feedback -->
+            <div class="message-box message-info" id="message">
+                Bem-vindo ao TMT-A! Clique em "Iniciar Prática" para começar com um exemplo simples.
+            </div>
+
+            <!-- Controles -->
+            <div class="controls">
+                <button class="btn btn-secondary" id="practiceBtn">Iniciar Prática</button>
+                <button class="btn btn-primary" id="startBtn" disabled>Iniciar Teste</button>
+                <button class="btn btn-secondary" id="pauseBtn" style="display:none;">Pausar</button>
+                <button class="btn btn-success" id="resultsBtn" style="display:none;">Ver Resultados</button>
+                <button class="btn btn-secondary" id="resetBtn">Reiniciar</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de Resultados -->
+    <div class="modal" id="resultsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📊 Relatório de Resultados - TMT-A</h2>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+
+            <div class="results-section">
+                <h3>Desempenho Geral</h3>
+                <div class="results-grid">
+                    <div class="result-item">
+                        <div class="result-label">Tempo Total</div>
+                        <div class="result-value" id="result-time">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Números Conectados</div>
+                        <div class="result-value" id="result-connected">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Total de Erros</div>
+                        <div class="result-value" id="result-errors">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Eficiência</div>
+                        <div class="result-value" id="result-efficiency">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <h3>Análise Temporal</h3>
+                <div class="results-grid">
+                    <div class="result-item">
+                        <div class="result-label">Tempo Médio/Conexão</div>
+                        <div class="result-value" id="result-avg-time">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Variabilidade (CV)</div>
+                        <div class="result-value" id="result-variability">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Velocidade Inicial</div>
+                        <div class="result-value" id="result-initial-speed">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Velocidade Final</div>
+                        <div class="result-value" id="result-final-speed">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <h3>Comparação Normativa</h3>
+                <table class="normative-table">
+                    <thead>
+                        <tr>
+                            <th>Faixa Etária</th>
+                            <th>Média (s)</th>
+                            <th>DP</th>
+                            <th>Seu Percentil</th>
+                            <th>Classificação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="normative-data">
+                        <!-- Dados normativos serão inseridos aqui -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="results-section">
+                <h3>Padrão de Erros</h3>
+                <canvas id="errorChart" class="chart-container"></canvas>
+            </div>
+
+            <div class="export-buttons">
+                <button class="btn btn-primary" id="exportCSV">📥 Exportar CSV</button>
+                <button class="btn btn-primary" id="exportJSON">📥 Exportar JSON</button>
+                <button class="btn btn-primary" id="exportPDF">📥 Gerar PDF</button>
+                <button class="btn btn-secondary" id="saveLocal">💾 Salvar Localmente</button>
+            </div>
         </div>
-        <div>
-          <label for="level">Dificuldade</label><br/>
-          <select id="level">
-            <option value="std" selected>Padrão (25 nós)</option>
-            <option value="tight">Denso (25 nós, gap menor)</option>
-            <option value="wide">Espaçado (25 nós, gap maior)</option>
-          </select>
-        </div>
-      </div>
-      <div id="phases" class="row">
-        <div class="pill" id="p1">Instruções</div>
-        <div class="pill" id="p2">Treino</div>
-        <div class="pill" id="p3">Teste</div>
-        <div class="pill" id="p4">Resultados</div>
-      </div>
-      <div id="msg" class="info">Você conectará os números de <b>1</b> a <b>25</b> em ordem, o mais rápido possível, sem pular números. Faça primeiro um <b>treino</b>.</div>
-      <div class="sep"></div>
-      <div class="controls">
-        <button id="trainBtn" class="btn dark">Iniciar TREINO</button>
-        <button id="startBtn" class="btn ok" disabled>Iniciar TESTE</button>
-        <button id="abortBtn" class="btn warn" disabled>Abortar</button>
-        <button id="resetBtn" class="btn ghost">Reset</button>
-      </div>
-      <div class="sep"></div>
-      <div class="progress"><div id="fill" class="fill"></div></div>
-      <div class="smallmuted">Dica: use <b>tela cheia</b> e mantenha a aba ativa. Pode responder por <b>clique</b> ou <b>Barra de Espaço</b> (com foco no alvo).</div>
     </div>
 
-    <div class="card">
-      <div class="stat"><div class="k">Tempo</div><div class="v mono" id="timeLbl">00:00.000</div></div>
-      <div class="stat"><div class="k">Próximo número</div><div class="v" id="nextLbl">–</div></div>
-      <div class="stat"><div class="k">Erros</div><div class="v" id="errLbl">0</div></div>
-      <div class="stat"><div class="k">Comprimento do traço</div><div class="v mono" id="lenLbl">0 px</div></div>
-      <div class="stat"><div class="k">Interseções (crossings)</div><div class="v" id="crossLbl">0</div></div>
-      <div class="stat"><div class="k">Seed</div><div class="v mono" id="seedLbl">–</div></div>
-    </div>
-  </div>
+    <script>
+        // Configuração Global
+        const CONFIG = {
+            TOTAL_NUMBERS: 25,
+            PRACTICE_NUMBERS: 8,
+            MAX_TIME: 300000, // 5 minutos
+            CIRCLE_SIZE: 48,
+            MIN_DISTANCE: 75,
+            ANIMATION_SPEED: 300,
+            SOUND_ENABLED: true,
+            HIGH_CONTRAST: false,
+            LARGE_CIRCLES: false,
+            SHOW_TRAILS: true
+        };
 
-  <div class="sep"></div>
+        // Dados Normativos (Tombaugh, 2004)
+        const NORMATIVE_DATA = {
+            '18-24': { mean: 22.93, sd: 6.87 },
+            '25-34': { mean: 24.40, sd: 8.71 },
+            '35-44': { mean: 28.54, sd: 10.09 },
+            '45-54': { mean: 31.78, sd: 9.93 },
+            '55-59': { mean: 35.10, sd: 10.94 },
+            '60-64': { mean: 33.22, sd: 9.10 },
+            '65-69': { mean: 39.14, sd: 11.84 },
+            '70-74': { mean: 42.47, sd: 15.32 },
+            '75-79': { mean: 50.81, sd: 17.44 },
+            '80-84': { mean: 58.19, sd: 23.31 },
+            '85-89': { mean: 63.46, sd: 29.22 }
+        };
 
-  <div id="boardWrap" aria-label="Área do teste">
-    <canvas id="trace"></canvas>
-    <div id="board"></div>
-  </div>
+        class TMTTest {
+            constructor() {
+                this.initializeState();
+                this.initializeElements();
+                this.bindEvents();
+                this.loadSettings();
+            }
 
-  <div class="sep"></div>
+            initializeState() {
+                this.state = {
+                    phase: 'instructions',
+                    isRunning: false,
+                    isPractice: false,
+                    isPaused: false,
+                    currentNumber: 1,
+                    startTime: null,
+                    endTime: null,
+                    errors: [],
+                    clicks: [],
+                    nodes: [],
+                    trails: [],
+                    positions: [],
+                    connectionTimes: [],
+                    totalDistance: 0,
+                    optimalDistance: 0
+                };
+                
+                this.timer = null;
+                this.audioContext = null;
+                this.results = null;
+            }
 
-  <div class="grid two">
-    <div class="card">
-      <div class="row">
-        <button id="dlDetail" class="btn">Baixar CSV detalhado</button>
-        <button id="dlSummary" class="btn dark">Baixar CSV resumido</button>
-        <button id="postBtn" class="btn ghost">Enviar (POST)*</button>
-        <button id="contrastBtn" class="btn ghost">Alto Contraste</button>
-        <button id="biggerBtn" class="btn ghost">Alvos maiores</button>
-      </div>
-      <div class="smallmuted">* Configure <span class="mono">POST_ENDPOINT</span> no código para habilitar.</div>
-    </div>
-    <div class="card">
-      <div class="small">Nota clínica / pesquisa:</div>
-      <div class="smallmuted">Implementação digital análoga ao TMT-A. Recomenda-se validação local e critérios de QC (tempo mínimo, taxa de erro, crossings) conforme protocolo.</div>
-    </div>
-  </div>
-</div>
+            initializeElements() {
+                // Canvas e containers principais
+                this.canvas = document.getElementById('testCanvas');
+                this.timerDisplay = document.getElementById('timer');
+                this.currentDisplay = document.getElementById('current');
+                this.errorsDisplay = document.getElementById('errors');
+                this.progressDisplay = document.getElementById('progress-stat');
+                this.progressBar = document.getElementById('progress');
+                this.messageBox = document.getElementById('message');
+                
+                // Botões
+                this.practiceBtn = document.getElementById('practiceBtn');
+                this.startBtn = document.getElementById('startBtn');
+                this.pauseBtn = document.getElementById('pauseBtn');
+                this.resultsBtn = document.getElementById('resultsBtn');
+                this.resetBtn = document.getElementById('resetBtn');
+                
+                // Configurações
+                this.soundToggle = document.getElementById('sound-toggle');
+                this.contrastToggle = document.getElementById('contrast-toggle');
+                this.sizeToggle = document.getElementById('size-toggle');
+                this.trailsToggle = document.getElementById('trails-toggle');
+                
+                // Modal
+                this.modal = document.getElementById('resultsModal');
+                this.closeModal = document.getElementById('closeModal');
+                
+                // Export buttons
+                this.exportCSV = document.getElementById('exportCSV');
+                this.exportJSON = document.getElementById('exportJSON');
+                this.exportPDF = document.getElementById('exportPDF');
+                this.saveLocal = document.getElementById('saveLocal');
+                
+                // Fases
+                this.phases = {
+                    1: document.getElementById('phase-1'),
+                    2: document.getElementById('phase-2'),
+                    3: document.getElementById('phase-3'),
+                    4: document.getElementById('phase-4')
+                };
+            }
 
-<!-- Dialog ajuda -->
-<dialog id="dlg">
-  <h3>Instruções</h3>
-  <p>Conecte os números em ordem (1→25) clicando neles. Faça primeiro o treino (1→5). Evite cliques fora de sequência.</p>
-  <p>O traçado é desenhado e interseções são contadas (indicador de desorganização). Ao final, você pode baixar CSV detalhado (ensaio a ensaio) e resumido.</p>
-  <div class="row" style="justify-content:flex-end; margin-top:8px">
-    <form method="dialog"><button class="btn ghost">Fechar</button></form>
-  </div>
-</dialog>
+            bindEvents() {
+                // Botões principais
+                this.practiceBtn.addEventListener('click', () => this.startPractice());
+                this.startBtn.addEventListener('click', () => this.startTest());
+                this.pauseBtn.addEventListener('click', () => this.togglePause());
+                this.resultsBtn.addEventListener('click', () => this.showResults());
+                this.resetBtn.addEventListener('click', () => this.reset());
+                
+                // Configurações
+                this.soundToggle.addEventListener('click', () => this.toggleSound());
+                this.contrastToggle.addEventListener('click', () => this.toggleContrast());
+                this.sizeToggle.addEventListener('click', () => this.toggleSize());
+                this.trailsToggle.addEventListener('click', () => this.toggleTrails());
+                
+                // Modal
+                this.closeModal.addEventListener('click', () => this.hideModal());
+                this.modal.addEventListener('click', (e) => {
+                    if (e.target === this.modal) this.hideModal();
+                });
+                
+                // Export
+                this.exportCSV.addEventListener('click', () => this.exportToCSV());
+                this.exportJSON.addEventListener('click', () => this.exportToJSON());
+                this.exportPDF.addEventListener('click', () => this.generatePDF());
+                this.saveLocal.addEventListener('click', () => this.saveToLocal());
+                
+                // Teclado
+                document.addEventListener('keydown', (e) => this.handleKeyPress(e));
+                
+                // Redimensionamento
+                window.addEventListener('resize', () => this.handleResize());
+            }
 
-<script>
-/*** ====== Config geral ====== ***/
-const VERSION = "v2.0";
-const POST_ENDPOINT = ""; // opcional: URL para envio JSON. Vazio = desativado.
-const NODES = 25;         // TMT-A
-const TRAIN_N = 5;        // treino mínimo obrigatório
-const MINUTES_LIMIT = 5;  // hard timeout de segurança
+            loadSettings() {
+                const saved = localStorage.getItem('tmt-settings');
+                if (saved) {
+                    const settings = JSON.parse(saved);
+                    CONFIG.SOUND_ENABLED = settings.sound ?? true;
+                    CONFIG.HIGH_CONTRAST = settings.contrast ?? false;
+                    CONFIG.LARGE_CIRCLES = settings.largeCircles ?? false;
+                    CONFIG.SHOW_TRAILS = settings.trails ?? true;
+                    
+                    this.applySettings();
+                }
+            }
 
-// Espaçamento e tamanho — adaptáveis por "level"
-const LEVELS = {
-  std:   { gap: 80,  size: 52 },
-  tight: { gap: 70,  size: 48 },
-  wide:  { gap: 95,  size: 56 }
-};
+            saveSettings() {
+                const settings = {
+                    sound: CONFIG.SOUND_ENABLED,
+                    contrast: CONFIG.HIGH_CONTRAST,
+                    largeCircles: CONFIG.LARGE_CIRCLES,
+                    trails: CONFIG.SHOW_TRAILS
+                };
+                localStorage.setItem('tmt-settings', JSON.stringify(settings));
+            }
 
-/*** ====== PRNG e seed a partir do ID ====== ***/
-function fnv1aSeed(str){
-  let h = 0x811c9dc5;
-  for (let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
-  return h>>>0;
-}
-function mulberry32(a){ return function(){ let t=a+=0x6D2B79F5; t=Math.imul(t^(t>>>15), t|1); t^=t+Math.imul(t^(t>>>7), t|61); return ((t^(t>>>14))>>>0)/4294967296; } }
-function rndRange(r, a, b){ return a + Math.floor(r()*(b-a+1)); }
+            applySettings() {
+                // Som
+                this.soundToggle.classList.toggle('active', CONFIG.SOUND_ENABLED);
+                
+                // Contraste
+                this.contrastToggle.classList.toggle('active', CONFIG.HIGH_CONTRAST);
+                document.body.classList.toggle('high-contrast', CONFIG.HIGH_CONTRAST);
+                
+                // Tamanho
+                this.sizeToggle.classList.toggle('active', CONFIG.LARGE_CIRCLES);
+                document.body.classList.toggle('accessibility-mode', CONFIG.LARGE_CIRCLES);
+                
+                // Trilhas
+                this.trailsToggle.classList.toggle('active', CONFIG.SHOW_TRAILS);
+                
+                if (CONFIG.LARGE_CIRCLES) {
+                    CONFIG.CIRCLE_SIZE = 56;
+                    CONFIG.MIN_DISTANCE = 85;
+                } else {
+                    CONFIG.CIRCLE_SIZE = 48;
+                    CONFIG.MIN_DISTANCE = 75;
+                }
+            }
 
-/*** ====== Utilidades ====== ***/
-const $ = s => document.querySelector(s);
-function fmtTime(ms){
-  const m = Math.floor(ms/60000), s = Math.floor((ms%60000)/1000), u = Math.floor(ms%1000);
-  return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}.${String(u).padStart(3,"0")}`;
-}
-function dist(a,b){ const dx=a.x-b.x, dy=a.y-b.y; return Math.hypot(dx,dy); }
-function segIntersect(a,b,c,d){ // interseção de segmentos AB e CD
-  const det = (x1,y1,x2,y2,x3,y3,x4,y4)=> (x1-x2)*(y3-y4) - (y1-y2)*(x3-x4);
-  const D = det(a.x,a.y,b.x,b.y,c.x,c.y,d.x,d.y);
-  if (D === 0) return false;
-  const pre = (a.x*b.y - a.y*b.x), post = (c.x*d.y - c.y*d.x);
-  const x = (pre*(c.x - d.x) - (a.x - b.x)*post)/D;
-  const y = (pre*(c.y - d.y) - (a.y - b.y)*post)/D;
-  const within = (x>=Math.min(a.x,b.x)-1e-6 && x<=Math.max(a.x,b.x)+1e-6 &&
-                  y>=Math.min(a.y,b.y)-1e-6 && y<=Math.max(a.y,b.y)+1e-6 &&
-                  x>=Math.min(c.x,d.x)-1e-6 && x<=Math.max(c.x,d.x)+1e-6 &&
-                  y>=Math.min(c.y,d.y)-1e-6 && y<=Math.max(c.y,d.y)+1e-6);
-  return within;
-}
+            toggleSound() {
+                CONFIG.SOUND_ENABLED = !CONFIG.SOUND_ENABLED;
+                this.soundToggle.classList.toggle('active');
+                this.saveSettings();
+                this.playSound('toggle');
+            }
 
-/*** ====== Áudio (feedback) ====== ***/
-let audioCtx = null;
-function initAudio(){ if (!audioCtx){ const C = window.AudioContext||window.webkitAudioContext; if (C) audioCtx = new C(); } }
-function beep(freq=880,dur=.08){
-  if (!audioCtx) return;
-  const t0 = audioCtx.currentTime;
-  const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-  o.type='sine'; o.frequency.value=freq;
-  o.connect(g); g.connect(audioCtx.destination);
-  g.gain.value=.0001; g.gain.exponentialRampToValueAtTime(.2, t0+.01); g.gain.exponentialRampToValueAtTime(.0001,t0+dur);
-  o.start(t0); o.stop(t0+dur);
-}
+            toggleContrast() {
+                CONFIG.HIGH_CONTRAST = !CONFIG.HIGH_CONTRAST;
+                this.contrastToggle.classList.toggle('active');
+                document.body.classList.toggle('high-contrast');
+                this.saveSettings();
+            }
 
-/*** ====== Estado ====== ***/
-const State = {
-  pid:"", level:"std", seed:0, r:null,
-  // dimensões
-  W:0, H:0, margin:16,
-  // nós e posições
-  nodes:[], // [{n,x,y}]
-  // execução
-  running:false, training:false, start:0, end:0, timer:null, timeout:null,
-  next:1, errors:[], clicks:[], // clicks válidos e inválidos
-  length:0, crossings:0,
-  // desenho
-  ctx:null,
-  // logs
-  detail:[], // eventos
-};
+            toggleSize() {
+                CONFIG.LARGE_CIRCLES = !CONFIG.LARGE_CIRCLES;
+                this.sizeToggle.classList.toggle('active');
+                document.body.classList.toggle('accessibility-mode');
+                this.applySettings();
+                this.saveSettings();
+            }
 
-/*** ====== DOM elts ====== ***/
-const pidEl = $('#pid'), levelEl = $('#level'), timeLbl = $('#timeLbl'), nextLbl = $('#nextLbl');
-const errLbl = $('#errLbl'), lenLbl = $('#lenLbl'), crossLbl = $('#crossLbl'), seedLbl = $('#seedLbl');
-const trainBtn = $('#trainBtn'), startBtn = $('#startBtn'), abortBtn = $('#abortBtn'), resetBtn = $('#resetBtn');
-const boardWrap = $('#boardWrap'), board = $('#board'), trace = $('#trace'), fill = $('#fill');
-const helpBtn = $('#helpBtn'), dlg = $('#dlg'), fsBtn = $('#fsBtn'), contrastBtn = $('#contrastBtn'), biggerBtn = $('#biggerBtn');
-const dlDetail = $('#dlDetail'), dlSummary = $('#dlSummary'), postBtn = $('#postBtn');
-const p1=$('#p1'), p2=$('#p2'), p3=$('#p3'), p4=$('#p4'); const msgEl = $('#msg');
+            toggleTrails() {
+                CONFIG.SHOW_TRAILS = !CONFIG.SHOW_TRAILS;
+                this.trailsToggle.classList.toggle('active');
+                
+                // Mostrar/ocultar trilhas existentes
+                const trails = this.canvas.querySelectorAll('.trail-line');
+                trails.forEach(trail => {
+                    trail.style.display = CONFIG.SHOW_TRAILS ? 'block' : 'none';
+                });
+                
+                this.saveSettings();
+            }
 
-/*** ====== Fases ====== ***/
-function phase(i){
-  [p1,p2,p3,p4].forEach((p,idx)=>{ p.className = "pill"+(idx<i?" done": idx===i?" active":""); });
-}
-phase(0);
+            updatePhase(phaseNumber) {
+                Object.values(this.phases).forEach(phase => {
+                    phase.classList.remove('active', 'completed');
+                });
+                
+                for (let i = 1; i < phaseNumber; i++) {
+                    this.phases[i].classList.add('completed');
+                }
+                
+                this.phases[phaseNumber].classList.add('active');
+            }
 
-/*** ====== Fullscreen ====== ***/
-async function toggleFS(){
-  try{
-    if (!document.fullscreenElement) { await document.documentElement.requestFullscreen(); fsBtn.textContent="Sair tela cheia"; }
-    else { await document.exitFullscreen(); fsBtn.textContent="Tela cheia"; }
-  }catch(e){}
-}
-document.addEventListener('fullscreenchange',()=>{ fsBtn.textContent = document.fullscreenElement?"Sair tela cheia":"Tela cheia"; });
+            startPractice() {
+                this.updatePhase(2);
+                this.state.isPractice = true;
+                this.state.phase = 'practice';
+                
+                this.showMessage('Prática: Conecte os números de 1 a 8', 'info');
+                this.generateNodes(CONFIG.PRACTICE_NUMBERS);
+                
+                this.practiceBtn.style.display = 'none';
+                this.startBtn.disabled = false;
+                this.startBtn.textContent = 'Iniciar Teste Real';
+                
+                this.startTimer();
+            }
 
-/*** ====== Layout responsivo ==== ***/
-function measure(){
-  const r = boardWrap.getBoundingClientRect();
-  State.W = Math.floor(r.width); State.H = Math.floor(r.height);
-  trace.width = State.W; trace.height = State.H; // canvas
-  State.ctx = trace.getContext('2d');
-}
+            startTest() {
+                this.updatePhase(3);
+                this.state.isPractice = false;
+                this.state.phase = 'test';
+                this.reset(false);
+                
+                this.showMessage('Teste iniciado! Conecte os números de 1 a 25', 'info');
+                this.generateNodes(CONFIG.TOTAL_NUMBERS);
+                
+                this.startBtn.style.display = 'none';
+                this.pauseBtn.style.display = 'inline-block';
+                
+                this.startTimer();
+            }
 
-/*** ====== Geração de posições (Poisson-like) ====== ***/
-function genPositions(){
-  const cfg = LEVELS[State.level];
-  const R = State.r, gap = cfg.gap, size = cfg.size;
-  document.documentElement.style.setProperty('--circle', size+"px");
-  document.documentElement.style.setProperty('--min-gap', gap+"px");
+            generateNodes(count) {
+                this.clearCanvas();
+                this.state.nodes = [];
+                this.state.positions = [];
+                this.state.currentNumber = 1;
+                
+                const rect = this.canvas.getBoundingClientRect();
+                const width = rect.width;
+                const height = rect.height;
+                const margin = CONFIG.CIRCLE_SIZE;
+                
+                // Gerar posições aleatórias com distância mínima
+                for (let i = 1; i <= count; i++) {
+                    let position;
+                    let attempts = 0;
+                    const maxAttempts = 100;
+                    
+                    do {
+                        position = {
+                            x: Math.random() * (width - 2 * margin) + margin,
+                            y: Math.random() * (height - 2 * margin) + margin,
+                            number: i
+                        };
+                        attempts++;
+                    } while (this.isTooClose(position) && attempts < maxAttempts);
+                    
+                    this.state.positions.push(position);
+                    this.createNode(position);
+                }
+                
+                // Calcular distância ótima
+                this.calculateOptimalDistance();
+                
+                // Destacar o primeiro nó
+                this.highlightTarget(1);
+            }
 
-  const margin = Math.max(size/2 + 8, State.margin);
-  const maxTry = 4000;
-  const arr = [];
-  let tries = 0;
-  while (arr.length < NODES && tries < maxTry){
-    const x = margin + R()*(State.W - 2*margin);
-    const y = margin + R()*(State.H - 2*margin);
-    let ok = true;
-    for (const p of arr){ if (dist(p,{x,y}) < gap) { ok=false; break; } }
-    if (ok) arr.push({x,y,n:arr.length+1});
-    tries++;
-  }
-  // fallback simples: relaxa gap em 10% se necessário
-  while (arr.length < NODES){
-    const x = margin + R()*(State.W - 2*margin);
-    const y = margin + R()*(State.H - 2*margin);
-    let ok = true;
-    for (const p of arr){ if (dist(p,{x,y}) < gap*0.9) { ok=false; break; } }
-    if (ok) arr.push({x,y,n:arr.length+1});
-  }
-  State.nodes = arr;
-}
+            isTooClose(newPos) {
+                return this.state.positions.some(pos => {
+                    const distance = Math.sqrt(
+                        Math.pow(newPos.x - pos.x, 2) + 
+                        Math.pow(newPos.y - pos.y, 2)
+                    );
+                    return distance < CONFIG.MIN_DISTANCE;
+                });
+            }
 
-/*** ====== Renderização de nós ====== ***/
-function clearBoard(){
-  board.innerHTML = "";
-  State.ctx.clearRect(0,0,State.W,State.H);
-  State.length = 0; State.crossings = 0; updateStats();
-}
-function drawNodes(limit=NODES){
-  clearBoard();
-  for (let i=0;i<limit;i++){
-    const p = State.nodes[i];
-    const d = document.createElement('div');
-    d.className='node'; d.textContent = p.n;
-    d.style.left = (p.x - (parseInt(getComputedStyle(document.documentElement).getPropertyValue('--circle'))/2))+"px";
-    d.style.top  = (p.y - (parseInt(getComputedStyle(document.documentElement).getPropertyValue('--circle'))/2))+"px";
-    d.dataset.n = p.n;
-    d.setAttribute('role','button');
-    d.setAttribute('aria-label',`Número ${p.n}`);
-    d.tabIndex = (p.n===1?0:-1);
-    if (p.n===1) d.classList.add('target');
-    d.addEventListener('click', onNodeClick);
-    d.addEventListener('keydown', e=>{ if (e.code==='Space' || e.code==='Enter'){ e.preventDefault(); d.click(); } });
-    board.appendChild(d);
-  }
-}
+            createNode(position) {
+                const node = document.createElement('div');
+                node.className = 'circle-node';
+                node.dataset.number = position.number;
+                node.textContent = position.number;
+                node.style.left = (position.x - CONFIG.CIRCLE_SIZE / 2) + 'px';
+                node.style.top = (position.y - CONFIG.CIRCLE_SIZE / 2) + 'px';
+                
+                node.addEventListener('click', () => this.handleNodeClick(position.number));
+                
+                this.canvas.appendChild(node);
+                this.state.nodes.push(node);
+            }
 
-/*** ====== Linhas, comprimento e crossings ====== ***/
-function drawSegment(a,b){
-  const ctx = State.ctx;
-  ctx.lineWidth = 4; ctx.strokeStyle = "#334155";
-  ctx.lineCap = "round";
-  ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
-  // comprimento cumulativo
-  State.length += dist(a,b);
-  // crossings: verificar com segmentos anteriores
-  let crossings = 0;
-  if (State.clicks.length >= 2){ // temos pelo menos 1 segmento anterior
-    const currA = a, currB = b;
-    for (let i=1;i<State.clicks.length-1;i++){
-      const A = State.nodes[State.clicks[i-1].n-1];
-      const B = State.nodes[State.clicks[i].n-1];
-      if (!A || !B) continue;
-      // ignora adjacências que compartilham vértice
-      if (A===currA || A===currB || B===currA || B===currB) continue;
-      if (segIntersect(A,B,currA,currB)) crossings++;
-    }
-  }
-  State.crossings += crossings;
-}
+            handleNodeClick(number) {
+                if (!this.state.isRunning || this.state.isPaused) return;
+                
+                const timestamp = Date.now();
+                const click = {
+                    number: number,
+                    expected: this.state.currentNumber,
+                    timestamp: timestamp,
+                    correct: number === this.state.currentNumber
+                };
+                
+                this.state.clicks.push(click);
+                
+                if (click.correct) {
+                    this.handleCorrectClick(number);
+                } else {
+                    this.handleIncorrectClick(number);
+                }
+            }
 
-/*** ====== Execução ====== ***/
-function prepare(mode){ // mode: "train" ou "test"
-  const id = (pidEl.value||"").trim();
-  if (!id){ alert("Informe o ID do participante."); pidEl.focus(); return false; }
-  State.pid = id;
-  State.level = levelEl.value;
-  State.seed = fnv1aSeed(id + "|" + State.level);
-  State.r = mulberry32(State.seed);
-  seedLbl.textContent = String(State.seed);
+            handleCorrectClick(number) {
+                const node = this.state.nodes[number - 1];
+                node.classList.add('correct');
+                
+                // Adicionar trilha se não for o primeiro
+                if (number > 1 && CONFIG.SHOW_TRAILS) {
+                    this.drawTrail(number - 1, number);
+                }
+                
+                // Registrar tempo de conexão
+                if (this.state.clicks.length > 1) {
+                    const lastCorrect = [...this.state.clicks]
+                        .reverse()
+                        .find(c => c.correct && c.number === number - 1);
+                    
+                    if (lastCorrect) {
+                        const connectionTime = Date.now() - lastCorrect.timestamp;
+                        this.state.connectionTimes.push(connectionTime);
+                    }
+                }
+                
+                // Atualizar distância total
+                if (number > 1) {
+                    const prev = this.state.positions[number - 2];
+                    const curr = this.state.positions[number - 1];
+                    const distance = Math.sqrt(
+                        Math.pow(curr.x - prev.x, 2) + 
+                        Math.pow(curr.y - prev.y, 2)
+                    );
+                    this.state.totalDistance += distance;
+                }
+                
+                this.playSound('success');
+                this.state.currentNumber++;
+                
+                // Verificar conclusão
+                const maxNumber = this.state.isPractice ? CONFIG.PRACTICE_NUMBERS : CONFIG.TOTAL_NUMBERS;
+                if (this.state.currentNumber > maxNumber) {
+                    this.completeTest();
+                } else {
+                    this.highlightTarget(this.state.currentNumber);
+                    this.updateProgress();
+                }
+            }
 
-  measure();
-  genPositions();
+            handleIncorrectClick(number) {
+                const node = this.state.nodes[number - 1];
+                node.classList.add('error');
+                setTimeout(() => node.classList.remove('error'), 500);
+                
+                const error = {
+                    timestamp: Date.now(),
+                    clicked: number,
+                    expected: this.state.currentNumber,
+                    type: this.classifyError(number)
+                };
+                
+                this.state.errors.push(error);
+                this.errorsDisplay.textContent = this.state.errors.length;
+                
+                this.playSound('error');
+                this.showMessage(`Erro! Clique no número ${this.state.currentNumber}`, 'warning');
+            }
 
-  State.training = (mode==="train");
-  State.running = false;
-  State.next = 1;
-  State.errors = [];
-  State.clicks = [];
-  State.detail = [];
-  timeLbl.textContent = "00:00.000";
-  nextLbl.textContent = "1";
-  errLbl.textContent = "0";
-  lenLbl.textContent = "0 px";
-  crossLbl.textContent = "0";
+            classifyError(clicked) {
+                const expected = this.state.currentNumber;
+                if (clicked < expected) return 'repetition';
+                if (clicked === expected + 1) return 'anticipation';
+                return 'sequence';
+            }
 
-  fill.style.width = "0%";
-  msgEl.className = "info";
-  msgEl.textContent = State.training
-    ? "TREINO: conecte 1→5. Aproveite para se familiarizar."
-    : "TESTE: conecte 1→25, rápido e com precisão.";
+            drawTrail(from, to) {
+                const fromPos = this.state.positions[from - 1];
+                const toPos = this.state.positions[to - 1];
+                
+                const trail = document.createElement('div');
+                trail.className = 'trail-line';
+                
+                const dx = toPos.x - fromPos.x;
+                const dy = toPos.y - fromPos.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                
+                trail.style.width = distance + 'px';
+                trail.style.left = fromPos.x + 'px';
+                trail.style.top = fromPos.y + 'px';
+                trail.style.transform = `rotate(${angle}deg)`;
+                trail.style.display = CONFIG.SHOW_TRAILS ? 'block' : 'none';
+                
+                this.canvas.appendChild(trail);
+                this.state.trails.push(trail);
+            }
 
-  drawNodes(State.training ? TRAIN_N : NODES);
-  phase(State.training ? 1 : 2);
-  startBtn.disabled = State.training; // habilita após treino
-  abortBtn.disabled = true;
-  return true;
-}
+            highlightTarget(number) {
+                this.state.nodes.forEach(node => {
+                    node.classList.remove('target');
+                });
+                
+                if (number <= this.state.nodes.length) {
+                    this.state.nodes[number - 1].classList.add('target');
+                }
+                
+                this.currentDisplay.textContent = number;
+            }
 
-function startRun(){
-  if (!State.nodes.length) return;
-  initAudio(); try{ audioCtx && audioCtx.resume && audioCtx.resume(); }catch(e){}
-  State.running = true;
-  State.start = performance.now();
-  State.end = 0;
-  abortBtn.disabled = false;
+            updateProgress() {
+                const maxNumber = this.state.isPractice ? CONFIG.PRACTICE_NUMBERS : CONFIG.TOTAL_NUMBERS;
+                const progress = ((this.state.currentNumber - 1) / maxNumber) * 100;
+                
+                this.progressBar.style.width = progress + '%';
+                this.progressDisplay.textContent = Math.round(progress) + '%';
+            }
 
-  // timer UI
-  State.timer = setInterval(()=>{
-    if (!State.running) return;
-    const el = performance.now() - State.start;
-    timeLbl.textContent = fmtTime(el);
-  }, 20);
+            startTimer() {
+                this.state.isRunning = true;
+                this.state.startTime = Date.now();
+                
+                this.timer = setInterval(() => {
+                    const elapsed = Date.now() - this.state.startTime;
+                    
+                    // Verificar tempo limite
+                    if (elapsed > CONFIG.MAX_TIME) {
+                        this.timeout();
+                        return;
+                    }
+                    
+                    const minutes = Math.floor(elapsed / 60000);
+                    const seconds = Math.floor((elapsed % 60000) / 1000);
+                    this.timerDisplay.textContent = 
+                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }, 100);
+            }
 
-  // timeout segurança
-  State.timeout = setTimeout(()=>{
-    if (State.running) finish(true);
-  }, MINUTES_LIMIT*60000);
+            stopTimer() {
+                if (this.timer) {
+                    clearInterval(this.timer);
+                    this.timer = null;
+                }
+                this.state.isRunning = false;
+            }
 
-  phase(State.training ? 1 : 2); // permanece na fase corrente
-}
+            togglePause() {
+                if (this.state.isPaused) {
+                    this.state.isPaused = false;
+                    this.pauseBtn.textContent = 'Pausar';
+                    this.showMessage('Teste retomado', 'info');
+                    this.startTimer();
+                } else {
+                    this.state.isPaused = true;
+                    this.pauseBtn.textContent = 'Retomar';
+                    this.showMessage('Teste pausado', 'warning');
+                    this.stopTimer();
+                }
+            }
 
-function abortRun(){
-  if (!State.running) return;
-  finish(true);
-}
+            completeTest() {
+                this.stopTimer();
+                this.state.endTime = Date.now();
+                this.state.phase = 'completed';
+                
+                if (this.state.isPractice) {
+                    this.showMessage('Prática concluída! Agora você está pronto para o teste real.', 'success');
+                    this.startBtn.disabled = false;
+                    this.pauseBtn.style.display = 'none';
+                } else {
+                    this.updatePhase(4);
+                    this.calculateResults();
+                    this.showMessage('Teste concluído com sucesso!', 'success');
+                    this.pauseBtn.style.display = 'none';
+                    this.resultsBtn.style.display = 'inline-block';
+                    this.showResults();
+                }
+                
+                this.playSound('complete');
+            }
 
-function finish(timeout=false){
-  State.running = false;
-  State.end = performance.now();
-  clearInterval(State.timer); State.timer=null;
-  if (State.timeout){ clearTimeout(State.timeout); State.timeout=null; }
+            timeout() {
+                this.stopTimer();
+                this.state.endTime = Date.now();
+                this.showMessage('Tempo limite excedido!', 'error');
+                this.calculateResults();
+                this.showResults();
+            }
 
-  const doneSet = State.training ? (State.next>TRAIN_N) : (State.next> NODES);
-  msgEl.className = timeout ? "info warn" : doneSet ? "info ok" : "info";
-  msgEl.textContent = timeout
-    ? "Teste interrompido por tempo limite."
-    : doneSet ? "Etapa concluída. Baixe os CSVs abaixo se desejar."
-              : "Etapa finalizada.";
+            calculateOptimalDistance() {
+                this.state.optimalDistance = 0;
+                for (let i = 1; i < this.state.positions.length; i++) {
+                    const prev = this.state.positions[i - 1];
+                    const curr = this.state.positions[i];
+                    this.state.optimalDistance += Math.sqrt(
+                        Math.pow(curr.x - prev.x, 2) + 
+                        Math.pow(curr.y - prev.y, 2)
+                    );
+                }
+            }
 
-  abortBtn.disabled = true;
+            calculateResults() {
+                const totalTime = (this.state.endTime - this.state.startTime) / 1000;
+                const completed = this.state.currentNumber - 1;
+                
+                // Estatísticas temporais
+                const avgConnectionTime = this.state.connectionTimes.length > 0
+                    ? this.state.connectionTimes.reduce((a, b) => a + b, 0) / this.state.connectionTimes.length
+                    : 0;
+                
+                const variance = this.state.connectionTimes.length > 1
+                    ? this.state.connectionTimes.reduce((sum, time) => 
+                        sum + Math.pow(time - avgConnectionTime, 2), 0) / (this.state.connectionTimes.length - 1)
+                    : 0;
+                
+                const stdDev = Math.sqrt(variance);
+                const cv = avgConnectionTime > 0 ? (stdDev / avgConnectionTime) * 100 : 0;
+                
+                // Velocidade inicial vs final
+                const firstThird = this.state.connectionTimes.slice(0, Math.floor(this.state.connectionTimes.length / 3));
+                const lastThird = this.state.connectionTimes.slice(-Math.floor(this.state.connectionTimes.length / 3));
+                
+                const initialSpeed = firstThird.length > 0
+                    ? firstThird.reduce((a, b) => a + b, 0) / firstThird.length / 1000
+                    : 0;
+                
+                const finalSpeed = lastThird.length > 0
+                    ? lastThird.reduce((a, b) => a + b, 0) / lastThird.length / 1000
+                    : 0;
+                
+                // Eficiência espacial
+                const efficiency = this.state.optimalDistance > 0
+                    ? (this.state.optimalDistance / this.state.totalDistance) * 100
+                    : 0;
+                
+                // Análise de erros
+                const errorsByType = {
+                    repetition: 0,
+                    anticipation: 0,
+                    sequence: 0
+                };
+                
+                this.state.errors.forEach(error => {
+                    errorsByType[error.type]++;
+                });
+                
+                // Comparação normativa
+                const normativeComparison = this.compareToNorms(totalTime);
+                
+                this.results = {
+                    totalTime,
+                    completed,
+                    totalErrors: this.state.errors.length,
+                    errorRate: (this.state.errors.length / this.state.clicks.length) * 100,
+                    avgConnectionTime: avgConnectionTime / 1000,
+                    variability: cv,
+                    initialSpeed,
+                    finalSpeed,
+                    efficiency,
+                    errorsByType,
+                    normativeComparison,
+                    clicks: this.state.clicks,
+                    connectionTimes: this.state.connectionTimes
+                };
+            }
 
-  if (State.training){
-    // habilita TESTE
-    startBtn.disabled = false;
-    phase(1);
-  }else{
-    phase(3);
-  }
-  updateStats();
-}
+            compareToNorms(time) {
+                const comparisons = {};
+                
+                Object.entries(NORMATIVE_DATA).forEach(([ageGroup, data]) => {
+                    const zScore = (time - data.mean) / data.sd;
+                    const percentile = this.zScoreToPercentile(zScore);
+                    
+                    comparisons[ageGroup] = {
+                        mean: data.mean,
+                        sd: data.sd,
+                        zScore,
+                        percentile,
+                        classification: this.classifyPerformance(percentile)
+                    };
+                });
+                
+                return comparisons;
+            }
 
-/*** ====== Lógica de clique ====== ***/
-function onNodeClick(e){
-  const n = parseInt(e.currentTarget.dataset.n,10);
-  const t = performance.now();
-  const expected = State.next;
+            zScoreToPercentile(z) {
+                // Aproximação da função de distribuição cumulativa normal
+                const a1 =  0.254829592;
+                const a2 = -0.284496736;
+                const a3 =  1.421413741;
+                const a4 = -1.453152027;
+                const a5 =  1.061405429;
+                const p  =  0.3275911;
+                
+                const sign = z < 0 ? -1 : 1;
+                z = Math.abs(z) / Math.sqrt(2);
+                
+                const t = 1 / (1 + p * z);
+                const t2 = t * t;
+                const t3 = t2 * t;
+                const t4 = t3 * t;
+                const t5 = t4 * t;
+                
+                const erf = 1 - ((a1 * t + a2 * t2 + a3 * t3 + a4 * t4 + a5 * t5) * Math.exp(-z * z));
+                
+                return Math.round((1 + sign * erf) * 50);
+            }
 
-  if (!State.running){ // iniciar automaticamente quando clicar "1"
-    if (n!==1) { blinkErr(e.currentTarget, "Aguarde. Comece do 1."); return; }
-    startRun();
-  }
+            classifyPerformance(percentile) {
+                if (percentile >= 84) return { label: 'Superior', badge: 'badge-superior' };
+                if (percentile >= 75) return { label: 'Acima da Média', badge: 'badge-average' };
+                if (percentile >= 25) return { label: 'Médio', badge: 'badge-average' };
+                if (percentile >= 16) return { label: 'Abaixo da Média', badge: 'badge-below' };
+                return { label: 'Comprometido', badge: 'badge-below' };
+            }
 
-  State.detail.push({
-    type: (n===expected) ? "hit":"error",
-    n, expected, t,
-  });
+            showResults() {
+                if (!this.results) return;
+                
+                // Preencher dados gerais
+                document.getElementById('result-time').textContent = 
+                    `${this.results.totalTime.toFixed(2)}s`;
+                document.getElementById('result-connected').textContent = 
+                    `${this.results.completed}/25`;
+                document.getElementById('result-errors').textContent = 
+                    this.results.totalErrors;
+                document.getElementById('result-efficiency').textContent = 
+                    `${this.results.efficiency.toFixed(1)}%`;
+                
+                // Dados temporais
+                document.getElementById('result-avg-time').textContent = 
+                    `${this.results.avgConnectionTime.toFixed(2)}s`;
+                document.getElementById('result-variability').textContent = 
+                    `${this.results.variability.toFixed(1)}%`;
+                document.getElementById('result-initial-speed').textContent = 
+                    `${this.results.initialSpeed.toFixed(2)}s`;
+                document.getElementById('result-final-speed').textContent = 
+                    `${this.results.finalSpeed.toFixed(2)}s`;
+                
+                // Tabela normativa
+                this.fillNormativeTable();
+                
+                // Mostrar modal
+                this.modal.classList.add('show');
+            }
 
-  if (n===expected){
-    // marca correto
-    e.currentTarget.classList.remove('err');
-    e.currentTarget.classList.add('correct');
-    e.currentTarget.classList.remove('target');
-    beep(900,.06);
+            fillNormativeTable() {
+                const tbody = document.getElementById('normative-data');
+                tbody.innerHTML = '';
+                
+                Object.entries(this.results.normativeComparison).forEach(([ageGroup, data]) => {
+                    const row = document.createElement('tr');
+                    const classification = data.classification;
+                    
+                    row.innerHTML = `
+                        <td>${ageGroup} anos</td>
+                        <td>${data.mean.toFixed(2)}</td>
+                        <td>${data.sd.toFixed(2)}</td>
+                        <td>${data.percentile}º</td>
+                        <td>
+                            ${classification.label}
+                            <span class="performance-badge ${classification.badge}">
+                                ${data.percentile}%
+                            </span>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+            }
 
-    // traçado e métricas
-    const curr = State.nodes[n-1];
-    if (State.clicks.length>0){
-      const prevN = State.clicks[State.clicks.length-1].n;
-      const prev = State.nodes[prevN-1];
-      drawSegment(prev, curr);
-    }
-    State.clicks.push({n, t});
-    State.next++;
-    nextLbl.textContent = String(State.training ? Math.min(State.next, TRAIN_N) : Math.min(State.next, NODES));
-    updateProgress();
+            hideModal() {
+                this.modal.classList.remove('show');
+            }
 
-    // destacar novo alvo
-    document.querySelectorAll('.node').forEach(d=>{
-      const dn = parseInt(d.dataset.n,10);
-      d.classList.toggle('target', dn===State.next);
-      d.tabIndex = (dn===State.next?0:-1);
-    });
+            exportToCSV() {
+                if (!this.results) return;
+                
+                let csv = 'Trail Making Test A - Resultados\n\n';
+                csv += 'Medida,Valor\n';
+                csv += `Tempo Total (s),${this.results.totalTime.toFixed(2)}\n`;
+                csv += `Números Conectados,${this.results.completed}\n`;
+                csv += `Total de Erros,${this.results.totalErrors}\n`;
+                csv += `Taxa de Erro (%),${this.results.errorRate.toFixed(2)}\n`;
+                csv += `Tempo Médio/Conexão (s),${this.results.avgConnectionTime.toFixed(2)}\n`;
+                csv += `Variabilidade CV (%),${this.results.variability.toFixed(2)}\n`;
+                csv += `Eficiência Espacial (%),${this.results.efficiency.toFixed(2)}\n`;
+                csv += '\nErros por Tipo\n';
+                csv += `Repetição,${this.results.errorsByType.repetition}\n`;
+                csv += `Antecipação,${this.results.errorsByType.anticipation}\n`;
+                csv += `Sequência,${this.results.errorsByType.sequence}\n`;
+                csv += '\nDados Trial-by-Trial\n';
+                csv += 'Número,Esperado,Correto,Timestamp\n';
+                
+                this.results.clicks.forEach(click => {
+                    csv += `${click.number},${click.expected},${click.correct},${click.timestamp}\n`;
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `TMT-A_${new Date().toISOString().slice(0, 10)}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
 
-    // fim?
-    const limit = State.training ? TRAIN_N : NODES;
-    if (State.next > limit){ finish(false); }
+            exportToJSON() {
+                if (!this.results) return;
+                
+                const data = {
+                    test: 'Trail Making Test A',
+                    date: new Date().toISOString(),
+                    results: this.results,
+                    settings: {
+                        sound: CONFIG.SOUND_ENABLED,
+                        contrast: CONFIG.HIGH_CONTRAST,
+                        largeCircles: CONFIG.LARGE_CIRCLES,
+                        trails: CONFIG.SHOW_TRAILS
+                    }
+                };
+                
+                const json = JSON.stringify(data, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `TMT-A_${new Date().toISOString().slice(0, 10)}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
 
-  }else{
-    // erro
-    classError(e.currentTarget, n, expected);
-  }
-}
+            generatePDF() {
+                window.print();
+            }
 
-function classError(el, clicked, expected){
-  const type = (clicked < expected) ? "perseveration" // repetição/antecipação
-            : (clicked === expected+1) ? "skip_ahead" // pulou 1
-            : "sequence"; // fora de sequência
+            saveToLocal() {
+                if (!this.results) return;
+                
+                const key = `tmt-a-${Date.now()}`;
+                const data = {
+                    date: new Date().toISOString(),
+                    results: this.results
+                };
+                
+                localStorage.setItem(key, JSON.stringify(data));
+                
+                // Manter índice de todos os testes
+                let index = JSON.parse(localStorage.getItem('tmt-a-index') || '[]');
+                index.push({
+                    key,
+                    date: data.date,
+                    time: this.results.totalTime
+                });
+                localStorage.setItem('tmt-a-index', JSON.stringify(index));
+                
+                this.showMessage('Resultados salvos localmente!', 'success');
+            }
 
-  State.errors.push({t:performance.now(), clicked, expected, type});
-  errLbl.textContent = String(State.errors.length);
-  blinkErr(el, `Erro (${type}). Clique no ${expected}.`);
-  beep(220,.10);
-}
+            playSound(type) {
+                if (!CONFIG.SOUND_ENABLED) return;
+                
+                if (!this.audioContext) {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                
+                switch (type) {
+                    case 'success':
+                        oscillator.frequency.value = 800;
+                        gainNode.gain.value = 0.1;
+                        break;
+                    case 'error':
+                        oscillator.frequency.value = 300;
+                        gainNode.gain.value = 0.15;
+                        break;
+                    case 'complete':
+                        oscillator.frequency.value = 1000;
+                        gainNode.gain.value = 0.2;
+                        break;
+                    case 'toggle':
+                        oscillator.frequency.value = 600;
+                        gainNode.gain.value = 0.05;
+                        break;
+                }
+                
+                oscillator.start();
+                oscillator.stop(this.audioContext.currentTime + 0.1);
+            }
 
-function blinkErr(el, msg){
-  el.classList.add('err');
-  msgEl.className = "info warn";
-  msgEl.textContent = msg;
-  setTimeout(()=>{ el.classList.remove('err'); msgEl.className="info"; }, 800);
-}
+            showMessage(text, type) {
+                this.messageBox.textContent = text;
+                this.messageBox.className = `message-box message-${type}`;
+                
+                // Auto-hide após 5 segundos para mensagens não críticas
+                if (type !== 'error') {
+                    setTimeout(() => {
+                        if (this.messageBox.textContent === text) {
+                            this.messageBox.className = 'message-box message-info';
+                        }
+                    }, 5000);
+                }
+            }
 
-/*** ====== UI ====== ***/
-function updateStats(){
-  const len = Math.round(State.length);
-  const crosses = State.crossings;
-  lenLbl.textContent = `${len} px`;
-  crossLbl.textContent = String(crosses);
-}
-function updateProgress(){
-  const limit = State.training ? TRAIN_N : NODES;
-  const p = (Math.min(State.next-1,limit)/limit)*100;
-  fill.style.width = p.toFixed(1)+"%";
-  updateStats();
-}
+            handleKeyPress(e) {
+                switch(e.key) {
+                    case 'Enter':
+                    case ' ':
+                        if (!this.state.isRunning && this.startBtn.disabled === false) {
+                            e.preventDefault();
+                            this.startTest();
+                        }
+                        break;
+                    case 'Escape':
+                        if (this.modal.classList.contains('show')) {
+                            this.hideModal();
+                        } else if (this.state.isRunning) {
+                            this.togglePause();
+                        }
+                        break;
+                    case 'r':
+                        if (e.ctrlKey || e.metaKey) {
+                            e.preventDefault();
+                            this.reset();
+                        }
+                        break;
+                }
+            }
 
-/*** ====== CSV ====== ***/
-function csvRow(arr){
-  return arr.map(v=>{
-    if (v==null) return "";
-    const s = String(v);
-    return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
-  }).join(",")+"\n";
-}
-function downloadCsv(name, text){
-  const blob = new Blob([text], {type:"text/csv;charset=utf-8"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click();
-  URL.revokeObjectURL(url); a.remove();
-}
-function buildSummary(){
-  const totalMs = (State.end && State.start)? (State.end - State.start) : 0;
-  // ICTs (apenas acertos, consecutivos)
-  const ict = [];
-  for (let i=1;i<State.clicks.length;i++){ ict.push(State.clicks[i].t - State.clicks[i-1].t); }
-  const mean = ict.length? ict.reduce((a,b)=>a+b,0)/ict.length : NaN;
-  const sd = ict.length? Math.sqrt(ict.reduce((s,x)=>s+(x-mean)*(x-mean),0)/ict.length) : NaN;
+            handleResize() {
+                // Recalcular posições se necessário
+                if (this.state.isRunning && this.state.nodes.length > 0) {
+                    // Apenas mostrar aviso, não reorganizar durante o teste
+                    this.showMessage('Redimensionamento detectado. Complete o teste para melhores resultados.', 'warning');
+                }
+            }
 
-  const meta = {
-    version: VERSION,
-    tsISO: new Date().toISOString(),
-    pid: State.pid,
-    seed: State.seed,
-    level: State.level,
-    ua: navigator.userAgent,
-    screen: {w:screen?.width,h:screen?.height,dpr:window.devicePixelRatio||1},
-    training: State.training?true:false
-  };
+            clearCanvas() {
+                this.canvas.innerHTML = '';
+                this.state.trails = [];
+            }
 
-  let csv = "# session,"+JSON.stringify(meta)+"\n";
-  csv += csvRow(["pid","level","training","completed","total_ms","total_s","hits","errors","trace_len_px","crossings","ict_mean_ms","ict_sd_ms","seed","version"]);
-  const completed = State.training ? (State.next>TRAIN_N) : (State.next>NODES);
-  csv += csvRow([
-    State.pid, State.level, State.training ? 1:0, completed ? 1:0,
-    Math.round(totalMs), (totalMs/1000).toFixed(3),
-    State.clicks.length, State.errors.length,
-    Math.round(State.length), State.crossings,
-    isFinite(mean)? mean.toFixed(2):"", isFinite(sd)? sd.toFixed(2):"",
-    State.seed, VERSION
-  ]);
-  return csv;
-}
-function buildDetail(){
-  const meta = {
-    version: VERSION,
-    tsISO: new Date().toISOString(),
-    pid: State.pid, seed: State.seed, level: State.level,
-    ua: navigator.userAgent,
-    screen: {w:screen?.width,h:screen?.height,dpr:window.devicePixelRatio||1},
-    training: State.training?true:false
-  };
-  let csv = "# session,"+JSON.stringify(meta)+"\n";
-  csv += csvRow(["pid","event","n","expected","t_ms_from_start"]);
-  for (const ev of State.detail){
-    const t0 = State.start || (State.detail.length? State.detail[0].t : 0);
-    csv += csvRow([State.pid, ev.type, ev.n, ev.expected, Math.round(ev.t - t0)]);
-  }
-  // clicks válidos (para reconstrução)
-  csv += csvRow([]);
-  csv += "# clicks\n";
-  csv += csvRow(["idx","n","t_ms_from_start"]);
-  for (let i=0;i<State.clicks.length;i++){
-    const c = State.clicks[i];
-    csv += csvRow([i+1, c.n, Math.round(c.t - State.start)]);
-  }
-  // erros classificados
-  csv += csvRow([]);
-  csv += "# errors\n";
-  csv += csvRow(["t_ms_from_start","clicked","expected","type"]);
-  for (const e of State.errors){
-    csv += csvRow([Math.round(e.t - State.start), e.clicked, e.expected, e.type]);
-  }
-  return csv;
-}
+            reset(fullReset = true) {
+                this.stopTimer();
+                this.clearCanvas();
+                this.initializeState();
+                
+                if (fullReset) {
+                    this.updatePhase(1);
+                    this.practiceBtn.style.display = 'inline-block';
+                    this.practiceBtn.textContent = 'Iniciar Prática';
+                    this.startBtn.style.display = 'inline-block';
+                    this.startBtn.disabled = true;
+                    this.startBtn.textContent = 'Iniciar Teste';
+                    this.pauseBtn.style.display = 'none';
+                    this.resultsBtn.style.display = 'none';
+                    
+                    this.timerDisplay.textContent = '00:00';
+                    this.currentDisplay.textContent = '1';
+                    this.errorsDisplay.textContent = '0';
+                    this.progressDisplay.textContent = '0%';
+                    this.progressBar.style.width = '0%';
+                    
+                    this.showMessage('Bem-vindo ao TMT-A! Clique em "Iniciar Prática" para começar.', 'info');
+                }
+            }
+        }
 
-/*** ====== POST opcional ====== ***/
-async function postPayload(){
-  if (!POST_ENDPOINT){ alert("POST_ENDPOINT não configurado."); return; }
-  const payload = {
-    session: {
-      version: VERSION, tsISO: new Date().toISOString(), pid: State.pid, seed: State.seed, level: State.level,
-      ua: navigator.userAgent, screen:{w:screen?.width,h:screen?.height,dpr:window.devicePixelRatio||1}, training: State.training
-    },
-    nodes: State.nodes, clicks: State.clicks, errors: State.errors, detail: State.detail,
-    totals: { length: State.length, crossings: State.crossings, elapsed_ms: State.end - State.start }
-  };
-  try{
-    const res = await fetch(POST_ENDPOINT,{method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload)});
-    alert(res.ok? "Dados enviados." : "Falha no envio.");
-  }catch(e){ alert("Erro: "+e.message); }
-}
+        // Funções utilitárias globais
+        window.TMTUtils = {
+            // Análise agregada de múltiplas sessões
+            analyzeAllSessions() {
+                const index = JSON.parse(localStorage.getItem('tmt-a-index') || '[]');
+                if (index.length === 0) {
+                    console.log('Nenhuma sessão encontrada');
+                    return;
+                }
+                
+                const sessions = index.map(item => {
+                    const data = JSON.parse(localStorage.getItem(item.key));
+                    return data.results;
+                });
+                
+                const avgTime = sessions.reduce((sum, s) => sum + s.totalTime, 0) / sessions.length;
+                const avgErrors = sessions.reduce((sum, s) => sum + s.totalErrors, 0) / sessions.length;
+                
+                console.table({
+                    'Total de Sessões': sessions.length,
+                    'Tempo Médio (s)': avgTime.toFixed(2),
+                    'Erros Médios': avgErrors.toFixed(2),
+                    'Melhor Tempo (s)': Math.min(...sessions.map(s => s.totalTime)).toFixed(2),
+                    'Pior Tempo (s)': Math.max(...sessions.map(s => s.totalTime)).toFixed(2)
+                });
+                
+                return sessions;
+            },
+            
+            // Limpar dados locais
+            clearAllData() {
+                if (!confirm('Tem certeza que deseja limpar todos os dados salvos?')) return;
+                
+                const index = JSON.parse(localStorage.getItem('tmt-a-index') || '[]');
+                index.forEach(item => {
+                    localStorage.removeItem(item.key);
+                });
+                localStorage.removeItem('tmt-a-index');
+                localStorage.removeItem('tmt-settings');
+                
+                console.log('Todos os dados foram removidos');
+            },
+            
+            // Exportar todos os dados
+            exportAllData() {
+                const index = JSON.parse(localStorage.getItem('tmt-a-index') || '[]');
+                const allData = index.map(item => {
+                    return JSON.parse(localStorage.getItem(item.key));
+                });
+                
+                const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `TMT-A_all_data_${new Date().toISOString().slice(0, 10)}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        };
 
-/*** ====== Acessibilidade extra ====== ***/
-let highContrast = false, bigger = false;
-function toggleContrast(){ highContrast=!highContrast; document.body.classList.toggle('high-contrast', highContrast); }
-function toggleBigger(){
-  bigger=!bigger;
-  const curr = getComputedStyle(document.documentElement).getPropertyValue('--circle');
-  const px = parseInt(curr,10);
-  const tgt = bigger? (px+10): (px-10);
-  document.documentElement.style.setProperty('--circle', Math.max(40, Math.min(72, tgt))+"px");
-  // re-render manter posições, só re-centraliza nós conforme novo tamanho
-  drawNodes(State.training ? TRAIN_N : NODES);
-}
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            const tmt = new TMTTest();
+            
+            // Tornar instância acessível globalmente para debug
+            window.tmtInstance = tmt;
+            
+            console.log('%cTMT-A v2.0 Carregado', 'color: #2196F3; font-size: 14px; font-weight: bold;');
+            console.log('Comandos disponíveis:');
+            console.log('- TMTUtils.analyzeAllSessions() - Analisar todas as sessões');
+            console.log('- TMTUtils.exportAllData() - Exportar todos os dados');
+            console.log('- TMTUtils.clearAllData() - Limpar dados salvos');
+        });
 
-/*** ====== Eventos ====== ***/
-helpBtn.addEventListener('click', ()=>dlg.showModal());
-fsBtn.addEventListener('click', toggleFS);
-trainBtn.addEventListener('click', ()=> prepare("train") && startRun());
-startBtn.addEventListener('click', ()=>{ if (prepare("test")) startRun(); });
-abortBtn.addEventListener('click', abortRun);
-resetBtn.addEventListener('click', ()=>{ State.nodes=[]; clearBoard(); phase(0);
-  pidEl.disabled=false; startBtn.disabled=true; abortBtn.disabled=true;
-  msgEl.className="info"; msgEl.textContent="Você conectará os números de 1 a 25 em ordem, o mais rápido possível, sem pular números. Faça primeiro um treino.";
-  fill.style.width="0%"; timeLbl.textContent="00:00.000"; nextLbl.textContent="–"; errLbl.textContent="0"; lenLbl.textContent="0 px"; crossLbl.textContent="0"; seedLbl.textContent="–";
-});
-contrastBtn.addEventListener('click', toggleContrast);
-biggerBtn.addEventListener('click', toggleBigger);
+        // Suporte para impressão
+        window.addEventListener('beforeprint', () => {
+            document.querySelectorAll('.btn, .setting-btn').forEach(el => {
+                el.style.display = 'none';
+            });
+        });
 
-dlSummary.addEventListener('click', ()=>{
-  if (!State.end){ alert("Finalize uma etapa para baixar o resumo."); return; }
-  downloadCsv(`tmta_summary_${State.pid||"anon"}.csv`, buildSummary());
-});
-dlDetail.addEventListener('click', ()=>{
-  if (!State.detail.length){ alert("Sem eventos registrados ainda."); return; }
-  downloadCsv(`tmta_detail_${State.pid||"anon"}.csv`, buildDetail());
-});
-postBtn.addEventListener('click', postPayload);
-
-// teclado global
-document.addEventListener('keydown', (e)=>{
-  if (e.code==='Space'){
-    const tgt = document.querySelector('.node.target');
-    if (tgt) { e.preventDefault(); tgt.click(); }
-  }
-  if (e.code==='Escape'){ abortRun(); }
-});
-
-// resize / orientation
-window.addEventListener('resize', ()=>{
-  if (!State.nodes.length) return;
-  // re-medida e re-desenho mantendo mesma distribuição relativa (fixo em px do viewport atual)
-  measure();
-  drawNodes(State.training ? TRAIN_N : NODES);
-});
-window.addEventListener('orientationchange', ()=> setTimeout(()=>window.dispatchEvent(new Event('resize')),300));
-
-/*** ====== Boot ====== ***/
-measure();
-msgEl.textContent = "Você conectará os números de 1 a 25 em ordem, o mais rápido possível, sem pular números. Faça primeiro um treino (1→5).";
-startBtn.disabled = true; // só habilita após treino concluído
-phase(0);
-</script>
+        window.addEventListener('afterprint', () => {
+            document.querySelectorAll('.btn, .setting-btn').forEach(el => {
+                el.style.display = '';
+            });
+        });
+    </script>
 </body>
 </html>
