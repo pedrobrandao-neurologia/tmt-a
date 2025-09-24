@@ -1,226 +1,123 @@
-# TMT-A Web (v2.0) — Trail Making Test A
+Claro\! Aqui está uma proposta de `README.md` bem completa para o seu projeto, escrita em português e formatada em Markdown.
 
-Implementação **web estática** do **TMT-A** com **treino obrigatório**, temporização por `performance.now()`, **layout reprodutível** (seed por ID), verificação de **interseções do traço (crossings)**, métricas temporais (ICTs), métricas espaciais (comprimento/eficiência implícita do traço), **classificação de erros**, e exportação **CSV (resumo + detalhado)**. Pronto para **GitHub Pages** e compatível com desktop e dispositivos móveis.
+-----
 
-> **Arquivo único**: `index.html`
-> **Validade clínica**: tarefa **análoga** à versão lápis-papel. Recomenda-se validação local, padronização do ambiente e aprovação ética (CEP/IRB) quando aplicável.
+# Trail Making Test - Parte A (TMT-A) - Implementação Digital 🧠
 
----
+Esta é uma implementação digital e interativa do **Teste de Trilhas Parte A (TMT-A)**, uma ferramenta neuropsicológica clássica usada para avaliar a velocidade de processamento visual, atenção, sequenciamento e busca visual.
 
-## 1) Objetivo e racional
+Este projeto foi desenvolvido como uma aplicação web autocontida (single-file), utilizando apenas HTML, CSS e JavaScript puro, sem a necessidade de dependências externas, garantindo portabilidade e facilidade de uso.
 
-O TMT-A avalia **velocidade de processamento**, **atenção visual**, **busca visuoespacial** e **flexibilidade visuomotora** básica. Nesta versão, além do **tempo total**, registramos características do **trajeto** (comprimento e interseções) e **dinâmica temporal** entre cliques (Inter-Click Times, ICTs), fornecendo indicadores adicionais de **eficiência e consistência** do desempenho.
+## 📋 Índice
 
----
+  * [Sobre o Projeto](https://www.google.com/search?q=%23sobre-o-projeto)
+  * [✨ Funcionalidades](https://www.google.com/search?q=%23-funcionalidades)
+  * [🚀 Tecnologias Utilizadas](https://www.google.com/search?q=%23-tecnologias-utilizadas)
+  * [🔧 Como Usar](https://www.google.com/search?q=%23-como-usar)
+  * [📊 Dados e Métricas Coletadas](https://www.google.com/search?q=%23-dados-e-m%C3%A9tricas-coletadas)
+  * [📤 Exportação de Dados](https://www.google.com/search?q=%23-exporta%C3%A7%C3%A3o-de-dados)
+  * [💻 Comandos para Desenvolvedores](https://www.google.com/search?q=%23-comandos-para-desenvolvedores)
+  * [🤝 Contribuição](https://www.google.com/search?q=%23-contribui%C3%A7%C3%A3o)
+  * [📄 Licença](https://www.google.com/search?q=%23-licen%C3%A7a)
 
-## 2) Como executar
+-----
 
-### 2.1 Local
+## Sobre o Projeto
 
-1. Baixe/clone o repositório.
-2. Abra `index.html` no navegador (Chrome/Edge/Firefox/Safari atualizados).
-3. Para evitar restrições de arquivo local, você pode servir a pasta com:
+O TMT-A consiste em conectar, o mais rápido possível, uma sequência de 25 números distribuídos aleatoriamente em uma página. Esta versão digital não apenas replica a tarefa principal, mas também a enriquece com coleta de dados detalhada, análise de desempenho em tempo real e um relatório de resultados robusto.
 
-   ```bash
-   python -m http.server 8000
-   ```
+A aplicação inclui:
 
-### 2.2 GitHub Pages (recomendado)
+1.  **Fase de Instruções:** Orientações claras para o usuário.
+2.  **Fase de Prática:** Um teste mais curto (8 números) para familiarização.
+3.  **Fase de Teste:** O teste completo com 25 números e tempo limite de 5 minutos.
+4.  **Fase de Resultados:** Um modal com análise detalhada do desempenho.
 
-1. Crie um repositório e faça commit do `index.html` na raiz.
-2. **Settings → Pages** → *Deploy from a branch* → `main` / `(root)`.
-3. Aguarde a publicação e acesse a URL gerada.
+-----
 
----
+## ✨ Funcionalidades
 
-## 3) Procedimento (participante)
+  * **Modo de Prática e Teste:** Permite que o usuário se familiarize com a interface antes de iniciar o teste principal.
+  * **Geração Aleatória dos Círculos:** Os números são posicionados de forma aleatória a cada novo teste, garantindo a novidade da tarefa e evitando o efeito de memorização da disposição.
+  * **Feedback em Tempo Real:** O usuário acompanha o tempo, o número de erros e o progresso durante a execução do teste.
+  * **Relatório de Resultados Detalhado:** Ao final, um relatório completo é apresentado, incluindo:
+      * Desempenho Geral (tempo, erros).
+      * Análise Temporal (velocidade média, variabilidade, velocidade inicial vs. final).
+      * **Comparação com Dados Normativos** baseados em faixas etárias (referência: Tombaugh, 2004).
+  * **Opções de Acessibilidade:**
+      * Modo de **Alto Contraste**.
+      * Opção para **Círculos Maiores**.
+      * Ativar/Desativar **efeitos sonoros**.
+      * Mostrar/Ocultar as **trilhas** de conexão.
+  * **Múltiplos Formatos de Exportação:** Os resultados podem ser exportados em CSV, JSON ou gerados em um formato amigável para impressão (PDF).
+  * **Salvamento de Sessões no Navegador:** Opção para salvar os resultados de cada teste no `localStorage` do navegador para análise posterior.
+  * **Design Responsivo:** A interface se adapta a diferentes tamanhos de tela, de desktops a tablets.
 
-1. Informar **ID do participante** (alfanumérico).
-2. **Treino (obrigatório)**: conectar **1→5** para familiarização.
-3. **Teste**: conectar **1→25** o mais rápido e preciso possível, sem pular números.
-4. Resposta por **clique** ou **Barra de Espaço** (com foco no alvo).
-5. Tempo-limite de segurança: **5 minutos**.
-6. Ao final, baixar **CSV detalhado** e/ou **CSV resumido**. Opcionalmente, **enviar (POST)** a um endpoint configurado.
+-----
 
-**Boas práticas**: usar **tela cheia**, manter a aba ativa, minimizar distrações, garantir iluminação adequada e distância confortável da tela.
+## 🚀 Tecnologias Utilizadas
 
----
+  * **HTML5:** Estrutura semântica do conteúdo.
+  * **CSS3:** Estilização moderna, com variáveis CSS, Flexbox, Grid Layout e animações.
+  * **JavaScript (ES6+):** Lógica do teste, manipulação do DOM, cálculo de métricas e interatividade, tudo estruturado em uma classe `TMTTest`.
 
-## 4) Parâmetros e aleatorização
+-----
 
-* **Nós**: 1 a 25 (TMT-A).
-* **Layout**: distribuição pseudo-aleatória **Poisson-like** com **distância mínima** entre nós (evita sobreposição).
-* **Seed**: derivada do **ID do participante** (reprodutível por sujeito).
-* **Níveis de densidade**: *Padrão*, *Denso*, *Espaçado* (gap/tamanho ajustáveis).
-* **Treino obrigatório** (1→5) antes do teste principal.
+## 🔧 Como Usar
 
----
+Como este projeto é um único arquivo HTML, usá-lo é extremamente simples:
 
-## 5) Métricas registradas
+1.  Clone este repositório ou simplesmente baixe o arquivo `index.html`.
+2.  Abra o arquivo `index.html` em qualquer navegador web moderno (Google Chrome, Firefox, Safari, Edge).
+3.  Siga as instruções na tela para iniciar o teste.
 
-* **Tempo total** (ms, `performance.now()`): do primeiro clique válido (“1”) até o último alvo.
-* **Erros** (contados e classificados):
+-----
 
-  * `perseveration` (repetição/antecipação: clica número já passado),
-  * `skip_ahead` (salta exatamente 1 número),
-  * `sequence` (fora de sequência geral).
-* **ICTs** (Inter-Click Times): série temporal entre acertos consecutivos; **média** e **desvio-padrão** (proxy de consistência).
-* **Trajeto**:
+## 📊 Dados e Métricas Coletadas
 
-  * **Comprimento total do traço** (px),
-  * **Interseções (crossings)** entre segmentos do próprio traço (indicador de desorganização espacial).
-* **Progresso**: fração de nós corretamente conectados.
-* **Metadados**: versão, seed, ID, modo de densidade, agente de usuário, dimensões de tela, data/hora ISO.
+A aplicação vai além do tempo total e coleta diversas métricas para uma análise mais rica:
 
-> Observação: “eficiência espacial” não é reportada diretamente como percentual, mas pode ser inferida do **comprimento do traço** e **crossings**. Valores maiores de comprimento e crossings tendem a refletir busca menos eficiente.
+  * **Tempo Total:** Tempo em segundos para completar o teste.
+  * **Total de Erros:** Número de cliques incorretos.
+  * **Taxa de Erro:** Percentual de cliques que foram erros.
+  * **Tempo Médio por Conexão:** Média de tempo entre cliques corretos consecutivos.
+  * **Variabilidade (CV):** Coeficiente de variação dos tempos de conexão, indicando a consistência do ritmo.
+  * **Velocidade Inicial vs. Final:** Comparação do tempo médio de conexão no primeiro e no último terço do teste, útil para analisar efeitos de fadiga ou aprendizado.
+  * **Eficiência Espacial:** Razão entre a distância ideal (linha reta entre números) e a distância percorrida pelo mouse (a ser implementada), indicando a eficiência do traçado.
+  * **Tipos de Erros:** Classificação dos erros em:
+      * `repetition`: Clicar em um número já conectado.
+      * `anticipation`: Clicar no número N+2 em vez de N+1.
+      * `sequence`: Outros erros de sequência.
 
----
+-----
 
-## 6) Saída de dados
+## 📤 Exportação de Dados
 
-### 6.1 CSV **resumo** (`tmta_summary_<ID>.csv`)
+Os resultados podem ser salvos e analisados externamente através dos seguintes formatos:
 
-Primeira linha (comentário): metadados da sessão em JSON.
+  * **CSV:** Ideal para planilhas (Excel, Google Sheets) e análise estatística (R, Python). Inclui um resumo e dados brutos de cada clique.
+  * **JSON:** Formato estruturado, útil para integração com outras aplicações e para armazenamento de dados completos da sessão.
+  * **Gerar PDF:** Utiliza a funcionalidade de impressão do navegador para criar um relatório visualmente limpo e pronto para ser salvo como PDF.
+  * **Salvar Localmente:** Armazena os dados da sessão no `localStorage` do navegador para consulta futura através do console.
 
-**Colunas**:
+-----
 
-* `pid`, `level`, `training` (0/1), `completed` (0/1),
-* `total_ms`, `total_s`,
-* `hits` (nº de acertos), `errors` (nº total),
-* `trace_len_px` (comprimento do traço), `crossings`,
-* `ict_mean_ms`, `ict_sd_ms`,
-* `seed`, `version`.
+## 💻 Comandos para Desenvolvedores
 
-### 6.2 CSV **detalhado** (`tmta_detail_<ID>.csv`)
+Para pesquisadores e desenvolvedores, algumas funções utilitárias estão disponíveis no console do navegador:
 
-Primeira linha (comentário): metadados da sessão em JSON.
+  * **`TMTUtils.analyzeAllSessions()`:** Mostra uma análise agregada de todas as sessões salvas localmente.
+  * **`TMTUtils.exportAllData()`:** Exporta um arquivo JSON contendo os dados de todas as sessões salvas.
+  * **`TMTUtils.clearAllData()`:** Limpa todos os dados de sessões e configurações salvas no navegador (pede confirmação).
 
-**Seções**:
+-----
 
-1. **Eventos** (uma linha por evento de clique):
+## 🤝 Contribuição
 
-   * `pid`,`event` (`hit`/`error`),`n` (clicado),`expected` (esperado),`t_ms_from_start`.
+Contribuições são bem-vindas\! Se você tem sugestões para melhorar o teste, adicionar novas funcionalidades ou corrigir bugs, sinta-se à vontade para abrir uma *issue* ou enviar um *pull request*.
 
-2. **Clicks válidos** (para reconstrução do traço):
+-----
 
-   * `idx`,`n`,`t_ms_from_start`.
+## 📄 Licença
 
-3. **Erros classificados**:
-
-   * `t_ms_from_start`,`clicked`,`expected`,`type`.
-
----
-
-## 7) Interpretação e QC (sugestões)
-
-* **Concluir em < 180–240 s** é usual em adultos sem comprometimento (varia por idade/escolaridade; **não usar** estes números como norma local).
-* **Erros**: taxas elevadas (`sequence`/`skip_ahead`) e **crossings** numerosos sugerem busca desorganizada.
-* **ICT**: maior **média** e **variabilidade** (SD) indicam latências e inconsistência temporal; útil como complemento ao tempo total.
-* **Critérios de exclusão/atenção** (ajustar ao protocolo):
-
-  * interrupções externas, trocas de aba, falta de treino, erro técnico,
-  * uso de dispositivo com glitches de input,
-  * não cumprimento do tempo mínimo ou padrão de respostas claramente aleatórias.
-
-> **Normatividade**: esta versão digital não deve ser equiparada 1:1 a normas de papel-lápis. Se desejar normatização, execute **amostra local** estratificada (idade/escolaridade) e estime **pontos de corte** e **percentis** específicos para o seu ambiente e dispositivo.
-
----
-
-## 8) Acessibilidade e usabilidade
-
-* **Alto contraste**, **alvos maiores**, controle por **teclado** (Barra de Espaço/Enter com foco no alvo).
-* **Feedback sonoro** curto (quando o áudio do navegador estiver liberado pelo usuário).
-* **Responsivo** (desktop/tablet/celular). Recomenda-se tela cheia e evitar *low-power mode* em mobile.
-
----
-
-## 9) Privacidade, ética e segurança
-
-* O **ID** é livre (ex.: código alfanumérico) e compõe a **semente** do layout.
-* O app **não** envia dados a servidores por padrão.
-* O envio só ocorre se você configurar um endpoint (ver abaixo) **e** clicar em **Enviar (POST)**.
-* Use termos de **consentimento** e armazenamento seguro de dados conforme legislação local (LGPD/GDPR).
-
----
-
-## 10) Integração (opcional): envio de dados (POST)
-
-No topo do `index.html`, defina:
-
-```js
-const POST_ENDPOINT = "https://sua-funcao.exemplo/collect";
-```
-
-**Payload JSON** inclui:
-
-* `session` (metadados), `nodes` (layout), `clicks` (acertos), `errors` (erros), `detail` (eventos),
-* `totals` (comprimento, crossings, tempo).
-
-> Implementações simples: **Google Apps Script** (Web App), **Netlify Functions**, **Cloud Functions**.
-> **Não** exponha endpoint público sem rate-limit/validação.
-
----
-
-## 11) Limitações conhecidas
-
-* Diferenças de **tamanho de tela**, **DPI** e **latência de input** podem afetar tempos e trajetória.
-* O **cursor** e o **clique** substituem o traçado lápis-papel; embora o canvas registre o caminho entre nós, micro-trajetos intranós não são capturados.
-* “Crossings” são calculados sobre segmentos **entre nós sucessivos** (não avaliam toque fora do caminho).
-
----
-
-## 12) Desenvolvimento
-
-* **Stack**: HTML/CSS/JS puros, sem dependências.
-* **Timing**: `performance.now()`;
-* **PRNG**: `mulberry32` com seed FNV-1a(ID|level);
-* **Detecção de interseção**: checagem de segmentos sucessivos;
-* **Exportação**: `Blob` → download CSV.
-
-### Estrutura do código
-
-* **Geração de posições** com gap mínimo (Poisson-like, *fallback* controlado).
-* **Execução**: treino → teste; controle de estado e travas de UI.
-* **Métricas**: atualizadas em tempo real; logs para auditoria/reprodutibilidade.
-
----
-
-## 13) Contribuição
-
-Issues e PRs são bem-vindos: melhorias de UX, critérios de QC, novos índices (p.ex., *nearest-neighbor angle*, *path tortuosity*), internacionalização e integração com bancos de dados.
-
----
-
-## 14) Licença
-
-Sugestão: **MIT License** (ajuste conforme sua instituição).
-
----
-
-## 15) Citação sugerida
-
-> Brandão PRP, *et al*. **TMT-A Web (v2.0)**: implementação estática com treino, layout reprodutível, métricas temporais e espaciais e exportação CSV. 2025. Disponível em GitHub Pages.
-
-Formato AMA (exemplo):
-Brandão PRP. TMT-A Web (v2.0) \[software]. 2025. Disponível em: *URL do GitHub Pages*. Acessado em: *data*.
-
----
-
-## 16) Changelog
-
-* **v2.0**
-
-  * Treino obrigatório (1→5) e only-start-on-1
-  * `performance.now()` para temporização
-  * Layout reprodutível por **seed** (ID|level), Poisson-like spacing
-  * **Interseções (crossings)** e comprimento do traço
-  * Classificação de erros (perseveration/skip\_ahead/sequence)
-  * ICTs (média/SD) + CSV detalhado e resumo com metadados
-  * Acessibilidade: alto contraste, alvos maiores, teclado
-  * Botão **POST** opcional para coleta remota
-
----
-
-### Contato
-
-Sugestões, *bug reports* e dúvidas: abra uma *issue* no repositório.
+Este projeto é distribuído sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
