@@ -1,56 +1,76 @@
-Teste de Trilhas - Parte A (TMT-A) - Versão Otimizada e Corrigida
-Esta é uma versão refatorada e sucinta do TMT-A digital, focada na essência da avaliação neuropsicológica, com um código mais leve e correções importantes para aumentar a validade do teste.
+Claro, aqui está um README completo e bem-estruturado para o seu código, escrito em Markdown.
 
-O projeto continua autocontido em um único arquivo HTML, sem dependências, garantindo máxima portabilidade e facilidade de uso.
+-----
 
-📋 Índice
-Filosofia das Alterações
+# Teste de Trilhas - Parte A (TMT-A) - Versão Aprimorada 🧠
 
-✨ Funcionalidades Principais
+Uma implementação digital interativa e aprimorada do **Trail Making Test Parte A (TMT-A)**, uma ferramenta neuropsicológica clássica usada para avaliar a atenção visual, velocidade de processamento, e sequenciamento motor.
 
-🚀 Tecnologias Utilizadas
+Este projeto foi desenvolvido como uma ferramenta robusta para pesquisa e avaliação, oferecendo coleta de dados detalhada, feedback em tempo real e um relatório de resultados completo.
 
-🔧 Como Usar
+## ✨ Recursos Principais
 
-📄 Licença
+Este projeto vai além de uma simples digitalização do teste, incorporando recursos avançados para uma avaliação mais completa:
 
-🧠 Filosofia das Alterações
-Esta versão foi reescrita com três objetivos principais em mente:
+  * **Fases do Teste:** Um fluxo claro que inclui **Instruções**, um **Aquecimento** para familiarização, o **Teste Principal** e uma tela de **Resultados Detalhados**.
+  * **Coleta de Dados Rica:** Registra não apenas o tempo total e os erros, mas também o tempo de cada conexão, a sequência de cliques e a trajetória do cursor.
+  * **Métricas Avançadas:** Calcula automaticamente métricas importantes como:
+      * **Eficiência Espacial:** A razão entre a distância ótima e a distância percorrida.
+      * **Velocidade de Processamento:** Tempo médio por conexão.
+      * **Variabilidade de Desempenho (CV):** Mede a consistência da velocidade ao longo do teste.
+      * **Velocidade Inicial vs. Final:** Compara o desempenho no início e no final do teste.
+  * **Comparação Normativa:** Permite comparar o desempenho do usuário com dados normativos baseados em faixas etárias (referência: Tombaugh, 2004), fornecendo percentil e classificação.
+  * **Relatório de Resultados Completo:** Um modal interativo exibe todos os dados de desempenho, métricas temporais, comparação normativa e um gráfico de padrão de erros.
+  * **Exportação de Dados:** Os resultados podem ser exportados em múltiplos formatos para análise posterior: **CSV**, **JSON** e um relatório em **PDF** (via impressão).
+  * **Opções de Acessibilidade:**
+      * **Modo de Alto Contraste:** Para melhor visibilidade.
+      * **Círculos Maiores:** Aumenta o tamanho dos alvos para facilitar o clique.
+  * **Feedback Interativo:** Animações e sons (opcionais) para acertos e erros, melhorando a experiência do usuário.
+  * **Design Responsivo:** A interface se adapta a diferentes tamanhos de tela, de desktops a tablets.
 
-Foco na Tarefa Essencial: A interface foi simplificada para remover dicas e distrações. A remoção do destaque visual (highlight) do próximo número exige que o participante realize uma busca visual ativa, alinhando a tarefa digital à sua versão original em papel e lápis e medindo de forma mais pura a atenção sustentada e a velocidade de busca.
+-----
 
-Validade Psicométrica Aprimorada: O cálculo do percentil foi ajustado para refletir corretamente que, em testes de tempo, um desempenho mais rápido (menor tempo) resulta em um percentil mais alto (melhor classificação). A fórmula anterior estava invertida, o que foi corrigido nesta versão.
+## 🚀 Como Usar
 
-Simplicidade e Leveza: O código foi drasticamente enxuto, removendo mais da metade das linhas. Funções complexas como o modal de resultados detalhados, gráficos, múltiplas estatísticas em tempo real e a exportação de dados foram substituídas por uma apresentação de resultados direta e um código-fonte significativamente mais fácil de ler, manter e modificar.
+A aplicação é totalmente independente e não requer instalação.
 
-✨ Funcionalidades Principais
-Apesar da simplicidade, a ferramenta mantém as funcionalidades cruciais para uma avaliação eficaz:
+1.  **Abra o arquivo:** Basta abrir o arquivo `index.html` em qualquer navegador web moderno (Chrome, Firefox, Edge, Safari).
+2.  **Leia as Instruções:** A tela inicial explicará a tarefa.
+3.  **Faça o Aquecimento:** Clique em **"Começar Aquecimento"** para uma versão mais curta e se familiarizar com a tarefa.
+4.  **Inicie o Teste:** Após o aquecimento, clique em **"Começar Teste Principal"**. Uma contagem regressiva preparará você para o início.
+5.  **Execute a Tarefa:** Clique nos círculos em ordem numérica crescente (1, 2, 3, ...) o mais rápido e precisamente que puder.
+6.  **Veja os Resultados:** Ao final, um relatório detalhado será exibido automaticamente.
 
-Fases de Aquecimento e Teste: Uma fase de prática curta (8 números) seguida pelo teste principal (25 números).
+-----
 
-Contagem Regressiva: Prepara o participante antes de cada fase, garantindo um início de cronometragem preciso.
+## 🛠️ Tecnologias Utilizadas
 
-Geração Aleatória dos Círculos: A posição dos números é sempre nova a cada teste para evitar o efeito de memorização.
+Este projeto foi construído intencionalmente sem dependências externas para garantir portabilidade e facilidade de uso.
 
-Interface Limpa: Apenas o cronômetro e a contagem de erros são visíveis durante a tarefa, minimizando a carga cognitiva.
+  * **HTML5:** Estrutura semântica do conteúdo.
+  * **CSS3:** Estilização moderna com variáveis CSS para fácil customização, animações e layout responsivo (Flexbox e Grid).
+  * **JavaScript (ES6+):** Toda a lógica do teste, manipulação do DOM, cálculos de métricas e interatividade são implementados em JavaScript puro, organizado em uma estrutura de classe (`TMTTest`).
 
-Resultados Imediatos e Contextualizados: Ao final do teste, o tempo total e os erros são exibidos. Um seletor de faixa etária permite comparar o desempenho com dados normativos (Tombaugh, 2004) e obter uma classificação e percentil instantaneamente.
+-----
 
-🚀 Tecnologias Utilizadas
-HTML5: Estrutura semântica do conteúdo.
+## 👨‍💻 Para Desenvolvedores e Pesquisadores
 
-CSS3: Estilização limpa e responsiva.
+A aplicação inclui um conjunto de funções utilitárias que podem ser acessadas através do console do navegador para gerenciamento de dados salvos localmente.
 
-JavaScript (ES6+): Lógica do teste em uma classe TMTTest otimizada, sem nenhuma dependência externa.
+  * `TMTUtils.analyzeAllSessions()`: Retorna um resumo de todas as sessões salvas no `localStorage`, incluindo média de tempo e erros.
+  * `TMTUtils.exportAllData()`: Gera e faz o download de um arquivo JSON contendo os dados de todas as sessões salvas.
+  * `TMTUtils.clearAllData()`: Limpa todos os dados de sessões e configurações salvas no `localStorage` (pede confirmação).
 
-🔧 Como Usar
-A utilização é extremamente simples:
+-----
 
-Salve o código como um arquivo .html.
+## 📂 Estrutura do Projeto
 
-Abra este arquivo em qualquer navegador web moderno (Google Chrome, Firefox, etc.).
+Tudo o que você precisa está em um único arquivo:
 
-O teste está pronto para ser usado.
+  * `index.html`: Contém a estrutura HTML, os estilos CSS e o código JavaScript.
 
-📄 Licença
-Este projeto é distribuído sob a licença MIT.
+-----
+
+## 📄 Licença
+
+Este projeto está licenciado sob a Licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
