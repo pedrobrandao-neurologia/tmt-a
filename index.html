@@ -2,11 +2,9 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Trail Making Test A (TMT-A) - Versão Aprimorada</title>
-    <meta name="description" content="Implementação digital aprimorada do Trail Making Test Parte A para avaliação neuropsicológica">
-    <meta name="author" content="Laboratório de Neurociência Cognitiva">
-    <meta name="version" content="3.0.0">
+    <meta name="description" content="Implementação digital aprimorada do Trail Making Test Parte A">
     
     <style>
         :root {
@@ -26,14 +24,13 @@
             --shadow-lg: 0 8px 16px rgba(0,0,0,0.2);
             --border-radius: 12px;
             --transition-speed: 0.3s;
-            --circle-size: 48px;
-            --min-distance: 75px;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -43,27 +40,27 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 1rem;
+            padding: 0.5rem;
             color: var(--text-primary);
+            touch-action: manipulation;
         }
-        
-        /* NOVO: Classe para ocultar elementos durante o teste */
-        .test-in-progress .stats-grid,
+
+        .test-in-progress .stats-grid:not(.stat-card-timer),
         .test-in-progress .progress-bar {
             visibility: hidden;
             opacity: 0;
         }
-        .test-in-progress .stat-card-timer { /* Manter o timer visível */
-             visibility: visible !important;
-             opacity: 1 !important;
+        
+        .test-in-progress .stat-card-timer {
+            visibility: visible !important;
+            opacity: 1 !important;
         }
-
 
         .container {
             background: white;
             border-radius: var(--border-radius);
             box-shadow: var(--shadow-lg);
-            max-width: 1200px;
+            max-width: 1400px;
             width: 100%;
             overflow: hidden;
         }
@@ -71,46 +68,44 @@
         .header {
             background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             color: white;
-            padding: 2rem;
+            padding: 1.5rem;
             text-align: center;
         }
 
         .header h1 {
-            font-size: 2rem;
+            font-size: clamp(1.2rem, 4vw, 2rem);
             font-weight: 600;
             margin-bottom: 0.5rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .header p {
-            font-size: 1.1rem;
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
             opacity: 0.95;
         }
 
         .main-content {
-            padding: 2rem;
+            padding: clamp(1rem, 3vw, 2rem);
         }
 
         .phase-indicator {
             display: flex;
             justify-content: center;
             gap: 0.5rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             flex-wrap: wrap;
         }
 
         .phase-dot {
-            width: 40px;
-            height: 40px;
+            width: clamp(32px, 8vw, 40px);
+            height: clamp(32px, 8vw, 40px);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: clamp(0.75rem, 2vw, 0.9rem);
             background: #f5f5f5;
             color: var(--text-secondary);
-            position: relative;
             transition: all var(--transition-speed);
         }
 
@@ -126,71 +121,56 @@
             color: white;
         }
 
-        .phase-dot::after {
-            content: attr(data-label);
-            position: absolute;
-            bottom: -20px;
-            font-size: 0.75rem;
-            white-space: nowrap;
-            color: var(--text-secondary);
-        }
-
         .test-canvas {
             width: 100%;
-            max-width: 900px;
-            height: 500px;
+            height: clamp(300px, 60vh, 600px);
             border: 3px solid var(--border-color);
             border-radius: var(--border-radius);
             position: relative;
-            margin: 2rem auto;
+            margin: 1rem auto;
             background: #fafafa;
             overflow: hidden;
-            box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
+            touch-action: none;
         }
 
-        /* NOVO: Estilo para a contagem regressiva */
         .countdown-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: rgba(255, 255, 255, 0.95);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 8rem;
+            font-size: clamp(4rem, 15vw, 8rem);
             font-weight: bold;
             color: var(--primary-color);
             z-index: 100;
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
         }
-
 
         .circle-node {
             position: absolute;
-            width: var(--circle-size);
-            height: var(--circle-size);
+            width: var(--node-size, 44px);
+            height: var(--node-size, 44px);
             border-radius: 50%;
             border: 3px solid var(--text-primary);
             background: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.25rem;
+            font-size: clamp(1rem, 3vw, 1.25rem);
             font-weight: bold;
             cursor: pointer;
             user-select: none;
-            transition: all var(--transition-speed);
+            transition: all 0.2s;
             z-index: 10;
             box-shadow: var(--shadow-sm);
+            touch-action: manipulation;
         }
 
-        .circle-node:hover {
-            transform: scale(1.15);
-            box-shadow: var(--shadow-md);
-            z-index: 20;
+        .circle-node:active {
+            transform: scale(0.95);
         }
 
         .circle-node.target {
@@ -203,21 +183,15 @@
             background: var(--success-color);
             color: white;
             border-color: var(--success-color);
-            transform: scale(0.95);
+            transform: scale(0.9);
             pointer-events: none;
         }
 
         .circle-node.error {
-            animation: shake 0.5s;
+            animation: shake 0.4s;
             border-color: var(--error-color);
-            background: rgba(244, 67, 54, 0.1);
+            background: rgba(244, 67, 54, 0.15);
         }
-        
-        /* NOVO: Estilo para guiar o usuário de volta ao último acerto */
-        .circle-node.guide-back {
-            animation: guide-pulse 0.7s 2;
-        }
-
 
         .trail-line {
             position: absolute;
@@ -226,6 +200,7 @@
             transform-origin: left center;
             z-index: 5;
             pointer-events: none;
+            opacity: 0.7;
         }
 
         @keyframes pulse {
@@ -234,48 +209,36 @@
                 box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.4);
             }
             50% { 
-                transform: scale(1.05);
-                box-shadow: 0 0 0 10px rgba(33, 150, 243, 0);
+                transform: scale(1.08);
+                box-shadow: 0 0 0 8px rgba(33, 150, 243, 0);
             }
-        }
-        
-        /* NOVO: Animação para guiar o usuário de volta */
-        @keyframes guide-pulse {
-            0% { background-color: var(--success-color); opacity: 0.5; }
-            50% { background-color: var(--success-color); opacity: 1; transform: scale(1.1); }
-            100% { background-color: var(--success-color); opacity: 0.5; }
         }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-8px); }
-            75% { transform: translateX(8px); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1rem;
-            margin: 2rem 0;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.75rem;
+            margin: 1.5rem 0;
             transition: all var(--transition-speed);
         }
 
         .stat-card {
             background: linear-gradient(135deg, #f5f5f5, #fafafa);
-            padding: 1.25rem;
+            padding: 1rem;
             border-radius: var(--border-radius);
             text-align: center;
             border: 1px solid var(--border-color);
             transition: all var(--transition-speed);
         }
 
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
         .stat-value {
-            font-size: 2rem;
+            font-size: clamp(1.5rem, 5vw, 2rem);
             font-weight: bold;
             color: var(--primary-color);
             margin-bottom: 0.25rem;
@@ -283,22 +246,22 @@
 
         .stat-label {
             color: var(--text-secondary);
-            font-size: 0.85rem;
+            font-size: clamp(0.7rem, 2vw, 0.85rem);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         .controls {
             display: flex;
-            gap: 1rem;
+            gap: 0.75rem;
             justify-content: center;
             flex-wrap: wrap;
-            margin: 2rem 0;
+            margin: 1.5rem 0;
         }
 
         .btn {
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
+            padding: 0.75rem 1.25rem;
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
             font-weight: 600;
             border: none;
             border-radius: 8px;
@@ -306,27 +269,9 @@
             transition: all var(--transition-speed);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            min-width: 150px;
+            min-width: 140px;
             position: relative;
             overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .btn:hover::before {
-            width: 300px;
-            height: 300px;
         }
 
         .btn-primary {
@@ -335,20 +280,14 @@
             box-shadow: var(--shadow-sm);
         }
 
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
+        .btn-primary:active {
+            transform: scale(0.98);
         }
 
         .btn-secondary {
             background: white;
             color: var(--primary-color);
             border: 2px solid var(--primary-color);
-        }
-
-        .btn-secondary:hover:not(:disabled) {
-            background: var(--primary-color);
-            color: white;
         }
 
         .btn-success {
@@ -359,30 +298,31 @@
         .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            transform: none !important;
         }
 
         .instructions-panel {
             background: linear-gradient(135deg, rgba(33, 150, 243, 0.05), rgba(33, 150, 243, 0.02));
             border-left: 4px solid var(--primary-color);
-            padding: 1.5rem;
+            padding: 1.25rem;
             border-radius: 8px;
-            margin: 2rem 0;
+            margin: 1.5rem 0;
             line-height: 1.6;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
         }
 
         .instructions-panel h3 {
             color: var(--primary-color);
-            margin-bottom: 1rem;
-            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+            font-size: clamp(1rem, 3vw, 1.25rem);
         }
 
         .message-box {
-            padding: 1rem;
+            padding: 0.875rem;
             border-radius: 8px;
             margin: 1rem 0;
             text-align: center;
             font-weight: 500;
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
             transition: all var(--transition-speed);
         }
 
@@ -417,7 +357,6 @@
             border-radius: 4px;
             overflow: hidden;
             margin: 1rem 0;
-            transition: all var(--transition-speed);
         }
 
         .progress-fill {
@@ -429,34 +368,29 @@
 
         .settings-panel {
             background: #f5f5f5;
-            padding: 1rem;
+            padding: 0.875rem;
             border-radius: 8px;
             margin: 1rem 0;
             display: flex;
-            gap: 1rem;
+            gap: 0.5rem;
             justify-content: center;
             flex-wrap: wrap;
         }
 
         .setting-btn {
-            padding: 0.5rem 1rem;
+            padding: 0.5rem 0.875rem;
             background: white;
             border: 2px solid var(--border-color);
             border-radius: 6px;
             cursor: pointer;
             transition: all var(--transition-speed);
-            font-size: 0.9rem;
+            font-size: clamp(0.75rem, 2vw, 0.9rem);
         }
 
         .setting-btn.active {
             background: var(--primary-color);
             color: white;
             border-color: var(--primary-color);
-        }
-
-        .setting-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-sm);
         }
 
         .modal {
@@ -466,11 +400,12 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.8);
             z-index: 1000;
             justify-content: center;
             align-items: center;
-            animation: fadeIn 0.3s;
+            padding: 1rem;
+            overflow-y: auto;
         }
 
         .modal.show {
@@ -480,29 +415,12 @@
         .modal-content {
             background: white;
             border-radius: var(--border-radius);
-            padding: 2rem;
-            max-width: 800px;
-            width: 90%;
+            padding: clamp(1rem, 3vw, 2rem);
+            max-width: 900px;
+            width: 100%;
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: var(--shadow-lg);
-            animation: slideUp 0.3s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideUp {
-            from { 
-                transform: translateY(50px);
-                opacity: 0;
-            }
-            to { 
-                transform: translateY(0);
-                opacity: 1;
-            }
         }
 
         .modal-header {
@@ -516,20 +434,19 @@
 
         .modal-header h2 {
             color: var(--primary-color);
-            font-size: 1.5rem;
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
         }
 
         .modal-close {
             background: none;
             border: none;
-            font-size: 1.5rem;
+            font-size: 2rem;
             cursor: pointer;
             color: var(--text-secondary);
-            transition: color var(--transition-speed);
-        }
-
-        .modal-close:hover {
-            color: var(--error-color);
+            line-height: 1;
+            padding: 0;
+            width: 32px;
+            height: 32px;
         }
 
         .results-section {
@@ -542,13 +459,13 @@
         .results-section h3 {
             color: var(--primary-dark);
             margin-bottom: 1rem;
-            font-size: 1.1rem;
+            font-size: clamp(1rem, 3vw, 1.1rem);
         }
 
         .results-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 0.875rem;
         }
 
         .result-item {
@@ -559,57 +476,56 @@
         }
 
         .result-label {
-            font-size: 0.85rem;
+            font-size: clamp(0.75rem, 2vw, 0.85rem);
             color: var(--text-secondary);
             margin-bottom: 0.25rem;
         }
 
         .result-value {
-            font-size: 1.25rem;
+            font-size: clamp(1rem, 3vw, 1.25rem);
             font-weight: bold;
             color: var(--primary-color);
         }
 
-        .chart-container {
-            width: 100%;
-            height: 300px;
-            margin: 1rem 0;
-            position: relative;
-        }
-
-        .export-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 2rem;
-            flex-wrap: wrap;
-        }
-
-        /* NOVO: Estilos para o seletor de idade e tabela normativa */
         .normative-controls {
             display: flex;
-            gap: 1rem;
+            gap: 0.75rem;
             align-items: center;
             margin-bottom: 1rem;
             flex-wrap: wrap;
         }
+
         .normative-controls label {
             font-weight: 500;
+            font-size: clamp(0.85rem, 2vw, 1rem);
         }
+
         #age-range-selector {
             padding: 0.5rem;
             border-radius: 6px;
             border: 1px solid var(--border-color);
+            font-size: clamp(0.85rem, 2vw, 1rem);
         }
+
         .normative-table {
             width: 100%;
             border-collapse: collapse;
             margin: 1rem 0;
+            font-size: clamp(0.8rem, 2vw, 0.95rem);
+            overflow-x: auto;
+            display: block;
+        }
+
+        .normative-table thead,
+        .normative-table tbody {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
         }
 
         .normative-table th,
         .normative-table td {
-            padding: 0.75rem;
+            padding: 0.65rem;
             text-align: left;
             border: 1px solid var(--border-color);
         }
@@ -618,37 +534,23 @@
             background: var(--primary-color);
             color: white;
         }
-        
-        .normative-table tr {
-            transition: background-color 0.3s;
-        }
 
         .normative-table tr.highlighted {
             background-color: rgba(33, 150, 243, 0.15);
             font-weight: bold;
         }
 
-        .normative-table tr:nth-child(even) {
+        .normative-table tr:nth-child(even):not(.highlighted) {
             background: #f5f5f5;
         }
-        .normative-table tr.highlighted:nth-child(even) {
-            background-color: rgba(33, 150, 243, 0.15);
-        }
-        
-        .normative-footer {
-            margin-top: 0.5rem;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
 
         .performance-badge {
             display: inline-block;
-            padding: 0.25rem 0.75rem;
+            padding: 0.2rem 0.6rem;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: clamp(0.7rem, 1.8vw, 0.85rem);
             font-weight: bold;
-            margin-left: 0.5rem;
+            margin-left: 0.25rem;
         }
 
         .badge-superior {
@@ -666,44 +568,73 @@
             color: white;
         }
 
+        .export-buttons {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .metrics-detail {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .metrics-detail h4 {
+            color: var(--primary-dark);
+            margin-bottom: 0.75rem;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+        }
+
+        .metrics-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .metrics-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+        }
+
+        .metrics-list li:last-child {
+            border-bottom: none;
+        }
+
+        .metric-name {
+            color: var(--text-secondary);
+        }
+
+        .metric-value {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 1.5rem;
-            }
-
-            .test-canvas {
-                height: 400px;
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
             .controls {
                 flex-direction: column;
             }
-
+            
             .btn {
                 width: 100%;
             }
-
-            :root {
-                --circle-size: 42px;
-                --min-distance: 65px;
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
         @media (max-width: 480px) {
-            .test-canvas {
-                height: 350px;
-            }
-
-            :root {
-                --circle-size: 38px;
-                --min-distance: 55px;
-            }
-
             .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -712,48 +643,12 @@
             body {
                 background: white;
             }
-
             .container {
                 box-shadow: none;
             }
-
-            .controls,
-            .settings-panel,
-            .btn,
-            .modal-close {
+            .controls, .settings-panel, .btn, .modal-close {
                 display: none !important;
             }
-        }
-
-        .accessibility-mode {
-            --circle-size: 56px;
-            --min-distance: 85px;
-        }
-
-        .high-contrast {
-            --primary-color: #000080;
-            --success-color: #008000;
-            --error-color: #800000;
-            --warning-color: #FF6600;
-        }
-
-        .high-contrast .circle-node {
-            border-width: 4px;
-            font-size: 1.5rem;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -766,25 +661,24 @@
 
         <main class="main-content">
             <div class="phase-indicator">
-                <div class="phase-dot" id="phase-1" data-label="Instruções">1</div>
-                <div class="phase-dot" id="phase-2" data-label="Aquecimento">2</div>
-                <div class="phase-dot" id="phase-3" data-label="Teste">3</div>
-                <div class="phase-dot" id="phase-4" data-label="Resultados">4</div>
+                <div class="phase-dot" id="phase-1">1</div>
+                <div class="phase-dot" id="phase-2">2</div>
+                <div class="phase-dot" id="phase-3">3</div>
+                <div class="phase-dot" id="phase-4">4</div>
             </div>
 
             <div class="settings-panel">
                 <button class="setting-btn" id="sound-toggle">🔊 Som</button>
-                <button class="setting-btn" id="contrast-toggle">🎨 Alto Contraste</button>
-                <button class="setting-btn" id="size-toggle">🔍 Círculos Maiores</button>
-                <button class="setting-btn" id="trails-toggle">📍 Mostrar Trilhas</button>
+                <button class="setting-btn" id="contrast-toggle">🎨 Contraste</button>
+                <button class="setting-btn" id="trails-toggle">📍 Trilhas</button>
             </div>
 
             <div class="instructions-panel" id="instructions">
                 <h3>📋 Como Realizar o Teste</h3>
                 <p>
-                    Nesta tela, você verá alguns círculos com números dentro. Sua tarefa é clicar nos círculos em ordem crescente, começando pelo número 1, depois o 2, o 3, e assim por diante, até o último número. Tente fazer isso o mais rápido que puder, sem cometer erros.
+                    Você verá círculos com números. Clique nos círculos em ordem crescente (1, 2, 3...) o mais rápido possível, sem erros.
                     <br><br>
-                    Vamos começar com um pequeno aquecimento para você praticar.
+                    Começaremos com um aquecimento para você praticar.
                 </p>
             </div>
 
@@ -798,10 +692,6 @@
                 <div class="stat-card stat-card-timer">
                     <div class="stat-value" id="timer">00:00</div>
                     <div class="stat-label">Tempo</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="current">1</div>
-                    <div class="stat-label">Próximo</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value" id="errors">0</div>
@@ -830,7 +720,7 @@
     <div class="modal" id="resultsModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>📊 Relatório de Resultados - TMT-A</h2>
+                <h2>📊 Relatório Completo - TMT-A</h2>
                 <button class="modal-close" id="closeModal">&times;</button>
             </div>
 
@@ -850,38 +740,103 @@
                         <div class="result-value" id="result-errors">-</div>
                     </div>
                     <div class="result-item">
-                        <div class="result-label">Eficiência</div>
-                        <div class="result-value" id="result-efficiency">-</div>
+                        <div class="result-label">Taxa de Acerto</div>
+                        <div class="result-value" id="result-accuracy">-</div>
                     </div>
                 </div>
             </div>
 
             <div class="results-section">
-                <h3>Análise Temporal</h3>
+                <h3>Métricas Detalhadas de Tempo</h3>
+                <div class="metrics-detail">
+                    <h4>Tempo de Reação e Resposta</h4>
+                    <ul class="metrics-list">
+                        <li>
+                            <span class="metric-name">Tempo Médio por Conexão:</span>
+                            <span class="metric-value" id="metric-avg-connection">-</span>
+                        </li>
+                        <li>
+                            <span class="metric-name">Tempo de Reação Médio:</span>
+                            <span class="metric-value" id="metric-avg-reaction">-</span>
+                        </li>
+                        <li>
+                            <span class="metric-name">Menor Tempo de Reação:</span>
+                            <span class="metric-value" id="metric-min-reaction">-</span>
+                        </li>
+                        <li>
+                            <span class="metric-name">Maior Tempo de Reação:</span>
+                            <span class="metric-value" id="metric-max-reaction">-</span>
+                        </li>
+                        <li>
+                            <span class="metric-name">Variabilidade (CV):</span>
+                            <span class="metric-value" id="metric-variability">-</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="metrics-detail">
+                    <h4>Análise de Velocidade</h4>
+                    <ul class="metrics-list">
+                        <li>
+                            <span class="metric-name">Velocidade Inicial (33%):</span>
+                            <span class="metric-value" id="metric-initial-speed">-</span>
+                        </li>
+                        <li>
+                            <span class="metric-name">Velocidade Mediana (33%):</span>
+                            <span class="metric-value" id="metric-middle-speed">-</span>
+                        </li>
+                        <li>
+                            <span class="metric-name">Velocidade Final (33%):</span>
+                            <span class="metric-value" id="metric-final-speed">-</span>
+                        </li>
+                        <li>
+                            <span class="metric-name">Índice de Fadiga:</span>
+                            <span class="metric-value" id="metric-fatigue">-</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <h3>Análise de Erros</h3>
                 <div class="results-grid">
                     <div class="result-item">
-                        <div class="result-label">Tempo Médio/Conexão</div>
-                        <div class="result-value" id="result-avg-time">-</div>
+                        <div class="result-label">Taxa de Erro (%)</div>
+                        <div class="result-value" id="result-error-rate">-</div>
                     </div>
                     <div class="result-item">
-                        <div class="result-label">Variabilidade (CV)</div>
-                        <div class="result-value" id="result-variability">-</div>
+                        <div class="result-label">Erros de Repetição</div>
+                        <div class="result-value" id="result-error-rep">-</div>
                     </div>
                     <div class="result-item">
-                        <div class="result-label">Velocidade Inicial</div>
-                        <div class="result-value" id="result-initial-speed">-</div>
+                        <div class="result-label">Erros de Antecipação</div>
+                        <div class="result-value" id="result-error-ant">-</div>
                     </div>
                     <div class="result-item">
-                        <div class="result-label">Velocidade Final</div>
-                        <div class="result-value" id="result-final-speed">-</div>
+                        <div class="result-label">Erros de Sequência</div>
+                        <div class="result-value" id="result-error-seq">-</div>
                     </div>
+                </div>
+                
+                <div class="metrics-detail">
+                    <h4>Padrão Temporal de Erros</h4>
+                    <ul class="metrics-list">
+                        <li>
+                            <span class="metric-name">Tempo Médio até Erro:</span>
+                            <span class="metric-value" id="metric-time-to-error">-</span>
+                        </li>
+                        <li>
+                            <span class="metric-name">Tentativas Médias/Número:</span>
+                            <span class="metric-value" id="metric-attempts-per-number">-</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
 
             <div class="results-section">
                 <h3>Comparação Normativa</h3>
                 <div class="normative-controls">
-                    <label for="age-range-selector">Selecione sua faixa etária:</label>
+                    <label for="age-range-selector">Sua faixa etária:</label>
                     <select id="age-range-selector">
                         <option value="">--Escolha--</option>
                     </select>
@@ -892,48 +847,32 @@
                             <th>Faixa Etária</th>
                             <th>Média (s)</th>
                             <th>DP</th>
-                            <th>Seu Percentil</th>
+                            <th>Percentil</th>
                             <th>Classificação</th>
                         </tr>
                     </thead>
-                    <tbody id="normative-data">
-                        </tbody>
+                    <tbody id="normative-data"></tbody>
                 </table>
-                <p class="normative-footer">
-                    <strong>*Percentil:</strong> Indica que seu desempenho foi melhor que X% das pessoas na sua faixa etária. Valores mais altos são melhores.
-                </p>
-            </div>
-
-            <div class="results-section">
-                <h3>Padrão de Erros</h3>
-                <canvas id="errorChart" class="chart-container"></canvas>
             </div>
 
             <div class="export-buttons">
-                <button class="btn btn-primary" id="exportCSV">📥 Exportar CSV</button>
-                <button class="btn btn-primary" id="exportJSON">📥 Exportar JSON</button>
-                <button class="btn btn-primary" id="exportPDF">📥 Gerar PDF</button>
-                <button class="btn btn-secondary" id="saveLocal">💾 Salvar Localmente</button>
+                <button class="btn btn-primary" id="exportCSV">📥 CSV</button>
+                <button class="btn btn-primary" id="exportJSON">📥 JSON</button>
+                <button class="btn btn-secondary" id="saveLocal">💾 Salvar</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Configuração Global
         const CONFIG = {
             TOTAL_NUMBERS: 25,
             PRACTICE_NUMBERS: 8,
-            MAX_TIME: 300000, // 5 minutos
-            CIRCLE_SIZE: 48,
-            MIN_DISTANCE: 75,
-            ANIMATION_SPEED: 300,
+            MAX_TIME: 300000,
             SOUND_ENABLED: true,
             HIGH_CONTRAST: false,
-            LARGE_CIRCLES: false,
             SHOW_TRAILS: true
         };
 
-        // Dados Normativos (Tombaugh, 2004)
         const NORMATIVE_DATA = {
             '18-24': { mean: 22.93, sd: 6.87 },
             '25-34': { mean: 24.40, sd: 8.71 },
@@ -954,7 +893,8 @@
                 this.initializeElements();
                 this.bindEvents();
                 this.loadSettings();
-                this.populateAgeSelector(); // NOVO
+                this.populateAgeSelector();
+                this.calculateNodeSize();
             }
 
             initializeState() {
@@ -972,8 +912,11 @@
                     trails: [],
                     positions: [],
                     connectionTimes: [],
+                    reactionTimes: [],
+                    clickTimestamps: [],
                     totalDistance: 0,
-                    optimalDistance: 0
+                    optimalDistance: 0,
+                    lastCorrectTime: null
                 };
                 
                 this.timer = null;
@@ -981,8 +924,34 @@
                 this.results = null;
             }
 
+            calculateNodeSize() {
+                const canvas = document.getElementById('testCanvas');
+                const rect = canvas.getBoundingClientRect();
+                const width = rect.width;
+                const height = rect.height;
+                const minDimension = Math.min(width, height);
+                
+                let nodeSize = 44;
+                let minDistance = 70;
+                
+                if (minDimension < 400) {
+                    nodeSize = 38;
+                    minDistance = 60;
+                } else if (minDimension < 500) {
+                    nodeSize = 42;
+                    minDistance = 65;
+                } else if (minDimension > 700) {
+                    nodeSize = 48;
+                    minDistance = 80;
+                }
+                
+                document.documentElement.style.setProperty('--node-size', `${nodeSize}px`);
+                this.nodeSize = nodeSize;
+                this.minDistance = minDistance;
+            }
+
             initializeElements() {
-                this.container = document.getElementById('container'); // NOVO
+                this.container = document.getElementById('container');
                 this.canvas = document.getElementById('testCanvas');
                 this.timerDisplay = document.getElementById('timer');
                 this.currentDisplay = document.getElementById('current');
@@ -999,16 +968,14 @@
                 
                 this.soundToggle = document.getElementById('sound-toggle');
                 this.contrastToggle = document.getElementById('contrast-toggle');
-                this.sizeToggle = document.getElementById('size-toggle');
                 this.trailsToggle = document.getElementById('trails-toggle');
                 
                 this.modal = document.getElementById('resultsModal');
                 this.closeModal = document.getElementById('closeModal');
-                this.ageRangeSelector = document.getElementById('age-range-selector'); // NOVO
+                this.ageRangeSelector = document.getElementById('age-range-selector');
                 
                 this.exportCSV = document.getElementById('exportCSV');
                 this.exportJSON = document.getElementById('exportJSON');
-                this.exportPDF = document.getElementById('exportPDF');
                 this.saveLocal = document.getElementById('saveLocal');
                 
                 this.phases = {
@@ -1028,7 +995,6 @@
                 
                 this.soundToggle.addEventListener('click', () => this.toggleSound());
                 this.contrastToggle.addEventListener('click', () => this.toggleContrast());
-                this.sizeToggle.addEventListener('click', () => this.toggleSize());
                 this.trailsToggle.addEventListener('click', () => this.toggleTrails());
                 
                 this.closeModal.addEventListener('click', () => this.hideModal());
@@ -1036,19 +1002,24 @@
                     if (e.target === this.modal) this.hideModal();
                 });
                 
-                this.ageRangeSelector.addEventListener('change', (e) => this.highlightNormativeRow(e.target.value)); // NOVO
+                this.ageRangeSelector.addEventListener('change', (e) => this.highlightNormativeRow(e.target.value));
                 
                 this.exportCSV.addEventListener('click', () => this.exportToCSV());
                 this.exportJSON.addEventListener('click', () => this.exportToJSON());
-                this.exportPDF.addEventListener('click', () => this.generatePDF());
                 this.saveLocal.addEventListener('click', () => this.saveToLocal());
                 
-                document.addEventListener('keydown', (e) => this.handleKeyPress(e));
+                window.addEventListener('resize', () => {
+                    this.calculateNodeSize();
+                    if (this.state.isRunning) {
+                        this.showMessage('Tela redimensionada durante o teste', 'warning');
+                    }
+                });
                 
-                window.addEventListener('resize', () => this.handleResize());
+                window.addEventListener('orientationchange', () => {
+                    setTimeout(() => this.calculateNodeSize(), 200);
+                });
             }
 
-            // NOVO: Preenche o seletor de idade dinamicamente
             populateAgeSelector() {
                 Object.keys(NORMATIVE_DATA).forEach(ageGroup => {
                     const option = document.createElement('option');
@@ -1064,9 +1035,7 @@
                     const settings = JSON.parse(saved);
                     CONFIG.SOUND_ENABLED = settings.sound ?? true;
                     CONFIG.HIGH_CONTRAST = settings.contrast ?? false;
-                    CONFIG.LARGE_CIRCLES = settings.largeCircles ?? false;
                     CONFIG.SHOW_TRAILS = settings.trails ?? true;
-                    
                     this.applySettings();
                 }
             }
@@ -1075,7 +1044,6 @@
                 const settings = {
                     sound: CONFIG.SOUND_ENABLED,
                     contrast: CONFIG.HIGH_CONTRAST,
-                    largeCircles: CONFIG.LARGE_CIRCLES,
                     trails: CONFIG.SHOW_TRAILS
                 };
                 localStorage.setItem('tmt-settings', JSON.stringify(settings));
@@ -1085,17 +1053,7 @@
                 this.soundToggle.classList.toggle('active', CONFIG.SOUND_ENABLED);
                 this.contrastToggle.classList.toggle('active', CONFIG.HIGH_CONTRAST);
                 document.body.classList.toggle('high-contrast', CONFIG.HIGH_CONTRAST);
-                this.sizeToggle.classList.toggle('active', CONFIG.LARGE_CIRCLES);
-                document.body.classList.toggle('accessibility-mode', CONFIG.LARGE_CIRCLES);
                 this.trailsToggle.classList.toggle('active', CONFIG.SHOW_TRAILS);
-                
-                if (CONFIG.LARGE_CIRCLES) {
-                    CONFIG.CIRCLE_SIZE = 56;
-                    CONFIG.MIN_DISTANCE = 85;
-                } else {
-                    CONFIG.CIRCLE_SIZE = 48;
-                    CONFIG.MIN_DISTANCE = 75;
-                }
             }
 
             toggleSound() {
@@ -1109,14 +1067,6 @@
                 CONFIG.HIGH_CONTRAST = !CONFIG.HIGH_CONTRAST;
                 this.contrastToggle.classList.toggle('active');
                 document.body.classList.toggle('high-contrast');
-                this.saveSettings();
-            }
-
-            toggleSize() {
-                CONFIG.LARGE_CIRCLES = !CONFIG.LARGE_CIRCLES;
-                this.sizeToggle.classList.toggle('active');
-                document.body.classList.toggle('accessibility-mode');
-                this.applySettings();
                 this.saveSettings();
             }
 
@@ -1144,7 +1094,6 @@
                 this.phases[phaseNumber].classList.add('active');
             }
 
-            // NOVO: Função de contagem regressiva
             showCountdown(callback) {
                 const countdownOverlay = document.createElement('div');
                 countdownOverlay.className = 'countdown-overlay';
@@ -1167,20 +1116,17 @@
                 }, 1000);
             }
 
-
             startPractice() {
                 this.updatePhase(2);
                 this.state.isPractice = true;
                 this.state.phase = 'practice';
                 
-                this.showMessage('Prepare-se para o aquecimento...', 'info');
+                this.showMessage('Preparando aquecimento...', 'info');
                 this.generateNodes(CONFIG.PRACTICE_NUMBERS);
                 
                 this.practiceBtn.style.display = 'none';
                 this.startBtn.disabled = true;
-                this.startBtn.textContent = 'Começar Teste Principal';
                 
-                // NOVO: Adiciona contagem regressiva antes de iniciar
                 this.showCountdown(() => {
                     this.container.classList.add('test-in-progress');
                     this.startTimer();
@@ -1193,19 +1139,17 @@
                 this.state.phase = 'test';
                 this.reset(false);
                 
-                this.showMessage('Prepare-se para o teste principal...', 'info');
+                this.showMessage('Preparando teste...', 'info');
                 this.generateNodes(CONFIG.TOTAL_NUMBERS);
                 
                 this.startBtn.style.display = 'none';
                 this.pauseBtn.style.display = 'inline-block';
                 
-                // NOVO: Adiciona contagem regressiva antes de iniciar
                 this.showCountdown(() => {
                     this.container.classList.add('test-in-progress');
                     this.startTimer();
                 });
             }
-
 
             generateNodes(count) {
                 this.clearCanvas();
@@ -1216,12 +1160,12 @@
                 const rect = this.canvas.getBoundingClientRect();
                 const width = rect.width;
                 const height = rect.height;
-                const margin = CONFIG.CIRCLE_SIZE;
+                const margin = this.nodeSize;
                 
                 for (let i = 1; i <= count; i++) {
                     let position;
                     let attempts = 0;
-                    const maxAttempts = 100;
+                    const maxAttempts = 200;
                     
                     do {
                         position = {
@@ -1237,7 +1181,6 @@
                 }
                 
                 this.calculateOptimalDistance();
-                
                 this.highlightTarget(1);
             }
 
@@ -1247,7 +1190,7 @@
                         Math.pow(newPos.x - pos.x, 2) + 
                         Math.pow(newPos.y - pos.y, 2)
                     );
-                    return distance < CONFIG.MIN_DISTANCE;
+                    return distance < this.minDistance;
                 });
             }
 
@@ -1256,10 +1199,14 @@
                 node.className = 'circle-node';
                 node.dataset.number = position.number;
                 node.textContent = position.number;
-                node.style.left = (position.x - CONFIG.CIRCLE_SIZE / 2) + 'px';
-                node.style.top = (position.y - CONFIG.CIRCLE_SIZE / 2) + 'px';
+                node.style.left = (position.x - this.nodeSize / 2) + 'px';
+                node.style.top = (position.y - this.nodeSize / 2) + 'px';
                 
                 node.addEventListener('click', () => this.handleNodeClick(position.number));
+                node.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.handleNodeClick(position.number);
+                }, { passive: false });
                 
                 this.canvas.appendChild(node);
                 this.state.nodes.push(node);
@@ -1269,23 +1216,27 @@
                 if (!this.state.isRunning || this.state.isPaused) return;
                 
                 const timestamp = Date.now();
+                const reactionTime = this.state.lastCorrectTime ? timestamp - this.state.lastCorrectTime : 0;
+                
                 const click = {
                     number: number,
                     expected: this.state.currentNumber,
                     timestamp: timestamp,
-                    correct: number === this.state.currentNumber
+                    correct: number === this.state.currentNumber,
+                    reactionTime: reactionTime
                 };
                 
                 this.state.clicks.push(click);
+                this.state.clickTimestamps.push(timestamp);
                 
                 if (click.correct) {
-                    this.handleCorrectClick(number);
+                    this.handleCorrectClick(number, reactionTime);
                 } else {
                     this.handleIncorrectClick(number);
                 }
             }
 
-            handleCorrectClick(number) {
+            handleCorrectClick(number, reactionTime) {
                 const node = this.state.nodes[number - 1];
                 node.classList.add('correct');
                 
@@ -1293,18 +1244,9 @@
                     this.drawTrail(number - 1, number);
                 }
                 
-                if (this.state.clicks.length > 1) {
-                    const lastCorrect = [...this.state.clicks]
-                        .reverse()
-                        .find(c => c.correct && c.number === number - 1);
-                    
-                    if (lastCorrect) {
-                        const connectionTime = Date.now() - lastCorrect.timestamp;
-                        this.state.connectionTimes.push(connectionTime);
-                    }
-                }
-                
                 if (number > 1) {
+                    this.state.reactionTimes.push(reactionTime);
+                    
                     const prev = this.state.positions[number - 2];
                     const curr = this.state.positions[number - 1];
                     const distance = Math.sqrt(
@@ -1312,6 +1254,15 @@
                         Math.pow(curr.y - prev.y, 2)
                     );
                     this.state.totalDistance += distance;
+                }
+                
+                this.state.lastCorrectTime = Date.now();
+                
+                const connectionTime = this.state.clicks.length > 1 ? 
+                    this.state.lastCorrectTime - this.state.clicks[this.state.clicks.length - 2].timestamp : 0;
+                
+                if (connectionTime > 0) {
+                    this.state.connectionTimes.push(connectionTime);
                 }
                 
                 this.playSound('success');
@@ -1329,23 +1280,22 @@
             handleIncorrectClick(number) {
                 const node = this.state.nodes[number - 1];
                 node.classList.add('error');
-                setTimeout(() => node.classList.remove('error'), 500);
+                setTimeout(() => node.classList.remove('error'), 400);
                 
                 const error = {
                     timestamp: Date.now(),
                     clicked: number,
                     expected: this.state.currentNumber,
-                    type: this.classifyError(number)
+                    type: this.classifyError(number),
+                    timeSinceStart: Date.now() - this.state.startTime
                 };
                 
                 this.state.errors.push(error);
                 this.errorsDisplay.textContent = this.state.errors.length;
                 
                 this.playSound('error');
-                // ALTERADO: Mensagem de erro mais construtiva
-                this.showMessage(`Atenção! Por favor, clique no número ${this.state.currentNumber}`, 'warning');
+                this.showMessage(`Clique no número ${this.state.currentNumber}`, 'warning');
             }
-
 
             classifyError(clicked) {
                 const expected = this.state.currentNumber;
@@ -1399,6 +1349,7 @@
             startTimer() {
                 this.state.isRunning = true;
                 this.state.startTime = Date.now();
+                this.state.lastCorrectTime = Date.now();
                 
                 this.timer = setInterval(() => {
                     const elapsed = Date.now() - this.state.startTime;
@@ -1428,9 +1379,13 @@
                     this.state.isPaused = false;
                     this.pauseBtn.textContent = 'Pausar';
                     this.showMessage('Teste retomado', 'info');
+                    const pauseTime = Date.now() - this.state.pauseStartTime;
+                    this.state.startTime += pauseTime;
+                    this.state.lastCorrectTime += pauseTime;
                     this.startTimer();
                 } else {
                     this.state.isPaused = true;
+                    this.state.pauseStartTime = Date.now();
                     this.pauseBtn.textContent = 'Retomar';
                     this.showMessage('Teste pausado', 'warning');
                     this.stopTimer();
@@ -1441,16 +1396,16 @@
                 this.stopTimer();
                 this.state.endTime = Date.now();
                 this.state.phase = 'completed';
-                this.container.classList.remove('test-in-progress'); // NOVO: Restaura UI
+                this.container.classList.remove('test-in-progress');
                 
                 if (this.state.isPractice) {
-                    this.showMessage('Ótimo, aquecimento concluído! Quando estiver pronto, clique em "Começar Teste Principal".', 'success');
+                    this.showMessage('Aquecimento concluído! Pronto para o teste?', 'success');
                     this.startBtn.disabled = false;
                     this.pauseBtn.style.display = 'none';
                 } else {
                     this.updatePhase(4);
                     this.calculateResults();
-                    this.showMessage('Teste concluído com sucesso!', 'success');
+                    this.showMessage('Teste concluído!', 'success');
                     this.pauseBtn.style.display = 'none';
                     this.resultsBtn.style.display = 'inline-block';
                     this.showResults();
@@ -1463,7 +1418,7 @@
                 this.stopTimer();
                 this.state.endTime = Date.now();
                 this.container.classList.remove('test-in-progress');
-                this.showMessage('Tempo limite excedido!', 'error');
+                this.showMessage('Tempo esgotado!', 'error');
                 this.calculateResults();
                 this.showResults();
             }
@@ -1483,29 +1438,52 @@
             calculateResults() {
                 const totalTime = (this.state.endTime - this.state.startTime) / 1000;
                 const completed = this.state.currentNumber - 1;
+                const totalClicks = this.state.clicks.length;
+                const correctClicks = this.state.clicks.filter(c => c.correct).length;
+                const accuracy = (correctClicks / totalClicks) * 100;
+                
+                const avgReactionTime = this.state.reactionTimes.length > 0
+                    ? this.state.reactionTimes.reduce((a, b) => a + b, 0) / this.state.reactionTimes.length
+                    : 0;
+                
+                const minReactionTime = this.state.reactionTimes.length > 0
+                    ? Math.min(...this.state.reactionTimes)
+                    : 0;
+                
+                const maxReactionTime = this.state.reactionTimes.length > 0
+                    ? Math.max(...this.state.reactionTimes)
+                    : 0;
                 
                 const avgConnectionTime = this.state.connectionTimes.length > 0
                     ? this.state.connectionTimes.reduce((a, b) => a + b, 0) / this.state.connectionTimes.length
                     : 0;
                 
-                const variance = this.state.connectionTimes.length > 1
-                    ? this.state.connectionTimes.reduce((sum, time) => 
-                        sum + Math.pow(time - avgConnectionTime, 2), 0) / (this.state.connectionTimes.length - 1)
+                const variance = this.state.reactionTimes.length > 1
+                    ? this.state.reactionTimes.reduce((sum, time) => 
+                        sum + Math.pow(time - avgReactionTime, 2), 0) / (this.state.reactionTimes.length - 1)
                     : 0;
                 
                 const stdDev = Math.sqrt(variance);
-                const cv = avgConnectionTime > 0 ? (stdDev / avgConnectionTime) * 100 : 0;
+                const cv = avgReactionTime > 0 ? (stdDev / avgReactionTime) * 100 : 0;
                 
-                const firstThird = this.state.connectionTimes.slice(0, Math.floor(this.state.connectionTimes.length / 3));
-                const lastThird = this.state.connectionTimes.slice(-Math.floor(this.state.connectionTimes.length / 3));
+                const thirdSize = Math.floor(this.state.reactionTimes.length / 3);
+                const firstThird = this.state.reactionTimes.slice(0, thirdSize);
+                const middleThird = this.state.reactionTimes.slice(thirdSize, thirdSize * 2);
+                const lastThird = this.state.reactionTimes.slice(thirdSize * 2);
                 
                 const initialSpeed = firstThird.length > 0
-                    ? firstThird.reduce((a, b) => a + b, 0) / firstThird.length / 1000
+                    ? firstThird.reduce((a, b) => a + b, 0) / firstThird.length
+                    : 0;
+                
+                const middleSpeed = middleThird.length > 0
+                    ? middleThird.reduce((a, b) => a + b, 0) / middleThird.length
                     : 0;
                 
                 const finalSpeed = lastThird.length > 0
-                    ? lastThird.reduce((a, b) => a + b, 0) / lastThird.length / 1000
+                    ? lastThird.reduce((a, b) => a + b, 0) / lastThird.length
                     : 0;
+                
+                const fatigueIndex = initialSpeed > 0 ? ((finalSpeed - initialSpeed) / initialSpeed) * 100 : 0;
                 
                 const efficiency = this.state.optimalDistance > 0
                     ? (this.state.optimalDistance / this.state.totalDistance) * 100
@@ -1521,22 +1499,38 @@
                     errorsByType[error.type]++;
                 });
                 
+                const avgTimeToError = this.state.errors.length > 0
+                    ? this.state.errors.reduce((sum, e) => sum + e.timeSinceStart, 0) / this.state.errors.length / 1000
+                    : 0;
+                
+                const attemptsPerNumber = totalClicks / completed;
+                
                 const normativeComparison = this.compareToNorms(totalTime);
                 
                 this.results = {
                     totalTime,
                     completed,
+                    totalClicks,
+                    correctClicks,
+                    accuracy,
                     totalErrors: this.state.errors.length,
-                    errorRate: (this.state.errors.length / this.state.clicks.length) * 100,
+                    errorRate: (this.state.errors.length / totalClicks) * 100,
                     avgConnectionTime: avgConnectionTime / 1000,
+                    avgReactionTime: avgReactionTime / 1000,
+                    minReactionTime: minReactionTime / 1000,
+                    maxReactionTime: maxReactionTime / 1000,
                     variability: cv,
-                    initialSpeed,
-                    finalSpeed,
+                    initialSpeed: initialSpeed / 1000,
+                    middleSpeed: middleSpeed / 1000,
+                    finalSpeed: finalSpeed / 1000,
+                    fatigueIndex,
                     efficiency,
                     errorsByType,
+                    avgTimeToError,
+                    attemptsPerNumber,
                     normativeComparison,
                     clicks: this.state.clicks,
-                    connectionTimes: this.state.connectionTimes
+                    reactionTimes: this.state.reactionTimes
                 };
             }
 
@@ -1545,7 +1539,6 @@
                 
                 Object.entries(NORMATIVE_DATA).forEach(([ageGroup, data]) => {
                     const zScore = (time - data.mean) / data.sd;
-                    // ALTERADO: Percentil invertido para testes de tempo (menor tempo = maior percentil)
                     const percentile = 100 - this.zScoreToPercentile(zScore);
                     
                     comparisons[ageGroup] = {
@@ -1587,27 +1580,38 @@
                 return { label: 'Muito Baixo', badge: 'badge-below' };
             }
 
-
             showResults() {
                 if (!this.results) return;
                 
-                document.getElementById('result-time').textContent = 
-                    `${this.results.totalTime.toFixed(2)}s`;
-                document.getElementById('result-connected').textContent = 
-                    `${this.results.completed}/${CONFIG.TOTAL_NUMBERS}`;
-                document.getElementById('result-errors').textContent = 
-                    this.results.totalErrors;
-                document.getElementById('result-efficiency').textContent = 
-                    `${this.results.efficiency.toFixed(1)}%`;
+                document.getElementById('result-time').textContent = `${this.results.totalTime.toFixed(2)}s`;
+                document.getElementById('result-connected').textContent = `${this.results.completed}/${CONFIG.TOTAL_NUMBERS}`;
+                document.getElementById('result-errors').textContent = this.results.totalErrors;
+                document.getElementById('result-accuracy').textContent = `${this.results.accuracy.toFixed(1)}%`;
                 
-                document.getElementById('result-avg-time').textContent = 
-                    `${this.results.avgConnectionTime.toFixed(2)}s`;
-                document.getElementById('result-variability').textContent = 
-                    `${this.results.variability.toFixed(1)}%`;
-                document.getElementById('result-initial-speed').textContent = 
-                    `${this.results.initialSpeed.toFixed(2)}s`;
-                document.getElementById('result-final-speed').textContent = 
-                    `${this.results.finalSpeed.toFixed(2)}s`;
+                document.getElementById('metric-avg-connection').textContent = `${this.results.avgConnectionTime.toFixed(3)}s`;
+                document.getElementById('metric-avg-reaction').textContent = `${this.results.avgReactionTime.toFixed(3)}s`;
+                document.getElementById('metric-min-reaction').textContent = `${this.results.minReactionTime.toFixed(3)}s`;
+                document.getElementById('metric-max-reaction').textContent = `${this.results.maxReactionTime.toFixed(3)}s`;
+                document.getElementById('metric-variability').textContent = `${this.results.variability.toFixed(1)}%`;
+                
+                document.getElementById('metric-initial-speed').textContent = `${this.results.initialSpeed.toFixed(3)}s`;
+                document.getElementById('metric-middle-speed').textContent = `${this.results.middleSpeed.toFixed(3)}s`;
+                document.getElementById('metric-final-speed').textContent = `${this.results.finalSpeed.toFixed(3)}s`;
+                
+                const fatigueText = this.results.fatigueIndex > 0 ? 
+                    `+${this.results.fatigueIndex.toFixed(1)}% (lentidão)` : 
+                    `${this.results.fatigueIndex.toFixed(1)}% (aceleração)`;
+                document.getElementById('metric-fatigue').textContent = fatigueText;
+                
+                document.getElementById('result-error-rate').textContent = `${this.results.errorRate.toFixed(1)}%`;
+                document.getElementById('result-error-rep').textContent = this.results.errorsByType.repetition;
+                document.getElementById('result-error-ant').textContent = this.results.errorsByType.anticipation;
+                document.getElementById('result-error-seq').textContent = this.results.errorsByType.sequence;
+                
+                document.getElementById('metric-time-to-error').textContent = 
+                    this.results.avgTimeToError > 0 ? `${this.results.avgTimeToError.toFixed(2)}s` : 'N/A';
+                document.getElementById('metric-attempts-per-number').textContent = 
+                    `${this.results.attemptsPerNumber.toFixed(2)}`;
                 
                 this.fillNormativeTable();
                 
@@ -1620,7 +1624,7 @@
                 
                 Object.entries(this.results.normativeComparison).forEach(([ageGroup, data]) => {
                     const row = document.createElement('tr');
-                    row.dataset.ageGroup = ageGroup; // NOVO: data-attribute para identificar a linha
+                    row.dataset.ageGroup = ageGroup;
                     const classification = data.classification;
                     
                     row.innerHTML = `
@@ -1639,8 +1643,7 @@
                     tbody.appendChild(row);
                 });
             }
-            
-            // NOVO: Função para destacar a linha da tabela
+
             highlightNormativeRow(ageGroup) {
                 const rows = document.querySelectorAll('#normative-data tr');
                 rows.forEach(row => {
@@ -1658,31 +1661,50 @@
             exportToCSV() {
                 if (!this.results) return;
                 
-                let csv = 'Trail Making Test A - Resultados\n\n';
-                csv += 'Medida,Valor\n';
-                csv += `Tempo Total (s),${this.results.totalTime.toFixed(2)}\n`;
-                csv += `Números Conectados,${this.results.completed}\n`;
-                csv += `Total de Erros,${this.results.totalErrors}\n`;
-                csv += `Taxa de Erro (%),${this.results.errorRate.toFixed(2)}\n`;
-                csv += `Tempo Médio/Conexão (s),${this.results.avgConnectionTime.toFixed(2)}\n`;
-                csv += `Variabilidade CV (%),${this.results.variability.toFixed(2)}\n`;
-                csv += `Eficiência Espacial (%),${this.results.efficiency.toFixed(2)}\n`;
-                csv += '\nErros por Tipo\n';
-                csv += `Repetição,${this.results.errorsByType.repetition}\n`;
-                csv += `Antecipação,${this.results.errorsByType.anticipation}\n`;
-                csv += `Sequência,${this.results.errorsByType.sequence}\n`;
-                csv += '\nDados Trial-by-Trial\n';
-                csv += 'Número,Esperado,Correto,Timestamp\n';
+                let csv = 'Trail Making Test A - Resultados Detalhados\n\n';
+                csv += 'Categoria,Metrica,Valor\n';
+                csv += `Desempenho,Tempo Total (s),${this.results.totalTime.toFixed(3)}\n`;
+                csv += `Desempenho,Numeros Conectados,${this.results.completed}\n`;
+                csv += `Desempenho,Total de Cliques,${this.results.totalClicks}\n`;
+                csv += `Desempenho,Cliques Corretos,${this.results.correctClicks}\n`;
+                csv += `Desempenho,Taxa de Acerto (%),${this.results.accuracy.toFixed(2)}\n`;
+                csv += `Desempenho,Total de Erros,${this.results.totalErrors}\n`;
+                csv += `Desempenho,Taxa de Erro (%),${this.results.errorRate.toFixed(2)}\n`;
                 
-                this.results.clicks.forEach(click => {
-                    csv += `${click.number},${click.expected},${click.correct},${click.timestamp}\n`;
+                csv += `Tempo,Tempo Medio por Conexao (s),${this.results.avgConnectionTime.toFixed(3)}\n`;
+                csv += `Tempo,Tempo de Reacao Medio (s),${this.results.avgReactionTime.toFixed(3)}\n`;
+                csv += `Tempo,Menor Tempo de Reacao (s),${this.results.minReactionTime.toFixed(3)}\n`;
+                csv += `Tempo,Maior Tempo de Reacao (s),${this.results.maxReactionTime.toFixed(3)}\n`;
+                csv += `Tempo,Variabilidade CV (%),${this.results.variability.toFixed(2)}\n`;
+                
+                csv += `Velocidade,Velocidade Inicial (s),${this.results.initialSpeed.toFixed(3)}\n`;
+                csv += `Velocidade,Velocidade Mediana (s),${this.results.middleSpeed.toFixed(3)}\n`;
+                csv += `Velocidade,Velocidade Final (s),${this.results.finalSpeed.toFixed(3)}\n`;
+                csv += `Velocidade,Indice de Fadiga (%),${this.results.fatigueIndex.toFixed(2)}\n`;
+                
+                csv += `Erros,Erros de Repeticao,${this.results.errorsByType.repetition}\n`;
+                csv += `Erros,Erros de Antecipacao,${this.results.errorsByType.anticipation}\n`;
+                csv += `Erros,Erros de Sequencia,${this.results.errorsByType.sequence}\n`;
+                csv += `Erros,Tempo Medio ate Erro (s),${this.results.avgTimeToError.toFixed(3)}\n`;
+                csv += `Erros,Tentativas por Numero,${this.results.attemptsPerNumber.toFixed(3)}\n`;
+                
+                csv += '\n\nDados Trial-by-Trial\n';
+                csv += 'Clique,Numero,Esperado,Correto,Timestamp,Tempo Reacao (ms)\n';
+                
+                this.results.clicks.forEach((click, index) => {
+                    csv += `${index + 1},${click.number},${click.expected},${click.correct},${click.timestamp},${click.reactionTime || 0}\n`;
                 });
                 
-                const blob = new Blob([csv], { type: 'text/csv' });
+                csv += '\n\nTempos de Reacao Individuais (ms)\n';
+                this.results.reactionTimes.forEach((time, index) => {
+                    csv += `${index + 1},${time}\n`;
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `TMT-A_${new Date().toISOString().slice(0, 10)}.csv`;
+                a.download = `TMT-A_Detalhado_${new Date().toISOString().slice(0, 10)}.csv`;
                 a.click();
                 URL.revokeObjectURL(url);
             }
@@ -1692,12 +1714,20 @@
                 
                 const data = {
                     test: 'Trail Making Test A',
+                    version: '4.0',
                     date: new Date().toISOString(),
+                    device: {
+                        userAgent: navigator.userAgent,
+                        platform: navigator.platform,
+                        screenWidth: window.screen.width,
+                        screenHeight: window.screen.height,
+                        canvasWidth: this.canvas.getBoundingClientRect().width,
+                        canvasHeight: this.canvas.getBoundingClientRect().height
+                    },
                     results: this.results,
                     settings: {
                         sound: CONFIG.SOUND_ENABLED,
                         contrast: CONFIG.HIGH_CONTRAST,
-                        largeCircles: CONFIG.LARGE_CIRCLES,
                         trails: CONFIG.SHOW_TRAILS
                     }
                 };
@@ -1707,13 +1737,9 @@
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `TMT-A_${new Date().toISOString().slice(0, 10)}.json`;
+                a.download = `TMT-A_Completo_${new Date().toISOString().slice(0, 10)}.json`;
                 a.click();
                 URL.revokeObjectURL(url);
-            }
-
-            generatePDF() {
-                window.print();
             }
 
             saveToLocal() {
@@ -1722,56 +1748,69 @@
                 const key = `tmt-a-${Date.now()}`;
                 const data = {
                     date: new Date().toISOString(),
-                    results: this.results
+                    results: this.results,
+                    device: {
+                        userAgent: navigator.userAgent,
+                        platform: navigator.platform
+                    }
                 };
                 
-                localStorage.setItem(key, JSON.stringify(data));
-                
-                let index = JSON.parse(localStorage.getItem('tmt-a-index') || '[]');
-                index.push({
-                    key,
-                    date: data.date,
-                    time: this.results.totalTime
-                });
-                localStorage.setItem('tmt-a-index', JSON.stringify(index));
-                
-                this.showMessage('Resultados salvos localmente!', 'success');
+                try {
+                    localStorage.setItem(key, JSON.stringify(data));
+                    
+                    let index = JSON.parse(localStorage.getItem('tmt-a-index') || '[]');
+                    index.push({
+                        key,
+                        date: data.date,
+                        time: this.results.totalTime,
+                        errors: this.results.totalErrors
+                    });
+                    localStorage.setItem('tmt-a-index', JSON.stringify(index));
+                    
+                    this.showMessage('Resultados salvos com sucesso!', 'success');
+                } catch (e) {
+                    this.showMessage('Erro ao salvar: memória cheia', 'error');
+                }
             }
 
             playSound(type) {
                 if (!CONFIG.SOUND_ENABLED) return;
                 
-                if (!this.audioContext) {
-                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                try {
+                    if (!this.audioContext) {
+                        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+                    
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+                    
+                    switch (type) {
+                        case 'success':
+                            oscillator.frequency.value = 800;
+                            gainNode.gain.value = 0.1;
+                            break;
+                        case 'error':
+                            oscillator.frequency.value = 300;
+                            gainNode.gain.value = 0.15;
+                            break;
+                        case 'complete':
+                            oscillator.frequency.value = 1000;
+                            gainNode.gain.value = 0.2;
+                            break;
+                        case 'toggle':
+                            oscillator.frequency.value = 600;
+                            gainNode.gain.value = 0.05;
+                            break;
+                    }
+                    
+                    oscillator.start();
+                    oscillator.stop(this.audioContext.currentTime + 0.1);
+                } catch (e) {
+                    console.warn('Audio não suportado', e);
                 }
-                
-                const oscillator = this.audioContext.createOscillator();
-                const gainNode = this.audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(this.audioContext.destination);
-                
-                switch (type) {
-                    case 'success':
-                        oscillator.frequency.value = 800;
-                        gainNode.gain.value = 0.1;
-                        break;
-                    case 'error':
-                        oscillator.frequency.value = 300;
-                        gainNode.gain.value = 0.15;
-                        break;
-                    case 'complete':
-                        oscillator.frequency.value = 1000;
-                        gainNode.gain.value = 0.2;
-                        break;
-                    case 'toggle':
-                        oscillator.frequency.value = 600;
-                        gainNode.gain.value = 0.05;
-                        break;
-                }
-                
-                oscillator.start();
-                oscillator.stop(this.audioContext.currentTime + 0.1);
             }
 
             showMessage(text, type) {
@@ -1782,43 +1821,9 @@
                     setTimeout(() => {
                         if (this.messageBox.textContent === text) {
                             this.messageBox.className = 'message-box message-info';
-                            this.messageBox.textContent = 'Siga as instruções ou os botões abaixo.';
+                            this.messageBox.textContent = 'Siga as instruções abaixo.';
                         }
-                    }, 5000);
-                }
-            }
-
-            handleKeyPress(e) {
-                switch(e.key) {
-                    case 'Enter':
-                    case ' ':
-                        if (!this.state.isRunning && this.startBtn.disabled === false) {
-                            e.preventDefault();
-                            this.startTest();
-                        } else if (!this.state.isRunning && this.practiceBtn.style.display !== 'none') {
-                            e.preventDefault();
-                            this.startPractice();
-                        }
-                        break;
-                    case 'Escape':
-                        if (this.modal.classList.contains('show')) {
-                            this.hideModal();
-                        } else if (this.state.isRunning) {
-                            this.togglePause();
-                        }
-                        break;
-                    case 'r':
-                        if (e.ctrlKey || e.metaKey) {
-                            e.preventDefault();
-                            this.reset();
-                        }
-                        break;
-                }
-            }
-
-            handleResize() {
-                if (this.state.isRunning && this.state.nodes.length > 0) {
-                    this.showMessage('A tela foi redimensionada. Para melhores resultados, evite alterar o tamanho da janela durante o teste.', 'warning');
+                    }, 4000);
                 }
             }
 
@@ -1830,7 +1835,7 @@
             reset(fullReset = true) {
                 this.stopTimer();
                 this.clearCanvas();
-                this.container.classList.remove('test-in-progress'); // NOVO: Garante que a UI seja restaurada
+                this.container.classList.remove('test-in-progress');
                 this.initializeState();
                 
                 if (fullReset) {
@@ -1847,7 +1852,7 @@
                     this.progressDisplay.textContent = '0%';
                     this.progressBar.style.width = '0%';
                     
-                    this.showMessage('Bem-vindo! Clique em "Começar Aquecimento" para praticar.', 'info');
+                    this.showMessage('Bem-vindo! Clique em "Começar Aquecimento".', 'info');
                 }
             }
         }
@@ -1867,11 +1872,13 @@
                 
                 const avgTime = sessions.reduce((sum, s) => sum + s.totalTime, 0) / sessions.length;
                 const avgErrors = sessions.reduce((sum, s) => sum + s.totalErrors, 0) / sessions.length;
+                const avgAccuracy = sessions.reduce((sum, s) => sum + s.accuracy, 0) / sessions.length;
                 
                 console.table({
                     'Total de Sessões': sessions.length,
                     'Tempo Médio (s)': avgTime.toFixed(2),
                     'Erros Médios': avgErrors.toFixed(2),
+                    'Acurácia Média (%)': avgAccuracy.toFixed(2),
                     'Melhor Tempo (s)': Math.min(...sessions.map(s => s.totalTime)).toFixed(2),
                     'Pior Tempo (s)': Math.max(...sessions.map(s => s.totalTime)).toFixed(2)
                 });
@@ -1880,7 +1887,7 @@
             },
             
             clearAllData() {
-                if (!confirm('Tem certeza que deseja limpar todos os dados salvos?')) return;
+                if (!confirm('Tem certeza que deseja limpar todos os dados?')) return;
                 
                 const index = JSON.parse(localStorage.getItem('tmt-a-index') || '[]');
                 index.forEach(item => {
@@ -1902,9 +1909,48 @@
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `TMT-A_all_data_${new Date().toISOString().slice(0, 10)}.json`;
+                a.download = `TMT-A_Todas_Sessoes_${new Date().toISOString().slice(0, 10)}.json`;
                 a.click();
                 URL.revokeObjectURL(url);
+            },
+            
+            getStatistics() {
+                const index = JSON.parse(localStorage.getItem('tmt-a-index') || '[]');
+                if (index.length === 0) {
+                    console.log('Nenhuma sessão encontrada');
+                    return null;
+                }
+                
+                const sessions = index.map(item => {
+                    const data = JSON.parse(localStorage.getItem(item.key));
+                    return data.results;
+                });
+                
+                const times = sessions.map(s => s.totalTime);
+                const errors = sessions.map(s => s.totalErrors);
+                const accuracies = sessions.map(s => s.accuracy);
+                
+                return {
+                    sessions: sessions.length,
+                    time: {
+                        mean: times.reduce((a, b) => a + b, 0) / times.length,
+                        min: Math.min(...times),
+                        max: Math.max(...times),
+                        recent: times.slice(-5)
+                    },
+                    errors: {
+                        mean: errors.reduce((a, b) => a + b, 0) / errors.length,
+                        min: Math.min(...errors),
+                        max: Math.max(...errors),
+                        recent: errors.slice(-5)
+                    },
+                    accuracy: {
+                        mean: accuracies.reduce((a, b) => a + b, 0) / accuracies.length,
+                        min: Math.min(...accuracies),
+                        max: Math.max(...accuracies),
+                        recent: accuracies.slice(-5)
+                    }
+                };
             }
         };
 
@@ -1912,9 +1958,10 @@
             const tmt = new TMTTest();
             window.tmtInstance = tmt;
             
-            console.log('%cTMT-A v3.0 Carregado', 'color: #2196F3; font-size: 14px; font-weight: bold;');
+            console.log('%cTMT-A v4.0 - Métricas Aprimoradas', 'color: #2196F3; font-size: 14px; font-weight: bold;');
+            console.log('%cUse TMTUtils.analyzeAllSessions() para análise de histórico', 'color: #666; font-size: 12px;');
+            console.log('%cUse TMTUtils.getStatistics() para estatísticas detalhadas', 'color: #666; font-size: 12px;');
         });
-
     </script>
 </body>
 </html>
