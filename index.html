@@ -173,12 +173,6 @@
             transform: scale(0.95);
         }
 
-        .circle-node.target {
-            border-color: var(--primary-color);
-            background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(33, 150, 243, 0.05));
-            animation: pulse 1.5s infinite;
-        }
-
         .circle-node.correct {
             background: var(--success-color);
             color: white;
@@ -954,7 +948,6 @@
                 this.container = document.getElementById('container');
                 this.canvas = document.getElementById('testCanvas');
                 this.timerDisplay = document.getElementById('timer');
-                this.currentDisplay = document.getElementById('current');
                 this.errorsDisplay = document.getElementById('errors');
                 this.progressDisplay = document.getElementById('progress-stat');
                 this.progressBar = document.getElementById('progress');
@@ -1202,11 +1195,16 @@
                 node.style.left = (position.x - this.nodeSize / 2) + 'px';
                 node.style.top = (position.y - this.nodeSize / 2) + 'px';
                 
-                node.addEventListener('click', () => this.handleNodeClick(position.number));
-                node.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
+                const handleClick = (e) => {
+                    if (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
                     this.handleNodeClick(position.number);
-                }, { passive: false });
+                };
+                
+                node.addEventListener('click', handleClick);
+                node.addEventListener('touchend', handleClick, { passive: false });
                 
                 this.canvas.appendChild(node);
                 this.state.nodes.push(node);
@@ -1331,11 +1329,8 @@
                     node.classList.remove('target');
                 });
                 
-                if (number <= this.state.nodes.length) {
-                    this.state.nodes[number - 1].classList.add('target');
-                }
-                
-                this.currentDisplay.textContent = number;
+                // Não destaca visualmente o próximo número
+                // O participante deve buscar ativamente
             }
 
             updateProgress() {
@@ -1847,7 +1842,6 @@
                     this.resultsBtn.style.display = 'none';
                     
                     this.timerDisplay.textContent = '00:00';
-                    this.currentDisplay.textContent = '1';
                     this.errorsDisplay.textContent = '0';
                     this.progressDisplay.textContent = '0%';
                     this.progressBar.style.width = '0%';
