@@ -1,76 +1,116 @@
-Claro, aqui está um README completo e bem-estruturado para o seu código, escrito em Markdown.
+# Teste de Trilhas - Parte A (TMT-A) - Versão Aprimorada 🧠
+
+Uma implementação digital interativa do **Trail Making Test Parte A (TMT-A)**, ferramenta
+neuropsicológica clássica usada para avaliar atenção visual, velocidade de processamento e
+sequenciamento. Esta versão foi reescrita com foco em **rigor de cronometria**, **layout responsivo
+sem sobreposição de estímulos** e nas **boas práticas de adaptação papel→digital** descritas na
+literatura (AACN/NAN; ITC; AERA/APA *Standards*).
+
+> ⚠️ **Aviso metodológico e clínico.** Uma versão digital de um teste tradicional é,
+> psicometricamente, um **teste novo**. Esta ferramenta **não tem finalidade diagnóstica** e não
+> substitui a avaliação neuropsicológica presencial. As normas exibidas baseiam-se na versão em
+> **papel** (Tombaugh, 2004) e servem apenas como referência aproximada — a equivalência de medida e
+> normas próprias da versão digital ainda precisam ser estabelecidas.
 
 -----
 
-# Teste de Trilhas - Parte A (TMT-A) - Versão Aprimorada 🧠
-
-Uma implementação digital interativa e aprimorada do **Trail Making Test Parte A (TMT-A)**, uma ferramenta neuropsicológica clássica usada para avaliar a atenção visual, velocidade de processamento, e sequenciamento motor.
-
-Este projeto foi desenvolvido como uma ferramenta robusta para pesquisa e avaliação, oferecendo coleta de dados detalhada, feedback em tempo real e um relatório de resultados completo.
-
 ## ✨ Recursos Principais
 
-Este projeto vai além de uma simples digitalização do teste, incorporando recursos avançados para uma avaliação mais completa:
-
-  * **Fases do Teste:** Um fluxo claro que inclui **Instruções**, um **Aquecimento** para familiarização, o **Teste Principal** e uma tela de **Resultados Detalhados**.
-  * **Coleta de Dados Rica:** Registra não apenas o tempo total e os erros, mas também o tempo de cada conexão, a sequência de cliques e a trajetória do cursor.
-  * **Métricas Avançadas:** Calcula automaticamente métricas importantes como:
-      * **Eficiência Espacial:** A razão entre a distância ótima e a distância percorrida.
-      * **Velocidade de Processamento:** Tempo médio por conexão.
-      * **Variabilidade de Desempenho (CV):** Mede a consistência da velocidade ao longo do teste.
-      * **Velocidade Inicial vs. Final:** Compara o desempenho no início e no final do teste.
-  * **Comparação Normativa:** Permite comparar o desempenho do usuário com dados normativos baseados em faixas etárias (referência: Tombaugh, 2004), fornecendo percentil e classificação.
-  * **Relatório de Resultados Completo:** Um modal interativo exibe todos os dados de desempenho, métricas temporais, comparação normativa e um gráfico de padrão de erros.
-  * **Exportação de Dados:** Os resultados podem ser exportados em múltiplos formatos para análise posterior: **CSV**, **JSON** e um relatório em **PDF** (via impressão).
-  * **Opções de Acessibilidade:**
-      * **Modo de Alto Contraste:** Para melhor visibilidade.
-      * **Círculos Maiores:** Aumenta o tamanho dos alvos para facilitar o clique.
-  * **Feedback Interativo:** Animações e sons (opcionais) para acertos e erros, melhorando a experiência do usuário.
-  * **Design Responsivo:** A interface se adapta a diferentes tamanhos de tela, de desktops a tablets.
+  * **Fases do teste:** Instruções → **Aquecimento obrigatório** → **Teste Principal** →
+    **Relatório**. O teste principal só é liberado após a conclusão do aquecimento.
+  * **Layout responsivo anti-sobreposição:** os estímulos são posicionados por um algoritmo de
+    **grade com *jitter*** que **garante ausência de sobreposição** em qualquer tamanho de tela. Ao
+    redimensionar/girar o dispositivo, o layout é **reescalado** (via `ResizeObserver`) mantendo a
+    folga entre círculos e sem que nenhum estímulo saia da área de teste.
+  * **Cronometria de alta resolução:** todas as medidas de tempo usam `performance.now()`
+    (monotônico, sub-ms), com o *timestamp* capturado no `pointerdown` (evento mais próximo do
+    input). A taxa de atualização efetiva do display (Hz) é medida e registrada.
+  * **Dissociação cognição × motricidade:** para mouse, cada conexão é decomposta em **tempo de
+    decisão** (latência até o início do movimento) e **tempo de movimento** (execução motora) —
+    importante para minimizar o confundimento motor em transtornos do movimento. Em toque/teclado,
+    esses componentes aparecem como `N/A`.
+  * **Eficiência de trajetória real:** quando há trajetória de ponteiro (mouse), calcula-se a razão
+    entre a distância ótima e a distância efetivamente percorrida. Sem trajetória (toque/teclado),
+    é exibida como `N/A`.
+  * **Métricas avançadas:** tempo médio/menor/maior por conexão, variabilidade (CV), velocidade
+    inicial/mediana/final, índice de fadiga e análise de erros por tipo (repetição, antecipação,
+    sequência).
+  * **Indicadores de validade:** sinalização de respostas implausivelmente rápidas (< 150 ms),
+    perdas de foco da janela durante o teste e redimensionamento de tela — resumidos num veredito de
+    validade no relatório.
+  * **Comparação normativa:** percentil e classificação por faixa etária (Tombaugh, 2004), com
+    ressalva explícita de que são normas de papel (uso indicativo).
+  * **Metadados de dispositivo/ambiente:** modalidade de resposta, taxa de atualização, *pixel
+    ratio*, viewport, fuso, etc., registrados como covariáveis na exportação.
+  * **Exportação de dados:** **CSV** (incluindo *trial-by-trial*), **JSON** completo (com trajetória
+    e metadados) e impressão/PDF.
+  * **Acessibilidade:** modo de **alto contraste** funcional, opção de **círculos maiores**,
+    estímulos como `<button>` com `aria-label`, ativação por **teclado** (Enter/Espaço), regiões
+    `aria-live` e respeito a `prefers-reduced-motion`.
+  * **Privacidade (LGPD):** todo o processamento é **local no navegador**; nenhum dado é enviado a
+    servidores ou serviços de terceiros. "Salvar" grava apenas no armazenamento local do dispositivo
+    (com metadados minimizados, sem `userAgent`).
 
 -----
 
 ## 🚀 Como Usar
 
-A aplicação é totalmente independente e não requer instalação.
+A aplicação é independente e não requer instalação nem conexão de rede.
 
-1.  **Abra o arquivo:** Basta abrir o arquivo `index.html` em qualquer navegador web moderno (Chrome, Firefox, Edge, Safari).
-2.  **Leia as Instruções:** A tela inicial explicará a tarefa.
-3.  **Faça o Aquecimento:** Clique em **"Começar Aquecimento"** para uma versão mais curta e se familiarizar com a tarefa.
-4.  **Inicie o Teste:** Após o aquecimento, clique em **"Começar Teste Principal"**. Uma contagem regressiva preparará você para o início.
-5.  **Execute a Tarefa:** Clique nos círculos em ordem numérica crescente (1, 2, 3, ...) o mais rápido e precisamente que puder.
-6.  **Veja os Resultados:** Ao final, um relatório detalhado será exibido automaticamente.
+1.  **Abra o arquivo** `index.html` em um navegador moderno (Chrome, Firefox, Edge, Safari).
+2.  **Leia as instruções e o aviso metodológico** na tela inicial.
+3.  **Faça o aquecimento** (obrigatório) clicando em **"Começar Aquecimento"**. Recomenda-se repetir
+    o aquecimento se houver muitos erros.
+4.  **Inicie o teste** em **"Começar Teste Principal"** (uma contagem regressiva prepara o início).
+5.  **Execute a tarefa:** clique/toque nos círculos em ordem crescente (1, 2, 3, ...) o mais rápido
+    e precisamente possível.
+6.  **Veja o relatório** detalhado, exibido automaticamente ao final.
 
 -----
 
-## 🛠️ Tecnologias Utilizadas
+## 🛠️ Tecnologias
 
-Este projeto foi construído intencionalmente sem dependências externas para garantir portabilidade e facilidade de uso.
+Construído sem dependências externas, em um único arquivo:
 
-  * **HTML5:** Estrutura semântica do conteúdo.
-  * **CSS3:** Estilização moderna com variáveis CSS para fácil customização, animações e layout responsivo (Flexbox e Grid).
-  * **JavaScript (ES6+):** Toda a lógica do teste, manipulação do DOM, cálculos de métricas e interatividade são implementados em JavaScript puro, organizado em uma estrutura de classe (`TMTTest`).
+  * **HTML5**, **CSS3** (variáveis, Grid/Flexbox, *media queries*) e **JavaScript (ES6+)** puro,
+    organizado na classe `TMTTest`.
 
 -----
 
 ## 👨‍💻 Para Desenvolvedores e Pesquisadores
 
-A aplicação inclui um conjunto de funções utilitárias que podem ser acessadas através do console do navegador para gerenciamento de dados salvos localmente.
+Utilitários disponíveis no console do navegador:
 
-  * `TMTUtils.analyzeAllSessions()`: Retorna um resumo de todas as sessões salvas no `localStorage`, incluindo média de tempo e erros.
-  * `TMTUtils.exportAllData()`: Gera e faz o download de um arquivo JSON contendo os dados de todas as sessões salvas.
-  * `TMTUtils.clearAllData()`: Limpa todos os dados de sessões e configurações salvas no `localStorage` (pede confirmação).
+  * `TMTUtils.analyzeAllSessions()` — resumo das sessões salvas no `localStorage`.
+  * `TMTUtils.getStatistics()` — estatísticas detalhadas (tempo, erros, acurácia).
+  * `TMTUtils.exportAllData()` — baixa um JSON com todas as sessões salvas.
+  * `TMTUtils.clearAllData()` — remove todos os dados locais (com confirmação).
+
+-----
+
+## 📏 Notas Psicométricas e Limitações
+
+  * **Equivalência não presumida:** comparar a versão digital às normas de papel é apenas
+    indicativo. Para uso clínico, é necessário estabelecer **invariância de medida** e **normas
+    próprias** em amostra pareada.
+  * **Construto vs. aparência:** o componente grafomotor digital (clicar/tocar) difere do desenho à
+    mão livre da versão em papel; interprete com isso em mente.
+  * **Confundimento motor:** a decomposição decisão/movimento ajuda a separar cognição de
+    motricidade, mas respostas dependentes de destreza fina ainda podem penalizar pacientes com
+    bradicinesia/tremor/hemiparesia. Considere a modalidade de resposta adequada a cada caso.
+  * **Validade de esforço:** escores baixos só são interpretáveis com esforço adequado; observe os
+    indicadores de validade do relatório.
+  * **Quando não usar a versão digital:** limitações sensório-motoras, afasia ou desconforto com
+    dispositivos podem tornar a testagem por examinador preferível.
 
 -----
 
 ## 📂 Estrutura do Projeto
 
-Tudo o que você precisa está em um único arquivo:
-
-  * `index.html`: Contém a estrutura HTML, os estilos CSS e o código JavaScript.
+  * `index.html` — estrutura HTML, estilos CSS e lógica JavaScript (tudo em um arquivo).
 
 -----
 
 ## 📄 Licença
 
-Este projeto está licenciado sob a Licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+Licenciado sob a Licença MIT.
