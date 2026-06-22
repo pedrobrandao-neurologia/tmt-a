@@ -15,21 +15,22 @@ e as **boas práticas de adaptação papel→digital** (AACN/NAN; ITC; AERA/APA 
 
 ## ✨ Características da Padronização
 
-  * **Layout fixo e padronizado:** os 25 estímulos seguem **formas pré-definidas e verificadas**, não
-    posições aleatórias. Isso elimina a variação de dificuldade entre aplicações.
-  * **Trilha que nunca se cruza:** o caminho 1→25 é uma poligonal simples (sem auto-interseções),
-    gerada por uma caminhada auto-evitante.
-  * **Distância constante entre estímulos:** todos os segmentos consecutivos têm **exatamente o mesmo
-    comprimento**, e esse comprimento é **idêntico em todas as tentativas** (verificado
-    automaticamente). Estímulos próximos e regulares evitam que a distância influencie o escore.
-  * **6 versões alternadas:** seis formas diferentes (mesma estrutura de distâncias) são aplicadas em
-    rodízio automático a cada nova tentativa no dispositivo, mitigando o **efeito de aprendizado** em
-    reteste.
-  * **Área quadrada responsiva:** os estímulos são mapeados numa área quadrada centralizada, de modo
-    que as distâncias permanecem iguais em qualquer tela/orientação; ao redimensionar/girar, o layout
-    é reescalado proporcionalmente, sem sobreposição e sem sair da área.
-  * **Sem customização que afete o construto:** não há ajustes de tamanho de círculo, trilha ou
-    contraste — tudo é padronizado para garantir comparabilidade dos escores.
+  * **6 versões paralelas (equivalentes):** os 25 estímulos seguem **formas pré-definidas e
+    verificadas**, não posições aleatórias. As seis versões compartilham o **mesmo perfil de
+    distâncias** `d₁…d₂₄` — ou seja, a distância entre o 1 e o 2 (e entre cada par i→i+1) é **idêntica
+    nas seis versões**, garantindo dificuldade equivalente. São aplicadas em rodízio automático a cada
+    tentativa, mitigando o **efeito de aprendizado** em reteste.
+  * **Distâncias variadas dentro de cada versão:** ao contrário de uma grade regular, dentro de uma
+    mesma versão os saltos i→i+1 **variam** (curtos e longos). Isso torna a busca visual menos
+    previsível e o teste menos fácil — preservando a comparabilidade entre versões.
+  * **Trilha que tende a não se cruzar:** o caminho 1→25 é uma poligonal simples (sem auto-interseções
+    nas formas distribuídas), gerada por caminhada auto-evitante de passos prescritos.
+  * **Arena quadrada responsiva:** a área de teste é sempre um quadrado que se ajusta à viewport
+    (`min(92vw, 62vh)`), de modo que as distâncias permanecem proporcionais em qualquer tela; ao
+    redimensionar/girar, o layout reescala sem sobreposição e sem sair da área.
+  * **Interface escura e imersiva:** fundo preto, alto contraste, fonte Inter, com **feedback sonoro**
+    (tons distintos para acerto/erro/conclusão), **modo tela inteira** e **adaptação ao dispositivo**
+    (celular, tablet ou computador — inclusive alvos de toque maiores em telas sensíveis).
 
 ## 📊 Métricas e Boas Práticas
 
@@ -101,8 +102,9 @@ Utilitários disponíveis no console do navegador:
     Para uso clínico, é necessário estabelecer **invariância de medida** e **normas próprias** em
     amostra pareada.
   * **Construto vs. aparência:** o componente grafomotor digital (clicar/tocar) difere do desenho à
-    mão livre da versão em papel; a padronização das distâncias também aproxima a tarefa de uma de
-    sequenciamento/atenção mais "limpa", com menor busca visual ampla do que a folha clássica.
+    mão livre da versão em papel. As distâncias variadas e o espalhamento dos estímulos aproximam a
+    demanda de busca visual da folha clássica, mas a tendência a não cruzar a trilha e o uso de formas
+    paralelas fixas tornam esta uma tarefa distinta da versão em papel.
   * **Confundimento motor:** a decomposição decisão/movimento ajuda a separar cognição de
     motricidade, mas respostas dependentes de destreza fina ainda podem penalizar pacientes com
     bradicinesia/tremor/hemiparesia.
