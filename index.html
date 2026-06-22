@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Trail Making Test A (TMT-A) - Versão Aprimorada</title>
-    <meta name="description" content="Implementação digital aprimorada do Trail Making Test Parte A">
+    <title>Trail Making Test A (TMT-A) - Versão Padronizada</title>
+    <meta name="description" content="Implementação digital padronizada do Trail Making Test Parte A">
 
     <style>
         :root {
@@ -61,7 +61,7 @@
             background: white;
             border-radius: var(--border-radius);
             box-shadow: var(--shadow-lg);
-            max-width: 1400px;
+            max-width: 760px;
             width: 100%;
             overflow: hidden;
         }
@@ -138,7 +138,7 @@
 
         .test-canvas {
             width: 100%;
-            height: clamp(320px, 60vh, 620px);
+            height: clamp(320px, min(82vw, 70vh), 640px);
             border: 3px solid var(--border-color);
             border-radius: var(--border-radius);
             position: relative;
@@ -237,54 +237,18 @@
         .trail-line {
             position: absolute;
             background: var(--success-color);
-            height: 3px;
+            height: 4px;
             transform-origin: left center;
             z-index: 5;
             pointer-events: none;
-            opacity: 0.7;
+            opacity: 0.75;
+            border-radius: 2px;
         }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-6px); }
             75% { transform: translateX(6px); }
-        }
-
-        /* ---------- Modo de Alto Contraste ---------- */
-        body.high-contrast .test-canvas {
-            background: #000;
-            border-color: #000;
-        }
-
-        body.high-contrast .circle-node {
-            background: #fff;
-            color: #000;
-            border: 4px solid #000;
-            box-shadow: none;
-        }
-
-        body.high-contrast .circle-node.correct {
-            background: #000;
-            color: #fff;
-            border-color: #fff;
-            box-shadow: 0 0 0 2px #fff;
-        }
-
-        body.high-contrast .circle-node.error {
-            background: #fff;
-            border-color: var(--error-color);
-            box-shadow: 0 0 0 3px var(--error-color);
-        }
-
-        body.high-contrast .trail-line {
-            background: #fff;
-            opacity: 1;
-            height: 4px;
-        }
-
-        body.high-contrast .countdown-overlay {
-            background: #000;
-            color: #fff;
         }
 
         .stats-grid {
@@ -436,38 +400,6 @@
             background: linear-gradient(90deg, var(--primary-color), var(--success-color));
             transition: width var(--transition-speed);
             width: 0%;
-        }
-
-        .settings-panel {
-            background: #f5f5f5;
-            padding: 0.875rem;
-            border-radius: 8px;
-            margin: 1rem 0;
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .setting-btn {
-            padding: 0.5rem 0.875rem;
-            background: white;
-            border: 2px solid var(--border-color);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all var(--transition-speed);
-            font-size: clamp(0.75rem, 2vw, 0.9rem);
-        }
-
-        .setting-btn:focus-visible {
-            outline: 3px solid var(--info-color);
-            outline-offset: 2px;
-        }
-
-        .setting-btn.active {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
         }
 
         .modal {
@@ -663,20 +595,9 @@
             margin-left: 0.25rem;
         }
 
-        .badge-superior {
-            background: var(--success-color);
-            color: white;
-        }
-
-        .badge-average {
-            background: var(--warning-color);
-            color: white;
-        }
-
-        .badge-below {
-            background: var(--error-color);
-            color: white;
-        }
+        .badge-superior { background: var(--success-color); color: white; }
+        .badge-average { background: var(--warning-color); color: white; }
+        .badge-below { background: var(--error-color); color: white; }
 
         .export-buttons {
             display: flex;
@@ -721,13 +642,9 @@
             font-size: clamp(0.8rem, 2vw, 0.9rem);
         }
 
-        .metrics-list li:last-child {
-            border-bottom: none;
-        }
+        .metrics-list li:last-child { border-bottom: none; }
 
-        .metric-name {
-            color: var(--text-secondary);
-        }
+        .metric-name { color: var(--text-secondary); }
 
         .metric-value {
             color: var(--primary-color);
@@ -736,46 +653,24 @@
         }
 
         @media (max-width: 768px) {
-            .controls {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .controls { flex-direction: column; }
+            .btn { width: 100%; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .results-grid {
-                grid-template-columns: 1fr;
-            }
+            .stats-grid { grid-template-columns: 1fr; }
+            .results-grid { grid-template-columns: 1fr; }
         }
 
         @media (prefers-reduced-motion: reduce) {
-            * {
-                transition: none !important;
-                animation: none !important;
-            }
+            * { transition: none !important; animation: none !important; }
         }
 
         @media print {
-            body {
-                background: white;
-            }
-            .container {
-                box-shadow: none;
-            }
-            .controls, .settings-panel, .btn, .modal-close {
-                display: none !important;
-            }
+            body { background: white; }
+            .container { box-shadow: none; }
+            .controls, .btn, .modal-close { display: none !important; }
         }
     </style>
 </head>
@@ -795,27 +690,22 @@
             </div>
 
             <div class="disclaimer" role="note">
-                <strong>Aviso importante:</strong> esta é uma <strong>adaptação digital</strong> do TMT-A e constitui,
-                do ponto de vista psicométrico, um <strong>teste novo</strong>. Não substitui a avaliação
+                <strong>Aviso importante:</strong> esta é uma <strong>adaptação digital padronizada</strong> do TMT-A e
+                constitui, do ponto de vista psicométrico, um <strong>teste novo</strong>. Não substitui a avaliação
                 neuropsicológica presencial nem tem finalidade diagnóstica. As normas exibidas baseiam-se na versão em
                 <strong>papel</strong> (Tombaugh, 2004) e servem apenas como referência aproximada — a equivalência entre
                 as versões e normas próprias para a versão digital ainda precisam ser estabelecidas.
             </div>
 
-            <div class="settings-panel">
-                <button class="setting-btn" id="sound-toggle" aria-pressed="false">🔊 Som</button>
-                <button class="setting-btn" id="contrast-toggle" aria-pressed="false">🎨 Contraste</button>
-                <button class="setting-btn" id="trails-toggle" aria-pressed="false">📍 Trilhas</button>
-                <button class="setting-btn" id="size-toggle" aria-pressed="false">🔵 Círculos maiores</button>
-            </div>
-
             <div class="instructions-panel" id="instructions">
                 <h3>📋 Como Realizar o Teste</h3>
                 <p>
-                    Você verá círculos com números. Clique (ou toque) nos círculos em ordem crescente
-                    (1, 2, 3...) o mais rápido possível, sem erros.
+                    Você verá 25 círculos numerados. Clique (ou toque) nos círculos em ordem crescente
+                    (1, 2, 3, ...) o mais rápido possível, sem erros. Uma linha conecta automaticamente os números já
+                    ligados.
                     <br><br>
-                    Começaremos com um aquecimento para você praticar. O teste principal só é liberado após o aquecimento.
+                    O teste é <strong>padronizado</strong>: a distância entre os estímulos é constante em todas as
+                    tentativas e a trilha nunca se cruza. Começaremos com um aquecimento obrigatório.
                 </p>
             </div>
 
@@ -988,6 +878,10 @@
                 <div class="metrics-detail">
                     <ul class="metrics-list">
                         <li>
+                            <span class="metric-name">Forma aplicada (versão):</span>
+                            <span class="metric-value" id="env-form">-</span>
+                        </li>
+                        <li>
                             <span class="metric-name">Modalidade de resposta:</span>
                             <span class="metric-value" id="env-pointer">-</span>
                         </li>
@@ -1057,13 +951,27 @@
             TOTAL_NUMBERS: 25,
             PRACTICE_NUMBERS: 8,
             MAX_TIME: 300000,
-            SOUND_ENABLED: true,
-            HIGH_CONTRAST: false,
-            SHOW_TRAILS: true,
-            LARGE_CIRCLES: false,
             FAST_RT_THRESHOLD: 150,
-            PRACTICE_MAX_ERRORS: 2
+            PRACTICE_MAX_ERRORS: 2,
+            SQUARE_RATIO: 0.97,    // fração de min(largura, altura) usada como área quadrada de estímulos
+            NODE_RATIO: 0.6,       // tamanho do nó relativo à menor distância entre estímulos
+            MIN_PAIR_NORM: 0.135   // menor distância normalizada entre estímulos (garantida pelas formas)
         };
+
+        // Formas PADRONIZADAS (coordenadas normalizadas 0..1, mapeadas numa área quadrada).
+        // Geradas por caminhada auto-evitante de passo fixo: a trilha 1->25 NÃO se cruza e
+        // todos os segmentos têm o MESMO comprimento (distância constante entre tentativas).
+        const FORMS = [
+            [[0.08755,0.08423],[0.29159,0.10401],[0.49475,0.13144],[0.66868,0.23995],[0.83011,0.3663],[0.85369,0.56994],[0.89559,0.77061],[0.73602,0.8993],[0.53221,0.92137],[0.33009,0.8871],[0.12572,0.87105],[0.08957,0.66927],[0.10547,0.46488],[0.31025,0.47453],[0.49167,0.56997],[0.29215,0.61704],[0.47289,0.71377],[0.63388,0.58685],[0.59217,0.78756],[0.76835,0.68275],[0.75318,0.47831],[0.57502,0.37691],[0.41539,0.24829],[0.23924,0.35315],[0.43784,0.40396]],
+            [[0.08788,0.16224],[0.1163,0.36526],[0.13951,0.56894],[0.12752,0.77359],[0.28756,0.90169],[0.49197,0.91728],[0.69275,0.87587],[0.89763,0.86894],[0.91146,0.66441],[0.90807,0.45943],[0.86554,0.25889],[0.77025,0.07739],[0.56553,0.08804],[0.45195,0.2587],[0.5372,0.44514],[0.42095,0.61399],[0.62274,0.65017],[0.8048,0.55594],[0.72213,0.74354],[0.51852,0.76731],[0.31626,0.73388],[0.31214,0.52892],[0.32389,0.32426],[0.37759,0.12641],[0.20403,0.23551]],
+            [[0.08821,0.24024],[0.26305,0.13321],[0.46801,0.13745],[0.6653,0.08175],[0.87027,0.0782],[0.91675,0.27786],[0.92166,0.4828],[0.86779,0.6806],[0.78824,0.86953],[0.59077,0.92459],[0.38972,0.88455],[0.19256,0.8284],[0.11909,0.63702],[0.28972,0.5234],[0.49472,0.52406],[0.64576,0.38546],[0.44385,0.35003],[0.58637,0.20267],[0.79132,0.19804],[0.81013,0.40218],[0.69898,0.57443],[0.51996,0.67432],[0.70533,0.76185],[0.50652,0.81182],[0.3172,0.73319]],
+            [[0.08855,0.31825],[0.07075,0.11402],[0.27555,0.10479],[0.48013,0.11789],[0.68448,0.13421],[0.88575,0.1731],[0.90873,0.37681],[0.84465,0.57153],[0.7492,0.75295],[0.62308,0.91456],[0.4211,0.87947],[0.24833,0.76913],[0.07977,0.88581],[0.08351,0.68084],[0.21817,0.52628],[0.41659,0.47476],[0.61456,0.42154],[0.61243,0.62653],[0.74494,0.47011],[0.7911,0.27037],[0.58622,0.26334],[0.38331,0.29253],[0.19065,0.22248],[0.29167,0.40085],[0.09648,0.4635]],
+            [[0.08888,0.39625],[0.0943,0.19132],[0.26696,0.08081],[0.47153,0.09414],[0.67601,0.10877],[0.88085,0.10073],[0.89977,0.30485],[0.90503,0.50978],[0.81439,0.69366],[0.74306,0.88585],[0.53869,0.90192],[0.33471,0.88149],[0.14198,0.81163],[0.2505,0.63771],[0.41715,0.51833],[0.58098,0.3951],[0.64276,0.59057],[0.77261,0.43194],[0.7646,0.22709],[0.55979,0.2184],[0.35751,0.1851],[0.43593,0.37451],[0.24643,0.29631],[0.27247,0.49965],[0.08275,0.57731]],
+            [[0.08955,0.55226],[0.10565,0.3479],[0.14106,0.14598],[0.33302,0.07403],[0.53605,0.10233],[0.6678,0.2594],[0.76888,0.43774],[0.79994,0.64038],[0.8206,0.84433],[0.62327,0.8999],[0.41873,0.9135],[0.21421,0.8994],[0.25227,0.69797],[0.42826,0.59283],[0.51504,0.77855],[0.71853,0.7537],[0.56562,0.61715],[0.63127,0.42295],[0.52939,0.24505],[0.32707,0.21202],[0.46387,0.3647],[0.2603,0.34052],[0.24294,0.54479],[0.1116,0.70218],[0.07353,0.90362]]
+        ];
+
+        // Forma de aquecimento (8 estímulos), também sem cruzamento e com passo constante.
+        const PRACTICE_FORM = [[0.28268,0.85172],[0.18413,0.65503],[0.11375,0.44659],[0.0807,0.22909],[0.25122,0.09008],[0.46882,0.12249],[0.68733,0.09695],[0.90717,0.10543]];
 
         // Normas da VERSÃO EM PAPEL (Tombaugh, 2004). Referência aproximada apenas.
         const NORMATIVE_DATA = {
@@ -1087,7 +995,6 @@
                 this.initializeState();
                 this.initializeElements();
                 this.bindEvents();
-                this.loadSettings();
                 this.populateAgeSelector();
                 this.refreshRate = null;
                 this.measureRefreshRate();
@@ -1101,6 +1008,7 @@
                     isPractice: false,
                     isPaused: false,
                     currentNumber: 1,
+                    formIndex: null,
                     startTime: null,
                     endTime: null,
                     pauseStartTime: null,
@@ -1114,14 +1022,12 @@
                     reactionTimes: [],
                     decisionTimes: [],
                     movementTimes: [],
-                    // trajetória real do ponteiro (separa cognição de motricidade)
                     segMoveStart: null,
                     lastMove: null,
                     movementDistance: 0,
                     trajectory: [],
                     lastSampleTime: 0,
                     pointerCounts: {},
-                    // indicadores de validade
                     fastResponses: 0,
                     focusLossCount: 0,
                     resizeDuringTest: false
@@ -1132,13 +1038,6 @@
                 this.results = null;
                 this.reflowScheduled = false;
                 this.practiceCompleted = false;
-            }
-
-            baseNodeSize(minDim) {
-                if (minDim < 400) return 38;
-                if (minDim < 500) return 42;
-                if (minDim > 700) return 48;
-                return 44;
             }
 
             measureRefreshRate() {
@@ -1176,10 +1075,9 @@
                     deviceMemory: nav.deviceMemory || null,
                     maxTouchPoints: nav.maxTouchPoints || 0,
                     language: nav.language || null,
-                    timezone: (Intl && Intl.DateTimeFormat) ? Intl.DateTimeFormat().resolvedOptions().timeZone : null,
+                    timezone: (window.Intl && Intl.DateTimeFormat) ? Intl.DateTimeFormat().resolvedOptions().timeZone : null,
                     pointerTypes: this.state.pointerCounts
                 };
-                // userAgent completo só em exportação para arquivo local (não em localStorage)
                 if (full) {
                     meta.userAgent = nav.userAgent || null;
                     meta.platform = nav.platform || null;
@@ -1201,11 +1099,6 @@
                 this.pauseBtn = document.getElementById('pauseBtn');
                 this.resultsBtn = document.getElementById('resultsBtn');
                 this.resetBtn = document.getElementById('resetBtn');
-
-                this.soundToggle = document.getElementById('sound-toggle');
-                this.contrastToggle = document.getElementById('contrast-toggle');
-                this.trailsToggle = document.getElementById('trails-toggle');
-                this.sizeToggle = document.getElementById('size-toggle');
 
                 this.modal = document.getElementById('resultsModal');
                 this.closeModalBtn = document.getElementById('closeModal');
@@ -1230,11 +1123,6 @@
                 this.resultsBtn.addEventListener('click', () => this.showResults());
                 this.resetBtn.addEventListener('click', () => this.reset());
 
-                this.soundToggle.addEventListener('click', () => this.toggleSound());
-                this.contrastToggle.addEventListener('click', () => this.toggleContrast());
-                this.trailsToggle.addEventListener('click', () => this.toggleTrails());
-                this.sizeToggle.addEventListener('click', () => this.toggleSize());
-
                 this.closeModalBtn.addEventListener('click', () => this.hideModal());
                 this.modal.addEventListener('click', (e) => {
                     if (e.target === this.modal) this.hideModal();
@@ -1249,10 +1137,8 @@
                 this.exportJSONBtn.addEventListener('click', () => this.exportToJSON());
                 this.saveLocalBtn.addEventListener('click', () => this.saveToLocal());
 
-                // captura da trajetória real do ponteiro (cognição vs. motricidade)
                 this.canvas.addEventListener('pointermove', (e) => this.handlePointerMove(e), { passive: true });
 
-                // indicadores de validade: perda de foco/visibilidade durante o teste
                 window.addEventListener('blur', () => this.registerFocusLoss());
                 document.addEventListener('visibilitychange', () => {
                     if (document.hidden) this.registerFocusLoss();
@@ -1277,7 +1163,6 @@
                     if (this.lastCanvasSize && this.state.isRunning) {
                         const dW = Math.abs(cr.width - this.lastCanvasSize.w);
                         const dH = Math.abs(cr.height - this.lastCanvasSize.h);
-                        // ignora micro-variações (ex.: barra de URL móvel) para o flag de validade
                         if (dW > 40 || dH > 40) {
                             this.state.resizeDuringTest = true;
                             this.showMessage('Tela redimensionada durante o teste (registrado como ressalva de validade).', 'warning');
@@ -1305,83 +1190,6 @@
                     option.textContent = `${ageGroup} anos`;
                     this.ageRangeSelector.appendChild(option);
                 });
-            }
-
-            loadSettings() {
-                try {
-                    const saved = localStorage.getItem('tmt-settings');
-                    if (saved) {
-                        const settings = JSON.parse(saved);
-                        CONFIG.SOUND_ENABLED = settings.sound ?? true;
-                        CONFIG.HIGH_CONTRAST = settings.contrast ?? false;
-                        CONFIG.SHOW_TRAILS = settings.trails ?? true;
-                        CONFIG.LARGE_CIRCLES = settings.largeCircles ?? false;
-                    }
-                } catch (e) {
-                    console.warn('Não foi possível ler as configurações salvas', e);
-                }
-                this.applySettings();
-            }
-
-            saveSettings() {
-                const settings = {
-                    sound: CONFIG.SOUND_ENABLED,
-                    contrast: CONFIG.HIGH_CONTRAST,
-                    trails: CONFIG.SHOW_TRAILS,
-                    largeCircles: CONFIG.LARGE_CIRCLES
-                };
-                try {
-                    localStorage.setItem('tmt-settings', JSON.stringify(settings));
-                } catch (e) {
-                    console.warn('Não foi possível salvar as configurações', e);
-                }
-            }
-
-            applySettings() {
-                this.soundToggle.classList.toggle('active', CONFIG.SOUND_ENABLED);
-                this.soundToggle.setAttribute('aria-pressed', String(CONFIG.SOUND_ENABLED));
-
-                this.contrastToggle.classList.toggle('active', CONFIG.HIGH_CONTRAST);
-                this.contrastToggle.setAttribute('aria-pressed', String(CONFIG.HIGH_CONTRAST));
-                document.body.classList.toggle('high-contrast', CONFIG.HIGH_CONTRAST);
-
-                this.trailsToggle.classList.toggle('active', CONFIG.SHOW_TRAILS);
-                this.trailsToggle.setAttribute('aria-pressed', String(CONFIG.SHOW_TRAILS));
-
-                this.sizeToggle.classList.toggle('active', CONFIG.LARGE_CIRCLES);
-                this.sizeToggle.setAttribute('aria-pressed', String(CONFIG.LARGE_CIRCLES));
-            }
-
-            toggleSound() {
-                CONFIG.SOUND_ENABLED = !CONFIG.SOUND_ENABLED;
-                this.applySettings();
-                this.saveSettings();
-                this.playSound('toggle');
-            }
-
-            toggleContrast() {
-                CONFIG.HIGH_CONTRAST = !CONFIG.HIGH_CONTRAST;
-                this.applySettings();
-                this.saveSettings();
-            }
-
-            toggleTrails() {
-                CONFIG.SHOW_TRAILS = !CONFIG.SHOW_TRAILS;
-                this.applySettings();
-                const trails = this.canvas.querySelectorAll('.trail-line');
-                trails.forEach(trail => {
-                    trail.style.display = CONFIG.SHOW_TRAILS ? 'block' : 'none';
-                });
-                this.saveSettings();
-            }
-
-            toggleSize() {
-                CONFIG.LARGE_CIRCLES = !CONFIG.LARGE_CIRCLES;
-                this.applySettings();
-                this.saveSettings();
-                if (this.state.isRunning) {
-                    this.showMessage('A mudança de tamanho será aplicada no próximo teste.', 'info');
-                }
             }
 
             updatePhase(phaseNumber) {
@@ -1416,14 +1224,28 @@
                 }, 1000);
             }
 
+            // seleção determinística e cíclica das formas (mitiga aprendizado, mantém distâncias)
+            nextFormIndex() {
+                let idx = 0;
+                try {
+                    idx = parseInt(localStorage.getItem('tmt-form-index') || '0', 10) || 0;
+                    localStorage.setItem('tmt-form-index', String((idx + 1) % FORMS.length));
+                } catch (e) {
+                    idx = this._memFormIdx || 0;
+                    this._memFormIdx = (idx + 1) % FORMS.length;
+                }
+                return ((idx % FORMS.length) + FORMS.length) % FORMS.length;
+            }
+
             startPractice() {
                 this.reset(false);
                 this.updatePhase(2);
                 this.state.isPractice = true;
                 this.state.phase = 'practice';
+                this.state.formIndex = 'P';
 
                 this.showMessage('Preparando aquecimento...', 'info');
-                this.generateNodes(CONFIG.PRACTICE_NUMBERS);
+                this.loadForm(PRACTICE_FORM);
 
                 this.practiceBtn.style.display = 'none';
                 this.startBtn.disabled = true;
@@ -1439,9 +1261,10 @@
                 this.updatePhase(3);
                 this.state.isPractice = false;
                 this.state.phase = 'test';
+                this.state.formIndex = this.nextFormIndex();
 
                 this.showMessage('Preparando teste...', 'info');
-                this.generateNodes(CONFIG.TOTAL_NUMBERS);
+                this.loadForm(FORMS[this.state.formIndex]);
 
                 this.practiceBtn.style.display = 'none';
                 this.startBtn.style.display = 'none';
@@ -1462,74 +1285,14 @@
                 return arr;
             }
 
-            // Layout em grade com "jitter": garante AUSÊNCIA de sobreposição em qualquer tela.
-            computeLayout(count) {
-                const rect = this.canvas.getBoundingClientRect();
-                const W = rect.width;
-                const H = rect.height;
-
-                const scale = CONFIG.LARGE_CIRCLES ? 1.22 : 1;
-                let nodeSize = Math.round(this.baseNodeSize(Math.min(W, H)) * scale);
-
-                // colunas/linhas aproximando a proporção do canvas
-                let cols = Math.max(1, Math.round(Math.sqrt(count * (W / H))));
-                let rows = Math.ceil(count / cols);
-                while (cols * rows < count) cols++;
-                // evita células excessivamente alongadas
-                while (rows > 1 && cols * (rows - 1) >= count) rows--;
-
-                const cellW = W / cols;
-                const cellH = H / rows;
-                const minCell = Math.min(cellW, cellH);
-
-                // encolhe o círculo se a célula for pequena, preservando a folga anti-sobreposição
-                const maxNodeForCell = Math.floor(minCell / 1.35);
-                if (nodeSize > maxNodeForCell) nodeSize = Math.max(18, maxNodeForCell);
-
-                const cells = [];
-                for (let r = 0; r < rows; r++) {
-                    for (let c = 0; c < cols; c++) cells.push({ r, c });
-                }
-                this.shuffle(cells);
-
-                // mantendo cada centro dentro da sua célula com folga >= raio + 4px,
-                // dois nós quaisquer ficam separados por >= nodeSize + 8px (sem sobreposição)
-                const pad = nodeSize / 2 + 4;
-                const positions = [];
-                for (let i = 0; i < count; i++) {
-                    const { r, c } = cells[i];
-                    const x0 = c * cellW;
-                    const y0 = r * cellH;
-                    const minX = x0 + pad;
-                    const maxX = x0 + cellW - pad;
-                    const minY = y0 + pad;
-                    const maxY = y0 + cellH - pad;
-                    const x = maxX > minX ? (minX + Math.random() * (maxX - minX)) : (x0 + cellW / 2);
-                    const y = maxY > minY ? (minY + Math.random() * (maxY - minY)) : (y0 + cellH / 2);
-                    positions.push({ xFrac: x / W, yFrac: y / H, number: i + 1 });
-                }
-
-                return { nodeSize, positions };
-            }
-
-            generateNodes(count) {
+            loadForm(formCoords) {
                 this.clearCanvas();
                 this.state.nodes = [];
-                this.state.positions = [];
                 this.state.trails = [];
                 this.state.currentNumber = 1;
+                this.state.positions = formCoords.map((c, i) => ({ xNorm: c[0], yNorm: c[1], number: i + 1 }));
 
-                const layout = this.computeLayout(count);
-                this.baseNodeSizeVal = layout.nodeSize;
-                this.renderedNodeSize = layout.nodeSize;
-
-                const rect = this.canvas.getBoundingClientRect();
-                this.baseDims = { w: rect.width, h: rect.height };
-                this.lastCanvasSize = { w: rect.width, h: rect.height };
-
-                this.state.positions = layout.positions;
-
-                const els = layout.positions.map(p => this.createNode(p));
+                const els = this.state.positions.map(p => this.createNode(p));
                 // ordem de inserção no DOM embaralhada => navegação por teclado não é trivial (1->2->3)
                 const order = els.map((_, i) => i);
                 this.shuffle(order);
@@ -1553,7 +1316,6 @@
                     e.stopPropagation();
                     this.handleNodeClick(position.number, ts, e.pointerType || 'mouse');
                 });
-                // acessibilidade: ativação por teclado (modalidade sem destreza fina)
                 node.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                         const ts = now();
@@ -1566,30 +1328,35 @@
                 return node;
             }
 
-            renderPositions() {
+            // área quadrada centralizada => distâncias iguais independentemente da proporção da tela
+            squareArea() {
                 const rect = this.canvas.getBoundingClientRect();
                 const W = rect.width;
                 const H = rect.height;
-                if (!this.baseDims || !this.baseDims.w) this.baseDims = { w: W, h: H };
+                const S = Math.min(W, H) * CONFIG.SQUARE_RATIO;
+                const ox = (W - S) / 2;
+                const oy = (H - S) / 2;
+                return { W, H, S, ox, oy };
+            }
 
-                // escala o círculo junto com o canvas para preservar a folga anti-sobreposição
-                const factor = Math.min(W / this.baseDims.w, H / this.baseDims.h) || 1;
-                const ns = Math.max(16, Math.round(this.baseNodeSizeVal * factor));
+            renderPositions() {
+                const { S, ox, oy } = this.squareArea();
+                const ns = Math.max(22, Math.min(60, Math.round(CONFIG.MIN_PAIR_NORM * S * CONFIG.NODE_RATIO)));
                 this.renderedNodeSize = ns;
                 document.documentElement.style.setProperty('--node-size', ns + 'px');
 
                 this.state.nodes.forEach((node, i) => {
                     const p = this.state.positions[i];
-                    node.style.left = (p.xFrac * W - ns / 2) + 'px';
-                    node.style.top = (p.yFrac * H - ns / 2) + 'px';
+                    node.style.left = (ox + p.xNorm * S - ns / 2) + 'px';
+                    node.style.top = (oy + p.yNorm * S - ns / 2) + 'px';
                 });
 
-                this.redrawTrails(W, H);
+                this.redrawTrails(S, ox, oy);
             }
 
-            centerPx(index, W, H) {
+            centerPx(index, S, ox, oy) {
                 const p = this.state.positions[index];
-                return { x: p.xFrac * W, y: p.yFrac * H };
+                return { x: ox + p.xNorm * S, y: oy + p.yNorm * S };
             }
 
             handlePointerMove(e) {
@@ -1605,10 +1372,8 @@
                 }
                 this.state.lastMove = { x, y };
 
-                // início do movimento do segmento atual (latência de decisão termina aqui)
                 if (this.state.segMoveStart === null) this.state.segMoveStart = t;
 
-                // amostragem esparsa da trajetória (para exportação), limitada
                 if (t - this.state.lastSampleTime > 40 && this.state.trajectory.length < 3000) {
                     const rect = this.canvas.getBoundingClientRect();
                     this.state.trajectory.push({
@@ -1639,7 +1404,6 @@
                 this.state.clicks.push(click);
                 this.state.lastClickTime = timestamp;
 
-                // validade: respostas implausivelmente rápidas
                 if (number > 1 && reactionTime > 0 && reactionTime < CONFIG.FAST_RT_THRESHOLD) {
                     this.state.fastResponses++;
                 }
@@ -1656,11 +1420,9 @@
                 node.classList.add('correct');
 
                 if (number > 1) {
-                    if (CONFIG.SHOW_TRAILS) this.drawTrail(number - 1, number);
-
+                    this.drawTrail(number - 1, number);
                     this.state.reactionTimes.push(reactionTime);
 
-                    // dissociação cognição (decisão) vs. motricidade (movimento)
                     if (this.state.segMoveStart !== null) {
                         const decision = this.state.segMoveStart - this.state.lastCorrectTime;
                         const movement = timestamp - this.state.segMoveStart;
@@ -1671,7 +1433,6 @@
                     }
                 }
 
-                // reinicia rastreio do segmento
                 this.state.segMoveStart = null;
                 this.state.lastCorrectTime = timestamp;
 
@@ -1713,14 +1474,13 @@
                 return 'sequence';
             }
 
-            drawTrail(from, to, W, H) {
-                if (W == null || H == null) {
-                    const rect = this.canvas.getBoundingClientRect();
-                    W = rect.width;
-                    H = rect.height;
+            drawTrail(from, to, S, ox, oy) {
+                if (S == null) {
+                    const a = this.squareArea();
+                    S = a.S; ox = a.ox; oy = a.oy;
                 }
-                const a = this.centerPx(from - 1, W, H);
-                const b = this.centerPx(to - 1, W, H);
+                const a = this.centerPx(from - 1, S, ox, oy);
+                const b = this.centerPx(to - 1, S, ox, oy);
 
                 const trail = document.createElement('div');
                 trail.className = 'trail-line';
@@ -1734,19 +1494,16 @@
                 trail.style.left = a.x + 'px';
                 trail.style.top = a.y + 'px';
                 trail.style.transform = `rotate(${angle}deg)`;
-                trail.style.display = CONFIG.SHOW_TRAILS ? 'block' : 'none';
 
                 this.canvas.appendChild(trail);
                 this.state.trails.push(trail);
             }
 
-            redrawTrails(W, H) {
+            redrawTrails(S, ox, oy) {
                 this.canvas.querySelectorAll('.trail-line').forEach(t => t.remove());
                 this.state.trails = [];
-                if (!CONFIG.SHOW_TRAILS) return;
-                // segmentos já concluídos: 1->2 ... (currentNumber-2)->(currentNumber-1)
                 for (let k = 2; k <= this.state.currentNumber - 1; k++) {
-                    this.drawTrail(k - 1, k, W, H);
+                    this.drawTrail(k - 1, k, S, ox, oy);
                 }
             }
 
@@ -1766,8 +1523,8 @@
                 this.startTicker();
             }
 
-            // Liga apenas o intervalo de exibição, sem redefinir os timestamps.
-            // Usado tanto no início quanto ao retomar de uma pausa (preserva o tempo decorrido).
+            // Liga apenas o intervalo de exibição, sem redefinir timestamps.
+            // Usado no início e ao retomar de uma pausa (preserva o tempo decorrido).
             startTicker() {
                 this.state.isRunning = true;
 
@@ -1798,7 +1555,6 @@
 
             togglePause() {
                 if (this.state.isPaused) {
-                    // retomar
                     const pauseDuration = now() - this.state.pauseStartTime;
                     this.state.startTime += pauseDuration;
                     this.state.lastCorrectTime += pauseDuration;
@@ -1811,7 +1567,6 @@
                     this.showMessage('Teste retomado', 'info');
                     this.startTicker();
                 } else {
-                    // pausar: oculta os estímulos para impedir planejamento
                     this.state.isPaused = true;
                     this.state.pauseStartTime = now();
                     this.pauseBtn.textContent = 'Retomar';
@@ -1847,7 +1602,6 @@
                     this.pauseBtn.style.display = 'none';
                     this.startBtn.disabled = false;
                     this.startBtn.style.display = 'inline-block';
-                    // permite refazer o aquecimento
                     this.practiceBtn.textContent = 'Repetir Aquecimento';
                     this.practiceBtn.style.display = 'inline-block';
                 } else {
@@ -1897,13 +1651,11 @@
             }
 
             calculateOptimalDistance() {
-                const rect = this.canvas.getBoundingClientRect();
-                const W = rect.width;
-                const H = rect.height;
+                const { S, ox, oy } = this.squareArea();
                 let optimal = 0;
                 for (let i = 1; i < this.state.positions.length; i++) {
-                    const prev = this.centerPx(i - 1, W, H);
-                    const curr = this.centerPx(i, W, H);
+                    const prev = this.centerPx(i - 1, S, ox, oy);
+                    const curr = this.centerPx(i, S, ox, oy);
                     optimal += Math.sqrt(Math.pow(curr.x - prev.x, 2) + Math.pow(curr.y - prev.y, 2));
                 }
                 return optimal;
@@ -1951,12 +1703,10 @@
                 const finalSpeed = this.mean(lastThird);
                 const fatigueIndex = initialSpeed > 0 ? ((finalSpeed - initialSpeed) / initialSpeed) * 100 : 0;
 
-                // decisão (cognitivo) vs. movimento (motor) — disponível principalmente para mouse
                 const avgDecision = this.mean(this.state.decisionTimes);
                 const avgMovement = this.mean(this.state.movementTimes);
                 const motorSeparable = this.state.decisionTimes.length >= Math.max(3, Math.floor(rts.length / 2));
 
-                // eficiência real de trajetória (apenas com trajetória capturada, ex.: mouse)
                 const optimalDistance = this.calculateOptimalDistance();
                 const movementDistance = this.state.movementDistance;
                 const dominant = this.dominantPointerType();
@@ -1980,6 +1730,7 @@
                 const validity = this.computeValidity(totalTime, completed, errorRate);
 
                 this.results = {
+                    formIndex: this.state.formIndex,
                     totalTime,
                     completed,
                     totalClicks,
@@ -2035,10 +1786,7 @@
                 if (errorRate > 25) {
                     reasons.push(`Taxa de erro elevada (${errorRate.toFixed(1)}%).`);
                 }
-                return {
-                    valid: reasons.length === 0,
-                    reasons
-                };
+                return { valid: reasons.length === 0, reasons };
             }
 
             compareToNorms(time) {
@@ -2089,11 +1837,14 @@
                 if (el) el.textContent = value;
             }
 
+            formLabel(idx) {
+                return (idx === 'P') ? 'Aquecimento' : `#${Number(idx) + 1} de ${FORMS.length}`;
+            }
+
             showResults() {
                 if (!this.results) return;
                 const r = this.results;
 
-                // validade
                 const banner = document.getElementById('validity-banner');
                 if (r.validity.valid) {
                     banner.className = 'validity-banner validity-ok';
@@ -2136,6 +1887,7 @@
                 this.setText('metric-time-to-error', r.avgTimeToError > 0 ? `${r.avgTimeToError.toFixed(2)}s` : 'N/A');
                 this.setText('metric-attempts-per-number', `${r.attemptsPerNumber.toFixed(2)}`);
 
+                this.setText('env-form', this.formLabel(r.formIndex));
                 this.setText('env-pointer', r.dominantPointer);
                 this.setText('env-refresh', r.refreshRate ? `${r.refreshRate} Hz` : 'N/D');
                 this.setText('env-fast', r.fastResponses);
@@ -2188,6 +1940,7 @@
 
                 let csv = 'Trail Making Test A - Resultados Detalhados\n\n';
                 csv += 'Categoria,Metrica,Valor\n';
+                csv += `Geral,Forma (versao),${this.formLabel(r.formIndex)}\n`;
                 csv += `Desempenho,Tempo Total (s),${r.totalTime.toFixed(3)}\n`;
                 csv += `Desempenho,Numeros Conectados,${r.completed}\n`;
                 csv += `Desempenho,Total de Cliques,${r.totalClicks}\n`;
@@ -2242,17 +1995,13 @@
                 if (!this.results) return;
                 const data = {
                     test: 'Trail Making Test A',
-                    version: '5.0',
+                    version: '6.0',
                     date: new Date().toISOString(),
+                    formIndex: this.results.formIndex,
                     device: this.collectDeviceMetadata(true),
                     results: this.results,
                     trajectory: this.state.trajectory,
-                    settings: {
-                        sound: CONFIG.SOUND_ENABLED,
-                        contrast: CONFIG.HIGH_CONTRAST,
-                        trails: CONFIG.SHOW_TRAILS,
-                        largeCircles: CONFIG.LARGE_CIRCLES
-                    }
+                    positions: this.state.positions
                 };
                 const json = JSON.stringify(data, null, 2);
                 const blob = new Blob([json], { type: 'application/json' });
@@ -2274,7 +2023,6 @@
                 const data = {
                     date: new Date().toISOString(),
                     results: this.results,
-                    // metadados reduzidos (sem userAgent) por minimização de dados (LGPD)
                     device: this.collectDeviceMetadata(false)
                 };
 
@@ -2295,10 +2043,11 @@
             }
 
             playSound(type) {
-                if (!CONFIG.SOUND_ENABLED) return;
                 try {
                     if (!this.audioContext) {
-                        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        const Ctx = window.AudioContext || window.webkitAudioContext;
+                        if (!Ctx) return;
+                        this.audioContext = new Ctx();
                     }
                     if (this.audioContext.state === 'suspended') {
                         this.audioContext.resume().catch(() => {});
@@ -2321,10 +2070,6 @@
                         case 'complete':
                             oscillator.frequency.value = 1000;
                             gainNode.gain.value = 0.2;
-                            break;
-                        case 'toggle':
-                            oscillator.frequency.value = 600;
-                            gainNode.gain.value = 0.05;
                             break;
                     }
 
@@ -2373,18 +2118,13 @@
                     this.pauseBtn.style.display = 'none';
                     this.resultsBtn.style.display = 'none';
 
-                    this.timerDisplay.textContent = '00:00';
-                    this.errorsDisplay.textContent = '0';
-                    this.progressDisplay.textContent = '0%';
-                    this.progressBar.style.width = '0%';
-
                     this.showMessage('Bem-vindo! Clique em "Começar Aquecimento".', 'info');
-                } else {
-                    this.errorsDisplay.textContent = '0';
-                    this.progressDisplay.textContent = '0%';
-                    this.progressBar.style.width = '0%';
-                    this.timerDisplay.textContent = '00:00';
                 }
+
+                this.timerDisplay.textContent = '00:00';
+                this.errorsDisplay.textContent = '0';
+                this.progressDisplay.textContent = '0%';
+                this.progressBar.style.width = '0%';
             }
         }
 
@@ -2432,7 +2172,7 @@
                 const index = this._readIndex();
                 index.forEach(item => localStorage.removeItem(item.key));
                 localStorage.removeItem('tmt-a-index');
-                localStorage.removeItem('tmt-settings');
+                localStorage.removeItem('tmt-form-index');
                 console.log('Todos os dados foram removidos');
             },
 
@@ -2499,9 +2239,8 @@
             const tmt = new TMTTest();
             window.tmtInstance = tmt;
 
-            console.log('%cTMT-A v5.0 - Cronometria de alta resolução + layout anti-sobreposição', 'color: #2196F3; font-size: 14px; font-weight: bold;');
+            console.log('%cTMT-A v6.0 - Formas padronizadas (trilha sem cruzamento, distância constante)', 'color: #2196F3; font-size: 14px; font-weight: bold;');
             console.log('%cUse TMTUtils.analyzeAllSessions() para análise de histórico', 'color: #666; font-size: 12px;');
-            console.log('%cUse TMTUtils.getStatistics() para estatísticas detalhadas', 'color: #666; font-size: 12px;');
         });
     </script>
 </body>
