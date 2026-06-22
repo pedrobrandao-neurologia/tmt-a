@@ -2,29 +2,33 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Trail Making Test A (TMT-A) - Versão Padronizada</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <title>Trail Making Test A (TMT-A)</title>
     <meta name="description" content="Implementação digital padronizada do Trail Making Test Parte A">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --primary-color: #2196F3;
-            --primary-dark: #1976D2;
-            --success-color: #4CAF50;
-            --error-color: #f44336;
-            --warning-color: #FF9800;
-            --info-color: #00BCD4;
-            --bg-gradient-start: #f4f6f9;
-            --bg-gradient-end: #e9ecf1;
-            --text-primary: #212121;
-            --text-secondary: #666;
-            --border-color: #e0e0e0;
-            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
-            --shadow-md: 0 4px 8px rgba(0,0,0,0.15);
-            --shadow-lg: 0 8px 16px rgba(0,0,0,0.2);
-            --border-radius: 12px;
-            --transition-speed: 0.3s;
+            --app-height: 100vh;
+            --bg: #000000;
+            --panel: #0b0f17;
+            --surface: #111827;
+            --surface-2: #1f2937;
+            --border: #1f2937;
+            --border-2: #374151;
+            --text: #f0f2f5;
+            --text-dim: #9ca3af;
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --success: #22c55e;
+            --error: #ef4444;
+            --warning: #f59e0b;
             --node-size: 44px;
+            --radius: 14px;
         }
 
         * {
@@ -34,169 +38,207 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        html, body { height: 100%; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0.5rem;
-            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
             touch-action: manipulation;
+            overscroll-behavior: none;
         }
 
-        .test-in-progress .stats-grid .stat-card:not(.stat-card-timer),
-        .test-in-progress .progress-bar {
-            visibility: hidden;
-            opacity: 0;
+        .app {
+            min-height: var(--app-height);
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: max(0.5rem, env(safe-area-inset-top)) max(0.5rem, env(safe-area-inset-right)) max(0.5rem, env(safe-area-inset-bottom)) max(0.5rem, env(safe-area-inset-left));
         }
 
-        .test-in-progress .stat-card-timer {
-            visibility: visible !important;
-            opacity: 1 !important;
-        }
-
-        .container {
-            background: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-lg);
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.6);
             max-width: 760px;
             width: 100%;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
-        .header {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            color: white;
-            padding: 1.5rem;
-            text-align: center;
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.85rem 1rem;
+            background: linear-gradient(180deg, rgba(59,130,246,0.10), transparent);
+            border-bottom: 1px solid var(--border);
         }
 
-        .header h1 {
-            font-size: clamp(1.2rem, 4vw, 2rem);
-            font-weight: 600;
-            margin-bottom: 0.5rem;
+        .topbar-titles h1 {
+            font-size: clamp(1rem, 3.4vw, 1.35rem);
+            font-weight: 700;
+            letter-spacing: 0.2px;
         }
 
-        .header p {
-            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
-            opacity: 0.95;
+        .topbar-titles p {
+            font-size: clamp(0.7rem, 2.2vw, 0.85rem);
+            color: var(--text-dim);
+            margin-top: 1px;
         }
+
+        .toolbar { display: flex; gap: 0.4rem; flex-shrink: 0; }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid var(--border-2);
+            background: var(--surface-2);
+            color: var(--text);
+            font-size: 1.15rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s, transform 0.1s, border-color 0.15s;
+            line-height: 1;
+        }
+
+        .icon-btn:hover { background: #243042; }
+        .icon-btn:active { transform: scale(0.94); }
+        .icon-btn:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+        .icon-btn[aria-pressed="false"] { color: var(--text-dim); }
 
         .main-content {
-            padding: clamp(1rem, 3vw, 2rem);
+            padding: clamp(0.75rem, 2.5vw, 1.25rem);
+            display: flex;
+            flex-direction: column;
         }
 
         .phase-indicator {
             display: flex;
             justify-content: center;
             gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
+            margin-bottom: 0.85rem;
         }
 
         .phase-dot {
-            width: clamp(32px, 8vw, 40px);
-            height: clamp(32px, 8vw, 40px);
+            width: clamp(28px, 7vw, 34px);
+            height: clamp(28px, 7vw, 34px);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: clamp(0.75rem, 2vw, 0.9rem);
-            background: #f5f5f5;
-            color: var(--text-secondary);
-            transition: all var(--transition-speed);
+            font-size: clamp(0.7rem, 2vw, 0.85rem);
+            background: var(--surface);
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+            transition: all 0.25s;
         }
 
         .phase-dot.active {
-            background: var(--primary-color);
+            background: var(--primary);
             color: white;
-            transform: scale(1.1);
-            box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.2);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(59,130,246,0.2);
         }
 
-        .phase-dot.completed {
-            background: var(--success-color);
-            color: white;
-        }
+        .phase-dot.completed { background: var(--success); color: #04210f; border-color: var(--success); }
 
         .disclaimer {
-            background: rgba(255, 152, 0, 0.08);
-            border: 1px solid rgba(255, 152, 0, 0.35);
-            border-left: 4px solid var(--warning-color);
-            border-radius: 8px;
-            padding: 0.875rem 1rem;
-            margin: 0 0 1.25rem 0;
-            font-size: clamp(0.78rem, 2vw, 0.9rem);
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.32);
+            border-left: 4px solid var(--warning);
+            border-radius: 10px;
+            padding: 0.8rem 0.9rem;
+            margin-bottom: 0.85rem;
+            font-size: clamp(0.74rem, 2vw, 0.86rem);
             line-height: 1.5;
-            color: #7a4f00;
+            color: #f8d9a0;
         }
 
-        .disclaimer strong { color: #6a4500; }
+        .disclaimer strong { color: #ffe9c2; }
+
+        .instructions-panel {
+            background: rgba(59, 130, 246, 0.06);
+            border: 1px solid rgba(59,130,246,0.25);
+            border-left: 4px solid var(--primary);
+            padding: 0.9rem 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.85rem;
+            line-height: 1.55;
+            font-size: clamp(0.82rem, 2.2vw, 0.95rem);
+            color: #d7e3f5;
+        }
+
+        .instructions-panel h3 { color: #cfe0ff; margin-bottom: 0.5rem; font-size: clamp(0.95rem, 2.6vw, 1.1rem); }
+
+        .arena-wrap { display: flex; justify-content: center; }
 
         .test-canvas {
-            width: 100%;
-            height: clamp(320px, min(82vw, 70vh), 640px);
-            border: 3px solid var(--border-color);
-            border-radius: var(--border-radius);
+            width: min(92vw, 62vh, 640px);
+            aspect-ratio: 1 / 1;
+            border: 1px solid var(--border-2);
+            border-radius: var(--radius);
             position: relative;
-            margin: 1rem auto;
-            background: #fafafa;
+            margin: 0.4rem auto;
+            background:
+                radial-gradient(120% 120% at 50% 0%, rgba(59,130,246,0.06), transparent 60%),
+                #0d1320;
             overflow: hidden;
             touch-action: none;
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.5);
         }
 
-        .countdown-overlay {
+        .countdown-overlay, .pause-overlay {
             position: absolute;
             inset: 0;
-            background-color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: clamp(4rem, 15vw, 8rem);
-            font-weight: bold;
-            color: var(--primary-color);
-            z-index: 100;
-        }
-
-        .pause-overlay {
-            position: absolute;
-            inset: 0;
-            background-color: rgba(33, 33, 33, 0.97);
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
             justify-content: center;
             align-items: center;
-            font-size: clamp(1.5rem, 6vw, 2.5rem);
-            font-weight: bold;
-            color: white;
             z-index: 90;
             text-align: center;
             padding: 1rem;
         }
 
-        .pause-overlay span {
-            font-size: clamp(0.85rem, 2.5vw, 1rem);
-            font-weight: 400;
-            opacity: 0.85;
+        .countdown-overlay {
+            background: #0d1320;
+            font-size: clamp(3.5rem, 14vw, 7rem);
+            font-weight: bold;
+            color: var(--primary);
+            z-index: 100;
         }
+
+        .pause-overlay {
+            background: rgba(5, 8, 13, 0.97);
+            font-size: clamp(1.4rem, 6vw, 2.3rem);
+            font-weight: bold;
+            color: white;
+        }
+
+        .pause-overlay span { font-size: clamp(0.8rem, 2.5vw, 1rem); font-weight: 400; color: var(--text-dim); }
 
         .circle-node {
             position: absolute;
             width: var(--node-size, 44px);
             height: var(--node-size, 44px);
             border-radius: 50%;
-            border: 3px solid var(--text-primary);
-            background: white;
-            color: var(--text-primary);
+            border: 2px solid var(--border-2);
+            background: var(--surface-2);
+            color: var(--text);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: calc(var(--node-size, 44px) * 0.45);
-            font-weight: bold;
+            font-size: calc(var(--node-size, 44px) * 0.44);
+            font-weight: 700;
             font-family: inherit;
             font-variant-numeric: tabular-nums;
             cursor: pointer;
@@ -204,45 +246,38 @@
             -webkit-user-select: none;
             appearance: none;
             -webkit-appearance: none;
-            transition: transform 0.15s, background 0.15s, border-color 0.15s;
+            transition: transform 0.12s, background 0.15s, border-color 0.15s, box-shadow 0.15s;
             z-index: 10;
-            box-shadow: var(--shadow-sm);
-            touch-action: none;
             padding: 0;
         }
 
-        .circle-node:focus-visible {
-            outline: 3px solid var(--info-color);
-            outline-offset: 3px;
-        }
-
-        .circle-node:active {
-            transform: scale(0.95);
-        }
+        .circle-node:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+        .circle-node:active { transform: scale(0.94); }
 
         .circle-node.correct {
-            background: var(--success-color);
-            color: white;
-            border-color: var(--success-color);
-            transform: scale(0.9);
+            background: rgba(34, 197, 94, 0.18);
+            color: #d6ffe5;
+            border-color: var(--success);
+            box-shadow: 0 0 14px rgba(34,197,94,0.55);
             pointer-events: none;
         }
 
         .circle-node.error {
             animation: shake 0.4s;
-            border-color: var(--error-color);
-            background: rgba(244, 67, 54, 0.15);
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.2);
         }
 
         .trail-line {
             position: absolute;
-            background: var(--success-color);
+            background: var(--success);
             height: 4px;
             transform-origin: left center;
             z-index: 5;
             pointer-events: none;
-            opacity: 0.75;
+            opacity: 0.8;
             border-radius: 2px;
+            box-shadow: 0 0 8px rgba(34,197,94,0.45);
         }
 
         @keyframes shake {
@@ -251,416 +286,164 @@
             75% { transform: translateX(6px); }
         }
 
-        .stats-grid {
+        .hud {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 0.75rem;
-            margin: 1.5rem 0;
-            transition: all var(--transition-speed);
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin: 0.75rem 0 0.5rem;
         }
 
         .stat-card {
-            background: linear-gradient(135deg, #f5f5f5, #fafafa);
-            padding: 1rem;
-            border-radius: var(--border-radius);
+            background: var(--surface);
+            padding: 0.6rem 0.5rem;
+            border-radius: 10px;
             text-align: center;
-            border: 1px solid var(--border-color);
-            transition: all var(--transition-speed);
+            border: 1px solid var(--border);
         }
 
-        .stat-value {
-            font-size: clamp(1.5rem, 5vw, 2rem);
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 0.25rem;
-        }
+        .stat-value { font-size: clamp(1.1rem, 4.2vw, 1.6rem); font-weight: 700; color: var(--primary); }
+        .stat-value.timer { font-variant-numeric: tabular-nums; }
+        .stat-label { color: var(--text-dim); font-size: clamp(0.6rem, 1.8vw, 0.72rem); text-transform: uppercase; letter-spacing: 0.5px; }
 
-        .stat-label {
-            color: var(--text-secondary);
-            font-size: clamp(0.7rem, 2vw, 0.85rem);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .controls {
-            display: flex;
-            gap: 0.75rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin: 1.5rem 0;
-        }
-
-        .btn {
-            padding: 0.75rem 1.25rem;
-            font-size: clamp(0.85rem, 2.5vw, 1rem);
-            font-weight: 600;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all var(--transition-speed);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            min-width: 140px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn:focus-visible {
-            outline: 3px solid var(--info-color);
-            outline-offset: 2px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            color: white;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .btn-primary:active {
-            transform: scale(0.98);
-        }
-
-        .btn-secondary {
-            background: white;
-            color: var(--primary-color);
-            border: 2px solid var(--primary-color);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, var(--success-color), #45a049);
-            color: white;
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .instructions-panel {
-            background: linear-gradient(135deg, rgba(33, 150, 243, 0.05), rgba(33, 150, 243, 0.02));
-            border-left: 4px solid var(--primary-color);
-            padding: 1.25rem;
-            border-radius: 8px;
-            margin: 1.5rem 0;
-            line-height: 1.6;
-            font-size: clamp(0.9rem, 2.5vw, 1rem);
-        }
-
-        .instructions-panel h3 {
-            color: var(--primary-color);
-            margin-bottom: 0.75rem;
-            font-size: clamp(1rem, 3vw, 1.25rem);
-        }
+        .test-in-progress .stat-card:not(.stat-card-timer) { display: none; }
+        .test-in-progress .hud { grid-template-columns: 1fr; }
+        .test-in-progress .intro-only { display: none; }
 
         .message-box {
-            padding: 0.875rem;
-            border-radius: 8px;
-            margin: 1rem 0;
+            padding: 0.7rem;
+            border-radius: 10px;
+            margin: 0.5rem 0;
             text-align: center;
             font-weight: 500;
-            font-size: clamp(0.85rem, 2.5vw, 1rem);
-            transition: all var(--transition-speed);
+            font-size: clamp(0.8rem, 2.3vw, 0.95rem);
+            min-height: 2.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .message-info {
-            background: rgba(0, 188, 212, 0.1);
-            color: var(--info-color);
-            border: 1px solid rgba(0, 188, 212, 0.3);
+        .message-info { background: rgba(59,130,246,0.12); color: #bcd4f7; border: 1px solid rgba(59,130,246,0.3); }
+        .message-success { background: rgba(34,197,94,0.12); color: #b6f3cd; border: 1px solid rgba(34,197,94,0.3); }
+        .message-warning { background: rgba(245,158,11,0.12); color: #f6d79b; border: 1px solid rgba(245,158,11,0.35); }
+        .message-error { background: rgba(239,68,68,0.12); color: #f9b9b9; border: 1px solid rgba(239,68,68,0.35); }
+
+        .controls { display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; margin-top: 0.6rem; }
+
+        .btn {
+            padding: 0.7rem 1.15rem;
+            font-size: clamp(0.82rem, 2.4vw, 0.95rem);
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.3px;
+            min-width: 130px;
+            font-family: inherit;
         }
 
-        .message-success {
-            background: rgba(76, 175, 80, 0.1);
-            color: var(--success-color);
-            border: 1px solid rgba(76, 175, 80, 0.3);
-        }
+        .btn:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border-2); }
+        .btn-secondary:hover { background: var(--surface-2); }
+        .btn-success { background: var(--success); color: #04210f; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        .message-warning {
-            background: rgba(255, 152, 0, 0.1);
-            color: var(--warning-color);
-            border: 1px solid rgba(255, 152, 0, 0.3);
-        }
-
-        .message-error {
-            background: rgba(244, 67, 54, 0.1);
-            color: var(--error-color);
-            border: 1px solid rgba(244, 67, 54, 0.3);
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: var(--border-color);
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 1rem 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary-color), var(--success-color));
-            transition: width var(--transition-speed);
-            width: 0%;
-        }
+        /* dispositivos de toque: alvos maiores e fontes um pouco maiores */
+        body[data-device="mobile"] .btn,
+        body[data-device="tablet"] .btn { padding: 0.85rem 1.1rem; }
 
         .modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            inset: 0;
+            background: rgba(0,0,0,0.85);
             z-index: 1000;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             padding: 1rem;
             overflow-y: auto;
         }
 
-        .modal.show {
-            display: flex;
-        }
+        .modal.show { display: flex; }
 
         .modal-content {
-            background: white;
-            border-radius: var(--border-radius);
-            padding: clamp(1rem, 3vw, 2rem);
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: clamp(1rem, 3vw, 1.75rem);
             max-width: 900px;
             width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: var(--shadow-lg);
+            margin: auto;
+            box-shadow: 0 16px 50px rgba(0,0,0,0.7);
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.9rem;
+            border-bottom: 1px solid var(--border);
         }
 
-        .modal-header h2 {
-            color: var(--primary-color);
-            font-size: clamp(1.2rem, 4vw, 1.5rem);
-        }
+        .modal-header h2 { color: #cfe0ff; font-size: clamp(1.1rem, 4vw, 1.4rem); }
+        .modal-close { background: none; border: none; font-size: 1.9rem; cursor: pointer; color: var(--text-dim); line-height: 1; width: 36px; height: 36px; }
 
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 2rem;
-            cursor: pointer;
-            color: var(--text-secondary);
-            line-height: 1;
-            padding: 0;
-            width: 32px;
-            height: 32px;
-        }
+        .results-section { margin: 1.1rem 0; padding: 0.9rem; background: var(--surface); border-radius: 12px; border: 1px solid var(--border); }
+        .results-section h3 { color: #cfe0ff; margin-bottom: 0.85rem; font-size: clamp(0.95rem, 3vw, 1.1rem); }
 
-        .results-section {
-            margin: 1.5rem 0;
-            padding: 1rem;
-            background: #fafafa;
-            border-radius: 8px;
-        }
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.7rem; }
+        .result-item { padding: 0.65rem; background: var(--panel); border-radius: 8px; border: 1px solid var(--border); }
+        .result-label { font-size: clamp(0.7rem, 2vw, 0.82rem); color: var(--text-dim); margin-bottom: 0.2rem; }
+        .result-value { font-size: clamp(0.95rem, 3vw, 1.2rem); font-weight: 700; color: var(--primary); }
 
-        .results-section h3 {
-            color: var(--primary-dark);
-            margin-bottom: 1rem;
-            font-size: clamp(1rem, 3vw, 1.1rem);
-        }
+        .validity-banner { padding: 0.7rem 0.9rem; border-radius: 10px; font-size: clamp(0.8rem, 2.2vw, 0.92rem); font-weight: 600; }
+        .validity-ok { background: rgba(34,197,94,0.12); color: #b6f3cd; border: 1px solid rgba(34,197,94,0.4); }
+        .validity-warn { background: rgba(245,158,11,0.12); color: #f6d79b; border: 1px solid rgba(245,158,11,0.45); }
+        .validity-reasons { margin: 0.5rem 0 0 1.1rem; font-weight: 400; font-size: clamp(0.76rem, 2vw, 0.88rem); }
 
-        .results-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 0.875rem;
-        }
-
-        .result-item {
-            padding: 0.75rem;
-            background: white;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-        }
-
-        .result-label {
-            font-size: clamp(0.75rem, 2vw, 0.85rem);
-            color: var(--text-secondary);
-            margin-bottom: 0.25rem;
-        }
-
-        .result-value {
-            font-size: clamp(1rem, 3vw, 1.25rem);
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-
-        .validity-banner {
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            font-size: clamp(0.82rem, 2.2vw, 0.95rem);
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-        }
-
-        .validity-ok {
-            background: rgba(76, 175, 80, 0.12);
-            color: #2e7d32;
-            border: 1px solid rgba(76, 175, 80, 0.4);
-        }
-
-        .validity-warn {
-            background: rgba(255, 152, 0, 0.12);
-            color: #b45f00;
-            border: 1px solid rgba(255, 152, 0, 0.45);
-        }
-
-        .validity-reasons {
-            margin: 0.5rem 0 0 1.1rem;
-            font-weight: 400;
-            font-size: clamp(0.78rem, 2vw, 0.9rem);
-        }
-
-        .normative-controls {
-            display: flex;
-            gap: 0.75rem;
-            align-items: center;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .normative-controls label {
-            font-weight: 500;
-            font-size: clamp(0.85rem, 2vw, 1rem);
-        }
-
-        #age-range-selector {
-            padding: 0.5rem;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            font-size: clamp(0.85rem, 2vw, 1rem);
-        }
-
-        .normative-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
-            font-size: clamp(0.8rem, 2vw, 0.95rem);
-            overflow-x: auto;
-            display: block;
-        }
-
-        .normative-table thead,
-        .normative-table tbody {
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-        }
-
-        .normative-table th,
-        .normative-table td {
-            padding: 0.65rem;
-            text-align: left;
-            border: 1px solid var(--border-color);
-        }
-
-        .normative-table th {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .normative-table tr.highlighted {
-            background-color: rgba(33, 150, 243, 0.15);
-            font-weight: bold;
-        }
-
-        .normative-table tr:nth-child(even):not(.highlighted) {
-            background: #f5f5f5;
-        }
-
-        .norm-note {
-            font-size: clamp(0.72rem, 1.9vw, 0.82rem);
-            color: var(--text-secondary);
-            line-height: 1.5;
-            margin-top: 0.5rem;
-        }
-
-        .performance-badge {
-            display: inline-block;
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            font-size: clamp(0.7rem, 1.8vw, 0.85rem);
-            font-weight: bold;
-            margin-left: 0.25rem;
-        }
-
-        .badge-superior { background: var(--success-color); color: white; }
-        .badge-average { background: var(--warning-color); color: white; }
-        .badge-below { background: var(--error-color); color: white; }
-
-        .export-buttons {
-            display: flex;
-            gap: 0.75rem;
-            justify-content: center;
-            margin-top: 1.5rem;
-            flex-wrap: wrap;
-        }
-
-        .privacy-note {
-            font-size: clamp(0.72rem, 1.9vw, 0.82rem);
-            color: var(--text-secondary);
-            text-align: center;
-            margin-top: 0.75rem;
-            line-height: 1.5;
-        }
-
-        .metrics-detail {
-            background: white;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-top: 1rem;
-        }
-
-        .metrics-detail h4 {
-            color: var(--primary-dark);
-            margin-bottom: 0.75rem;
-            font-size: clamp(0.9rem, 2.5vw, 1rem);
-        }
-
-        .metrics-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .metrics-list li {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            gap: 1rem;
-            font-size: clamp(0.8rem, 2vw, 0.9rem);
-        }
-
+        .metrics-detail { background: var(--panel); padding: 0.9rem; border-radius: 10px; margin-top: 0.9rem; border: 1px solid var(--border); }
+        .metrics-detail h4 { color: #cfe0ff; margin-bottom: 0.6rem; font-size: clamp(0.85rem, 2.5vw, 0.98rem); }
+        .metrics-list { list-style: none; }
+        .metrics-list li { padding: 0.45rem 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; gap: 1rem; font-size: clamp(0.78rem, 2vw, 0.9rem); }
         .metrics-list li:last-child { border-bottom: none; }
+        .metric-name { color: var(--text-dim); }
+        .metric-value { color: var(--text); font-weight: 600; text-align: right; }
 
-        .metric-name { color: var(--text-secondary); }
+        .normative-controls { display: flex; gap: 0.7rem; align-items: center; margin-bottom: 0.9rem; flex-wrap: wrap; }
+        .normative-controls label { font-weight: 500; font-size: clamp(0.82rem, 2vw, 0.95rem); color: var(--text-dim); }
+        #age-range-selector { padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-2); background: var(--surface-2); color: var(--text); font-size: clamp(0.82rem, 2vw, 0.95rem); }
 
-        .metric-value {
-            color: var(--primary-color);
-            font-weight: 600;
-            text-align: right;
-        }
+        .normative-table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; font-size: clamp(0.76rem, 2vw, 0.92rem); display: block; overflow-x: auto; }
+        .normative-table thead, .normative-table tbody { display: table; width: 100%; table-layout: fixed; }
+        .normative-table th, .normative-table td { padding: 0.55rem; text-align: left; border: 1px solid var(--border); }
+        .normative-table th { background: var(--surface-2); color: #cfe0ff; }
+        .normative-table tr.highlighted { background-color: rgba(59,130,246,0.22); font-weight: bold; }
+        .normative-table tr:nth-child(even):not(.highlighted) { background: var(--surface); }
 
-        @media (max-width: 768px) {
+        .norm-note { font-size: clamp(0.7rem, 1.9vw, 0.8rem); color: var(--text-dim); line-height: 1.5; margin-top: 0.5rem; }
+
+        .performance-badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 20px; font-size: clamp(0.66rem, 1.7vw, 0.78rem); font-weight: bold; margin-left: 0.2rem; }
+        .badge-superior { background: var(--success); color: #04210f; }
+        .badge-average { background: var(--warning); color: #3a2600; }
+        .badge-below { background: var(--error); color: #2a0606; }
+
+        .export-buttons { display: flex; gap: 0.6rem; justify-content: center; margin-top: 1.25rem; flex-wrap: wrap; }
+        .privacy-note { font-size: clamp(0.7rem, 1.9vw, 0.8rem); color: var(--text-dim); text-align: center; margin-top: 0.75rem; line-height: 1.5; }
+
+        @media (max-width: 560px) {
             .controls { flex-direction: column; }
             .btn { width: 100%; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
-        @media (max-width: 480px) {
-            .stats-grid { grid-template-columns: 1fr; }
-            .results-grid { grid-template-columns: 1fr; }
+        /* paisagem em telas baixas (celular deitado): prioriza a arena */
+        @media (orientation: landscape) and (max-height: 560px) {
+            .app { align-items: flex-start; }
+            .test-canvas { width: min(60vw, 82vh); }
+            .intro-only { display: none; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -668,86 +451,88 @@
         }
 
         @media print {
-            body { background: white; }
-            .container { box-shadow: none; }
-            .controls, .btn, .modal-close { display: none !important; }
+            body { background: white; color: black; }
+            .toolbar, .controls, .btn, .modal-close { display: none !important; }
         }
     </style>
 </head>
 <body>
-    <div class="container" id="container">
-        <header class="header">
-            <h1>Teste de Trilhas - Parte A (TMT-A)</h1>
-            <p>Avaliação da Atenção e Velocidade de Processamento</p>
-        </header>
-
-        <main class="main-content">
-            <div class="phase-indicator">
-                <div class="phase-dot" id="phase-1">1</div>
-                <div class="phase-dot" id="phase-2">2</div>
-                <div class="phase-dot" id="phase-3">3</div>
-                <div class="phase-dot" id="phase-4">4</div>
-            </div>
-
-            <div class="disclaimer" role="note">
-                <strong>Aviso importante:</strong> esta é uma <strong>adaptação digital padronizada</strong> do TMT-A e
-                constitui, do ponto de vista psicométrico, um <strong>teste novo</strong>. Não substitui a avaliação
-                neuropsicológica presencial nem tem finalidade diagnóstica. As normas exibidas baseiam-se na versão em
-                <strong>papel</strong> (Tombaugh, 2004) e servem apenas como referência aproximada — a equivalência entre
-                as versões e normas próprias para a versão digital ainda precisam ser estabelecidas.
-            </div>
-
-            <div class="instructions-panel" id="instructions">
-                <h3>📋 Como Realizar o Teste</h3>
-                <p>
-                    Você verá 25 círculos numerados. Clique (ou toque) nos círculos em ordem crescente
-                    (1, 2, 3, ...) o mais rápido possível, sem erros. Uma linha conecta automaticamente os números já
-                    ligados.
-                    <br><br>
-                    O teste é <strong>padronizado</strong>: a distância entre os estímulos é constante em todas as
-                    tentativas e a trilha nunca se cruza. Começaremos com um aquecimento obrigatório.
-                </p>
-            </div>
-
-            <div class="progress-bar">
-                <div class="progress-fill" id="progress"></div>
-            </div>
-
-            <div class="test-canvas" id="testCanvas"></div>
-
-            <div class="stats-grid">
-                <div class="stat-card stat-card-timer">
-                    <div class="stat-value" id="timer">00:00</div>
-                    <div class="stat-label">Tempo</div>
+    <div class="app">
+        <div class="card" id="card">
+            <div class="topbar">
+                <div class="topbar-titles">
+                    <h1>Teste de Trilhas — Parte A</h1>
+                    <p>Atenção e velocidade de processamento</p>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="errors">0</div>
-                    <div class="stat-label">Erros</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="progress-stat">0%</div>
-                    <div class="stat-label">Progresso</div>
+                <div class="toolbar">
+                    <button class="icon-btn" id="soundBtn" aria-pressed="true" aria-label="Ativar/desativar som" title="Som">🔊</button>
+                    <button class="icon-btn" id="fullscreenBtn" aria-pressed="false" aria-label="Tela inteira" title="Tela inteira">⛶</button>
                 </div>
             </div>
 
-            <div class="message-box message-info" id="message" role="status" aria-live="polite">
-                Bem-vindo! Clique em "Começar Aquecimento" para praticar.
-            </div>
+            <main class="main-content">
+                <div class="phase-indicator intro-only">
+                    <div class="phase-dot" id="phase-1">1</div>
+                    <div class="phase-dot" id="phase-2">2</div>
+                    <div class="phase-dot" id="phase-3">3</div>
+                    <div class="phase-dot" id="phase-4">4</div>
+                </div>
 
-            <div class="controls">
-                <button class="btn btn-secondary" id="practiceBtn">Começar Aquecimento</button>
-                <button class="btn btn-primary" id="startBtn" disabled>Começar Teste Principal</button>
-                <button class="btn btn-secondary" id="pauseBtn" style="display:none;">Pausar</button>
-                <button class="btn btn-success" id="resultsBtn" style="display:none;">Ver Resultados</button>
-                <button class="btn btn-secondary" id="resetBtn">Reiniciar</button>
-            </div>
-        </main>
+                <div class="disclaimer intro-only" role="note">
+                    <strong>Aviso:</strong> adaptação digital padronizada do TMT-A — psicometricamente um
+                    <strong>teste novo</strong>, sem finalidade diagnóstica e sem substituir avaliação presencial.
+                    As normas exibidas são da versão em <strong>papel</strong> (Tombaugh, 2004) e servem apenas como
+                    referência aproximada.
+                </div>
+
+                <div class="instructions-panel intro-only" id="instructions">
+                    <h3>📋 Como realizar</h3>
+                    <p>
+                        Toque/clique nos 25 círculos em ordem crescente (1 → 2 → 3 → …) o mais rápido possível, sem
+                        erros. Uma linha conecta automaticamente os números já ligados. Há <strong>6 versões
+                        equivalentes</strong> (mesma dificuldade), alternadas a cada tentativa. Faça primeiro o
+                        aquecimento.
+                    </p>
+                </div>
+
+                <div class="arena-wrap">
+                    <div class="test-canvas" id="testCanvas"></div>
+                </div>
+
+                <div class="hud">
+                    <div class="stat-card stat-card-timer">
+                        <div class="stat-value timer" id="timer">00:00</div>
+                        <div class="stat-label">Tempo</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="errors">0</div>
+                        <div class="stat-label">Erros</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="progress-stat">0%</div>
+                        <div class="stat-label">Progresso</div>
+                    </div>
+                </div>
+
+                <div class="message-box message-info" id="message" role="status" aria-live="polite">
+                    Bem-vindo! Toque em "Começar Aquecimento" para praticar.
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-secondary" id="practiceBtn">Começar Aquecimento</button>
+                    <button class="btn btn-primary" id="startBtn" disabled>Começar Teste</button>
+                    <button class="btn btn-secondary" id="pauseBtn" style="display:none;">Pausar</button>
+                    <button class="btn btn-success" id="resultsBtn" style="display:none;">Ver Resultados</button>
+                    <button class="btn btn-secondary" id="resetBtn">Reiniciar</button>
+                </div>
+            </main>
+        </div>
     </div>
 
     <div class="modal" id="resultsModal" role="dialog" aria-modal="true" aria-labelledby="resultsTitle">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="resultsTitle">📊 Relatório Completo - TMT-A</h2>
+                <h2 id="resultsTitle">📊 Relatório — TMT-A</h2>
                 <button class="modal-close" id="closeModal" aria-label="Fechar relatório">&times;</button>
             </div>
 
@@ -759,22 +544,10 @@
             <div class="results-section">
                 <h3>Desempenho Geral</h3>
                 <div class="results-grid">
-                    <div class="result-item">
-                        <div class="result-label">Tempo Total</div>
-                        <div class="result-value" id="result-time">-</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">Números Conectados</div>
-                        <div class="result-value" id="result-connected">-</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">Total de Erros</div>
-                        <div class="result-value" id="result-errors">-</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">Taxa de Acerto</div>
-                        <div class="result-value" id="result-accuracy">-</div>
-                    </div>
+                    <div class="result-item"><div class="result-label">Tempo Total</div><div class="result-value" id="result-time">-</div></div>
+                    <div class="result-item"><div class="result-label">Números Conectados</div><div class="result-value" id="result-connected">-</div></div>
+                    <div class="result-item"><div class="result-label">Total de Erros</div><div class="result-value" id="result-errors">-</div></div>
+                    <div class="result-item"><div class="result-label">Taxa de Acerto</div><div class="result-value" id="result-accuracy">-</div></div>
                 </div>
             </div>
 
@@ -783,56 +556,22 @@
                 <div class="metrics-detail">
                     <h4>Tempo por Conexão (cognitivo + motor)</h4>
                     <ul class="metrics-list">
-                        <li>
-                            <span class="metric-name">Tempo Médio por Conexão:</span>
-                            <span class="metric-value" id="metric-avg-connection">-</span>
-                        </li>
-                        <li>
-                            <span class="metric-name">Tempo de Decisão Médio (cognitivo):</span>
-                            <span class="metric-value" id="metric-decision">-</span>
-                        </li>
-                        <li>
-                            <span class="metric-name">Tempo de Movimento Médio (motor):</span>
-                            <span class="metric-value" id="metric-movement">-</span>
-                        </li>
-                        <li>
-                            <span class="metric-name">Menor Tempo por Conexão:</span>
-                            <span class="metric-value" id="metric-min-reaction">-</span>
-                        </li>
-                        <li>
-                            <span class="metric-name">Maior Tempo por Conexão:</span>
-                            <span class="metric-value" id="metric-max-reaction">-</span>
-                        </li>
-                        <li>
-                            <span class="metric-name">Variabilidade (CV):</span>
-                            <span class="metric-value" id="metric-variability">-</span>
-                        </li>
-                        <li>
-                            <span class="metric-name">Eficiência de Trajetória:</span>
-                            <span class="metric-value" id="metric-efficiency">-</span>
-                        </li>
+                        <li><span class="metric-name">Tempo Médio por Conexão:</span><span class="metric-value" id="metric-avg-connection">-</span></li>
+                        <li><span class="metric-name">Tempo de Decisão Médio (cognitivo):</span><span class="metric-value" id="metric-decision">-</span></li>
+                        <li><span class="metric-name">Tempo de Movimento Médio (motor):</span><span class="metric-value" id="metric-movement">-</span></li>
+                        <li><span class="metric-name">Menor Tempo por Conexão:</span><span class="metric-value" id="metric-min-reaction">-</span></li>
+                        <li><span class="metric-name">Maior Tempo por Conexão:</span><span class="metric-value" id="metric-max-reaction">-</span></li>
+                        <li><span class="metric-name">Variabilidade (CV):</span><span class="metric-value" id="metric-variability">-</span></li>
+                        <li><span class="metric-name">Eficiência de Trajetória:</span><span class="metric-value" id="metric-efficiency">-</span></li>
                     </ul>
                 </div>
-
                 <div class="metrics-detail">
                     <h4>Análise de Velocidade</h4>
                     <ul class="metrics-list">
-                        <li>
-                            <span class="metric-name">Velocidade Inicial (33%):</span>
-                            <span class="metric-value" id="metric-initial-speed">-</span>
-                        </li>
-                        <li>
-                            <span class="metric-name">Velocidade Mediana (33%):</span>
-                            <span class="metric-value" id="metric-middle-speed">-</span>
-                        </li>
-                        <li>
-                            <span class="metric-name">Velocidade Final (33%):</span>
-                            <span class="metric-value" id="metric-final-speed">-</span>
-                        </li>
-                        <li>
-                            <span class="metric-name">Índice de Fadiga:</span>
-                            <span class="metric-value" id="metric-fatigue">-</span>
-                        </li>
+                        <li><span class="metric-name">Velocidade Inicial (33%):</span><span class="metric-value" id="metric-initial-speed">-</span></li>
+                        <li><span class="metric-name">Velocidade Mediana (33%):</span><span class="metric-value" id="metric-middle-speed">-</span></li>
+                        <li><span class="metric-name">Velocidade Final (33%):</span><span class="metric-value" id="metric-final-speed">-</span></li>
+                        <li><span class="metric-name">Índice de Fadiga:</span><span class="metric-value" id="metric-fatigue">-</span></li>
                     </ul>
                 </div>
             </div>
@@ -840,35 +579,16 @@
             <div class="results-section">
                 <h3>Análise de Erros</h3>
                 <div class="results-grid">
-                    <div class="result-item">
-                        <div class="result-label">Taxa de Erro (%)</div>
-                        <div class="result-value" id="result-error-rate">-</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">Erros de Repetição</div>
-                        <div class="result-value" id="result-error-rep">-</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">Erros de Antecipação</div>
-                        <div class="result-value" id="result-error-ant">-</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">Erros de Sequência</div>
-                        <div class="result-value" id="result-error-seq">-</div>
-                    </div>
+                    <div class="result-item"><div class="result-label">Taxa de Erro (%)</div><div class="result-value" id="result-error-rate">-</div></div>
+                    <div class="result-item"><div class="result-label">Erros de Repetição</div><div class="result-value" id="result-error-rep">-</div></div>
+                    <div class="result-item"><div class="result-label">Erros de Antecipação</div><div class="result-value" id="result-error-ant">-</div></div>
+                    <div class="result-item"><div class="result-label">Erros de Sequência</div><div class="result-value" id="result-error-seq">-</div></div>
                 </div>
-
                 <div class="metrics-detail">
                     <h4>Padrão Temporal de Erros</h4>
                     <ul class="metrics-list">
-                        <li>
-                            <span class="metric-name">Tempo Médio até Erro:</span>
-                            <span class="metric-value" id="metric-time-to-error">-</span>
-                        </li>
-                        <li>
-                            <span class="metric-name">Tentativas Médias/Número:</span>
-                            <span class="metric-value" id="metric-attempts-per-number">-</span>
-                        </li>
+                        <li><span class="metric-name">Tempo Médio até Erro:</span><span class="metric-value" id="metric-time-to-error">-</span></li>
+                        <li><span class="metric-name">Tentativas Médias/Número:</span><span class="metric-value" id="metric-attempts-per-number">-</span></li>
                     </ul>
                 </div>
             </div>
@@ -877,30 +597,13 @@
                 <h3>Ambiente e Cronometria</h3>
                 <div class="metrics-detail">
                     <ul class="metrics-list">
-                        <li>
-                            <span class="metric-name">Forma aplicada (versão):</span>
-                            <span class="metric-value" id="env-form">-</span>
-                        </li>
-                        <li>
-                            <span class="metric-name">Modalidade de resposta:</span>
-                            <span class="metric-value" id="env-pointer">-</span>
-                        </li>
-                        <li>
-                            <span class="metric-name">Taxa de atualização (display):</span>
-                            <span class="metric-value" id="env-refresh">-</span>
-                        </li>
-                        <li>
-                            <span class="metric-name">Respostas &lt; 150 ms:</span>
-                            <span class="metric-value" id="env-fast">-</span>
-                        </li>
-                        <li>
-                            <span class="metric-name">Perdas de foco da janela:</span>
-                            <span class="metric-value" id="env-focus">-</span>
-                        </li>
-                        <li>
-                            <span class="metric-name">Fonte de cronometria:</span>
-                            <span class="metric-value" id="env-clock">performance.now()</span>
-                        </li>
+                        <li><span class="metric-name">Forma aplicada (versão):</span><span class="metric-value" id="env-form">-</span></li>
+                        <li><span class="metric-name">Tipo de dispositivo:</span><span class="metric-value" id="env-device">-</span></li>
+                        <li><span class="metric-name">Modalidade de resposta:</span><span class="metric-value" id="env-pointer">-</span></li>
+                        <li><span class="metric-name">Taxa de atualização (display):</span><span class="metric-value" id="env-refresh">-</span></li>
+                        <li><span class="metric-name">Respostas &lt; 150 ms:</span><span class="metric-value" id="env-fast">-</span></li>
+                        <li><span class="metric-name">Perdas de foco da janela:</span><span class="metric-value" id="env-focus">-</span></li>
+                        <li><span class="metric-name">Fonte de cronometria:</span><span class="metric-value" id="env-clock">performance.now()</span></li>
                     </ul>
                 </div>
             </div>
@@ -909,27 +612,15 @@
                 <h3>Comparação Normativa (referência em papel)</h3>
                 <div class="normative-controls">
                     <label for="age-range-selector">Sua faixa etária:</label>
-                    <select id="age-range-selector">
-                        <option value="">--Escolha--</option>
-                    </select>
+                    <select id="age-range-selector"><option value="">--Escolha--</option></select>
                 </div>
                 <table class="normative-table">
-                    <thead>
-                        <tr>
-                            <th>Faixa Etária</th>
-                            <th>Média (s)</th>
-                            <th>DP</th>
-                            <th>Percentil</th>
-                            <th>Classificação</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Faixa Etária</th><th>Média (s)</th><th>DP</th><th>Percentil</th><th>Classificação</th></tr></thead>
                     <tbody id="normative-data"></tbody>
                 </table>
                 <p class="norm-note">
-                    ⚠️ Normas de Tombaugh (2004) obtidas com a versão em <strong>papel e lápis</strong>. Como a versão
-                    digital é um teste distinto (modalidade de resposta, cronometria e componente grafomotor diferem),
-                    estes percentis são <strong>apenas indicativos</strong> e não devem fundamentar decisões clínicas
-                    sem normas de equivalência próprias.
+                    ⚠️ Normas de Tombaugh (2004) obtidas com a versão em <strong>papel e lápis</strong>. A versão digital
+                    é um teste distinto; estes percentis são <strong>apenas indicativos</strong>.
                 </p>
             </div>
 
@@ -939,9 +630,9 @@
                 <button class="btn btn-secondary" id="saveLocal">💾 Salvar</button>
             </div>
             <p class="privacy-note">
-                🔒 Privacidade (LGPD): todo o processamento ocorre localmente neste navegador. Nenhum dado é enviado a
-                servidores ou serviços de terceiros. "Salvar" grava os resultados apenas no armazenamento local deste
-                dispositivo — evite inserir dados que identifiquem o paciente.
+                🔒 Privacidade (LGPD): processamento 100% local neste navegador; nenhum dado é enviado a servidores.
+                "Salvar" grava apenas no armazenamento local deste dispositivo — evite inserir dados que identifiquem o
+                paciente.
             </p>
         </div>
     </div>
@@ -953,38 +644,36 @@
             MAX_TIME: 300000,
             FAST_RT_THRESHOLD: 150,
             PRACTICE_MAX_ERRORS: 2,
-            SQUARE_RATIO: 0.97,    // fração de min(largura, altura) usada como área quadrada de estímulos
-            NODE_RATIO: 0.6,       // tamanho do nó relativo à menor distância entre estímulos
-            MIN_PAIR_NORM: 0.135   // menor distância normalizada entre estímulos (garantida pelas formas)
+            MIN_PAIR_NORM: 0.12,   // menor distância normalizada entre estímulos (garantida pelas formas)
+            NODE_RATIO: 0.62       // tamanho do nó relativo à menor distância entre estímulos
         };
 
-        // Formas PADRONIZADAS (coordenadas normalizadas 0..1, mapeadas numa área quadrada).
-        // Geradas por caminhada auto-evitante de passo fixo: a trilha 1->25 NÃO se cruza e
-        // todos os segmentos têm o MESMO comprimento (distância constante entre tentativas).
+        // Perfil de distâncias d1..d24 (normalizado), COMPARTILHADO pelas 6 versões:
+        // garante que o segmento i->i+1 seja idêntico em todas as versões (formas paralelas/equivalentes).
+        const PROFILE = [0.22304,0.24391,0.20739,0.21261,0.22826,0.19696,0.17609,0.20217,0.15522,0.2387,0.24913,0.16565,0.21783,0.16043,0.23348,0.25957,0.17087,0.26478,0.25435,0.15,0.18652,0.27,0.19174,0.1813];
+
+        // 6 FORMAS PARALELAS (coordenadas normalizadas 0..1, posicionadas numa arena quadrada).
+        // Mesma sequência de distâncias (PROFILE) nas 6 — porém os valores VARIAM dentro de cada forma,
+        // e a trilha 1->25 tende a não se cruzar (poligonal simples verificada).
         const FORMS = [
-            [[0.08755,0.08423],[0.29159,0.10401],[0.49475,0.13144],[0.66868,0.23995],[0.83011,0.3663],[0.85369,0.56994],[0.89559,0.77061],[0.73602,0.8993],[0.53221,0.92137],[0.33009,0.8871],[0.12572,0.87105],[0.08957,0.66927],[0.10547,0.46488],[0.31025,0.47453],[0.49167,0.56997],[0.29215,0.61704],[0.47289,0.71377],[0.63388,0.58685],[0.59217,0.78756],[0.76835,0.68275],[0.75318,0.47831],[0.57502,0.37691],[0.41539,0.24829],[0.23924,0.35315],[0.43784,0.40396]],
-            [[0.08788,0.16224],[0.1163,0.36526],[0.13951,0.56894],[0.12752,0.77359],[0.28756,0.90169],[0.49197,0.91728],[0.69275,0.87587],[0.89763,0.86894],[0.91146,0.66441],[0.90807,0.45943],[0.86554,0.25889],[0.77025,0.07739],[0.56553,0.08804],[0.45195,0.2587],[0.5372,0.44514],[0.42095,0.61399],[0.62274,0.65017],[0.8048,0.55594],[0.72213,0.74354],[0.51852,0.76731],[0.31626,0.73388],[0.31214,0.52892],[0.32389,0.32426],[0.37759,0.12641],[0.20403,0.23551]],
-            [[0.08821,0.24024],[0.26305,0.13321],[0.46801,0.13745],[0.6653,0.08175],[0.87027,0.0782],[0.91675,0.27786],[0.92166,0.4828],[0.86779,0.6806],[0.78824,0.86953],[0.59077,0.92459],[0.38972,0.88455],[0.19256,0.8284],[0.11909,0.63702],[0.28972,0.5234],[0.49472,0.52406],[0.64576,0.38546],[0.44385,0.35003],[0.58637,0.20267],[0.79132,0.19804],[0.81013,0.40218],[0.69898,0.57443],[0.51996,0.67432],[0.70533,0.76185],[0.50652,0.81182],[0.3172,0.73319]],
-            [[0.08855,0.31825],[0.07075,0.11402],[0.27555,0.10479],[0.48013,0.11789],[0.68448,0.13421],[0.88575,0.1731],[0.90873,0.37681],[0.84465,0.57153],[0.7492,0.75295],[0.62308,0.91456],[0.4211,0.87947],[0.24833,0.76913],[0.07977,0.88581],[0.08351,0.68084],[0.21817,0.52628],[0.41659,0.47476],[0.61456,0.42154],[0.61243,0.62653],[0.74494,0.47011],[0.7911,0.27037],[0.58622,0.26334],[0.38331,0.29253],[0.19065,0.22248],[0.29167,0.40085],[0.09648,0.4635]],
-            [[0.08888,0.39625],[0.0943,0.19132],[0.26696,0.08081],[0.47153,0.09414],[0.67601,0.10877],[0.88085,0.10073],[0.89977,0.30485],[0.90503,0.50978],[0.81439,0.69366],[0.74306,0.88585],[0.53869,0.90192],[0.33471,0.88149],[0.14198,0.81163],[0.2505,0.63771],[0.41715,0.51833],[0.58098,0.3951],[0.64276,0.59057],[0.77261,0.43194],[0.7646,0.22709],[0.55979,0.2184],[0.35751,0.1851],[0.43593,0.37451],[0.24643,0.29631],[0.27247,0.49965],[0.08275,0.57731]],
-            [[0.08955,0.55226],[0.10565,0.3479],[0.14106,0.14598],[0.33302,0.07403],[0.53605,0.10233],[0.6678,0.2594],[0.76888,0.43774],[0.79994,0.64038],[0.8206,0.84433],[0.62327,0.8999],[0.41873,0.9135],[0.21421,0.8994],[0.25227,0.69797],[0.42826,0.59283],[0.51504,0.77855],[0.71853,0.7537],[0.56562,0.61715],[0.63127,0.42295],[0.52939,0.24505],[0.32707,0.21202],[0.46387,0.3647],[0.2603,0.34052],[0.24294,0.54479],[0.1116,0.70218],[0.07353,0.90362]]
+            [[0.92286,0.71138],[0.8136,0.90583],[0.5701,0.91997],[0.36289,0.92861],[0.16069,0.86288],[0.0923,0.64511],[0.08945,0.44818],[0.07787,0.27247],[0.09088,0.07072],[0.24525,0.08688],[0.48389,0.09246],[0.73105,0.12373],[0.89604,0.10903],[0.92668,0.32469],[0.79132,0.4108],[0.58516,0.52039],[0.39082,0.34833],[0.33038,0.50815],[0.50168,0.71006],[0.74646,0.64098],[0.64008,0.74673],[0.47317,0.82999],[0.26497,0.65809],[0.21184,0.47386],[0.23735,0.29435]],
+            [[0.92319,0.78938],[0.73337,0.9065],[0.49182,0.87267],[0.28443,0.87385],[0.07721,0.92141],[0.07191,0.69321],[0.08665,0.49681],[0.11594,0.32317],[0.15741,0.1253],[0.30783,0.08703],[0.54391,0.12227],[0.78618,0.18035],[0.91729,0.28159],[0.828,0.48028],[0.66817,0.49421],[0.43876,0.45082],[0.5739,0.67243],[0.4033,0.68202],[0.26819,0.4543],[0.38132,0.2265],[0.52039,0.2827],[0.34889,0.35603],[0.6188,0.36303],[0.81024,0.35245],[0.66057,0.25012]],
+            [[0.92353,0.86739],[0.85579,0.65488],[0.72415,0.44954],[0.67878,0.24717],[0.55635,0.07335],[0.3312,0.11095],[0.1439,0.17184],[0.07995,0.3359],[0.07996,0.53808],[0.08925,0.69302],[0.15232,0.92323],[0.40093,0.9072],[0.49023,0.76768],[0.41835,0.56206],[0.38011,0.40624],[0.25266,0.60187],[0.24999,0.34231],[0.38829,0.24197],[0.55854,0.44477],[0.66442,0.67603],[0.61526,0.81775],[0.53176,0.65096],[0.5244,0.92086],[0.71609,0.92513],[0.77149,0.7525]],
+            [[0.92386,0.08539],[0.756,0.23226],[0.59289,0.41361],[0.48541,0.59098],[0.42902,0.79598],[0.24355,0.92904],[0.0784,0.82172],[0.08633,0.64581],[0.08563,0.44364],[0.12083,0.29246],[0.27526,0.11045],[0.52217,0.07728],[0.46664,0.23335],[0.65283,0.1203],[0.58727,0.26673],[0.37307,0.35962],[0.4008,0.10154],[0.31352,0.24844],[0.40001,0.49869],[0.22246,0.68082],[0.36925,0.64992],[0.26033,0.80134],[0.16202,0.54988],[0.22239,0.36789],[0.28174,0.5392]],
+            [[0.92419,0.1634],[0.91325,0.38617],[0.81072,0.60749],[0.77501,0.81178],[0.58714,0.91132],[0.3589,0.91432],[0.16463,0.8819],[0.10449,0.7164],[0.09407,0.5145],[0.11653,0.36092],[0.18916,0.13354],[0.43287,0.08185],[0.55333,0.19557],[0.54148,0.41307],[0.43797,0.53564],[0.30643,0.34274],[0.24543,0.59504],[0.36564,0.71647],[0.6288,0.68724],[0.73035,0.45404],[0.60173,0.53123],[0.64441,0.34965],[0.67093,0.08096],[0.77338,0.24303],[0.83098,0.07112]],
+            [[0.92453,0.2414],[0.9175,0.46434],[0.91227,0.70819],[0.83972,0.90248],[0.62809,0.92276],[0.41727,0.83525],[0.22527,0.79134],[0.07315,0.70264],[0.1082,0.50353],[0.17191,0.36199],[0.3479,0.20073],[0.56408,0.07692],[0.63617,0.22606],[0.58135,0.43688],[0.62953,0.58991],[0.39609,0.58563],[0.59018,0.75797],[0.74217,0.67988],[0.70945,0.41713],[0.7751,0.1714],[0.88748,0.07205],[0.70102,0.07687],[0.43104,0.07354],[0.23946,0.08145],[0.07613,0.16014]]
         ];
 
-        // Forma de aquecimento (8 estímulos), também sem cruzamento e com passo constante.
-        const PRACTICE_FORM = [[0.28268,0.85172],[0.18413,0.65503],[0.11375,0.44659],[0.0807,0.22909],[0.25122,0.09008],[0.46882,0.12249],[0.68733,0.09695],[0.90717,0.10543]];
+        // Forma de aquecimento (8 estímulos), também não-cruzante.
+        const PRACTICE_FORM = [[0.32187,0.25107],[0.09354,0.37543],[0.10231,0.62195],[0.1253,0.84074],[0.31251,0.92828],[0.48384,0.87307],[0.70249,0.79162],[0.87706,0.70852]];
 
         // Normas da VERSÃO EM PAPEL (Tombaugh, 2004). Referência aproximada apenas.
         const NORMATIVE_DATA = {
-            '18-24': { mean: 22.93, sd: 6.87 },
-            '25-34': { mean: 24.40, sd: 8.71 },
-            '35-44': { mean: 28.54, sd: 10.09 },
-            '45-54': { mean: 31.78, sd: 9.93 },
-            '55-59': { mean: 35.10, sd: 10.94 },
-            '60-64': { mean: 33.22, sd: 9.10 },
-            '65-69': { mean: 39.14, sd: 11.84 },
-            '70-74': { mean: 42.47, sd: 15.32 },
-            '75-79': { mean: 50.81, sd: 17.44 },
-            '80-84': { mean: 58.19, sd: 23.31 },
+            '18-24': { mean: 22.93, sd: 6.87 }, '25-34': { mean: 24.40, sd: 8.71 },
+            '35-44': { mean: 28.54, sd: 10.09 }, '45-54': { mean: 31.78, sd: 9.93 },
+            '55-59': { mean: 35.10, sd: 10.94 }, '60-64': { mean: 33.22, sd: 9.10 },
+            '65-69': { mean: 39.14, sd: 11.84 }, '70-74': { mean: 42.47, sd: 15.32 },
+            '75-79': { mean: 50.81, sd: 17.44 }, '80-84': { mean: 58.19, sd: 23.31 },
             '85-89': { mean: 63.46, sd: 29.22 }
         };
 
@@ -993,46 +682,30 @@
         class TMTTest {
             constructor() {
                 this.initializeState();
+                this.deviceType = this.detectDeviceType();
+                document.body.dataset.device = this.deviceType;
                 this.initializeElements();
                 this.bindEvents();
                 this.populateAgeSelector();
                 this.refreshRate = null;
                 this.measureRefreshRate();
+                this.setAppHeight();
                 this.observeCanvasResize();
             }
 
             initializeState() {
                 this.state = {
-                    phase: 'instructions',
-                    isRunning: false,
-                    isPractice: false,
-                    isPaused: false,
-                    currentNumber: 1,
-                    formIndex: null,
-                    startTime: null,
-                    endTime: null,
-                    pauseStartTime: null,
-                    lastCorrectTime: null,
-                    lastClickTime: null,
-                    errors: [],
-                    clicks: [],
-                    nodes: [],
-                    trails: [],
-                    positions: [],
-                    reactionTimes: [],
-                    decisionTimes: [],
-                    movementTimes: [],
-                    segMoveStart: null,
-                    lastMove: null,
-                    movementDistance: 0,
-                    trajectory: [],
-                    lastSampleTime: 0,
-                    pointerCounts: {},
-                    fastResponses: 0,
-                    focusLossCount: 0,
-                    resizeDuringTest: false
+                    phase: 'instructions', isRunning: false, isPractice: false, isPaused: false,
+                    currentNumber: 1, formIndex: null,
+                    startTime: null, endTime: null, pauseStartTime: null,
+                    lastCorrectTime: null, lastClickTime: null,
+                    errors: [], clicks: [], nodes: [], trails: [], positions: [],
+                    reactionTimes: [], decisionTimes: [], movementTimes: [],
+                    segMoveStart: null, lastMove: null, movementDistance: 0,
+                    trajectory: [], lastSampleTime: 0,
+                    pointerCounts: {}, fastResponses: 0, focusLossCount: 0, resizeDuringTest: false,
+                    soundOn: true
                 };
-
                 this.timer = null;
                 this.audioContext = null;
                 this.results = null;
@@ -1040,16 +713,40 @@
                 this.practiceCompleted = false;
             }
 
+            detectDeviceType() {
+                const ua = navigator.userAgent || '';
+                const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+                const touch = (navigator.maxTouchPoints || 0) > 0 || coarse || 'ontouchstart' in window;
+                const sw = window.screen.width || window.innerWidth || 0;
+                const sh = window.screen.height || window.innerHeight || 0;
+                const minSide = Math.min(sw, sh);
+                const maxSide = Math.max(sw, sh);
+                if (/iPad/.test(ua) || (/Macintosh/.test(ua) && touch)) return 'tablet';
+                if (/Tablet|PlayBook|Silk|Kindle|Nexus 7|Nexus 10/.test(ua)) return 'tablet';
+                if (/Mobi|iPhone|iPod|Android.*Mobile|Windows Phone/.test(ua)) return 'mobile';
+                if (!touch) return 'desktop';
+                if (minSide >= 600 || maxSide >= 960) return 'tablet';
+                return 'mobile';
+            }
+
+            deviceLabel() {
+                return { mobile: 'Celular', tablet: 'Tablet', desktop: 'Computador' }[this.deviceType] || this.deviceType;
+            }
+
+            setAppHeight() {
+                const set = () => document.documentElement.style.setProperty('--app-height', window.innerHeight + 'px');
+                set();
+                window.addEventListener('resize', set);
+                window.addEventListener('orientationchange', () => setTimeout(set, 200));
+            }
+
             measureRefreshRate() {
                 let frames = 0;
                 const start = now();
                 const tick = (t) => {
                     frames++;
-                    if (t - start < 500) {
-                        requestAnimationFrame(tick);
-                    } else {
-                        this.refreshRate = Math.round(frames / ((t - start) / 1000));
-                    }
+                    if (t - start < 500) requestAnimationFrame(tick);
+                    else this.refreshRate = Math.round(frames / ((t - start) / 1000));
                 };
                 requestAnimationFrame(tick);
             }
@@ -1058,40 +755,27 @@
                 const rect = this.canvas.getBoundingClientRect();
                 const nav = navigator || {};
                 const meta = {
-                    timingSource: 'performance.now',
-                    timeOrigin: performance.timeOrigin || null,
-                    refreshRateHz: this.refreshRate,
+                    timingSource: 'performance.now', timeOrigin: performance.timeOrigin || null,
+                    deviceType: this.deviceType, refreshRateHz: this.refreshRate,
                     devicePixelRatio: window.devicePixelRatio || 1,
                     viewport: { width: window.innerWidth, height: window.innerHeight },
-                    canvas: { width: Math.round(rect.width), height: Math.round(rect.height) },
-                    screen: {
-                        width: window.screen.width,
-                        height: window.screen.height,
-                        availWidth: window.screen.availWidth,
-                        availHeight: window.screen.availHeight,
-                        colorDepth: window.screen.colorDepth
-                    },
-                    hardwareConcurrency: nav.hardwareConcurrency || null,
-                    deviceMemory: nav.deviceMemory || null,
-                    maxTouchPoints: nav.maxTouchPoints || 0,
-                    language: nav.language || null,
+                    arena: { width: Math.round(rect.width), height: Math.round(rect.height) },
+                    screen: { width: window.screen.width, height: window.screen.height, colorDepth: window.screen.colorDepth },
+                    hardwareConcurrency: nav.hardwareConcurrency || null, deviceMemory: nav.deviceMemory || null,
+                    maxTouchPoints: nav.maxTouchPoints || 0, language: nav.language || null,
                     timezone: (window.Intl && Intl.DateTimeFormat) ? Intl.DateTimeFormat().resolvedOptions().timeZone : null,
                     pointerTypes: this.state.pointerCounts
                 };
-                if (full) {
-                    meta.userAgent = nav.userAgent || null;
-                    meta.platform = nav.platform || null;
-                }
+                if (full) { meta.userAgent = nav.userAgent || null; meta.platform = nav.platform || null; }
                 return meta;
             }
 
             initializeElements() {
-                this.container = document.getElementById('container');
+                this.card = document.getElementById('card');
                 this.canvas = document.getElementById('testCanvas');
                 this.timerDisplay = document.getElementById('timer');
                 this.errorsDisplay = document.getElementById('errors');
                 this.progressDisplay = document.getElementById('progress-stat');
-                this.progressBar = document.getElementById('progress');
                 this.messageBox = document.getElementById('message');
 
                 this.practiceBtn = document.getElementById('practiceBtn');
@@ -1099,6 +783,8 @@
                 this.pauseBtn = document.getElementById('pauseBtn');
                 this.resultsBtn = document.getElementById('resultsBtn');
                 this.resetBtn = document.getElementById('resetBtn');
+                this.soundBtn = document.getElementById('soundBtn');
+                this.fullscreenBtn = document.getElementById('fullscreenBtn');
 
                 this.modal = document.getElementById('resultsModal');
                 this.closeModalBtn = document.getElementById('closeModal');
@@ -1109,10 +795,8 @@
                 this.saveLocalBtn = document.getElementById('saveLocal');
 
                 this.phases = {
-                    1: document.getElementById('phase-1'),
-                    2: document.getElementById('phase-2'),
-                    3: document.getElementById('phase-3'),
-                    4: document.getElementById('phase-4')
+                    1: document.getElementById('phase-1'), 2: document.getElementById('phase-2'),
+                    3: document.getElementById('phase-3'), 4: document.getElementById('phase-4')
                 };
             }
 
@@ -1122,17 +806,14 @@
                 this.pauseBtn.addEventListener('click', () => this.togglePause());
                 this.resultsBtn.addEventListener('click', () => this.showResults());
                 this.resetBtn.addEventListener('click', () => this.reset());
+                this.soundBtn.addEventListener('click', () => this.toggleSound());
+                this.fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
 
                 this.closeModalBtn.addEventListener('click', () => this.hideModal());
-                this.modal.addEventListener('click', (e) => {
-                    if (e.target === this.modal) this.hideModal();
-                });
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape' && this.modal.classList.contains('show')) this.hideModal();
-                });
+                this.modal.addEventListener('click', (e) => { if (e.target === this.modal) this.hideModal(); });
+                document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && this.modal.classList.contains('show')) this.hideModal(); });
 
                 this.ageRangeSelector.addEventListener('change', (e) => this.highlightNormativeRow(e.target.value));
-
                 this.exportCSVBtn.addEventListener('click', () => this.exportToCSV());
                 this.exportJSONBtn.addEventListener('click', () => this.exportToJSON());
                 this.saveLocalBtn.addEventListener('click', () => this.saveToLocal());
@@ -1140,30 +821,56 @@
                 this.canvas.addEventListener('pointermove', (e) => this.handlePointerMove(e), { passive: true });
 
                 window.addEventListener('blur', () => this.registerFocusLoss());
-                document.addEventListener('visibilitychange', () => {
-                    if (document.hidden) this.registerFocusLoss();
-                });
+                document.addEventListener('visibilitychange', () => { if (document.hidden) this.registerFocusLoss(); });
+
+                ['fullscreenchange', 'webkitfullscreenchange'].forEach(ev =>
+                    document.addEventListener(ev, () => this.syncFullscreenButton()));
+                this.syncFullscreenButton();
             }
 
-            registerFocusLoss() {
-                if (this.state.isRunning && !this.state.isPaused) {
-                    this.state.focusLossCount++;
-                }
+            toggleSound() {
+                this.state.soundOn = !this.state.soundOn;
+                this.soundBtn.setAttribute('aria-pressed', String(this.state.soundOn));
+                this.soundBtn.textContent = this.state.soundOn ? '🔊' : '🔇';
+                if (this.state.soundOn) this.playSound('success');
             }
+
+            isFullscreen() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+
+            toggleFullscreen() {
+                try {
+                    if (!this.isFullscreen()) {
+                        const el = document.documentElement;
+                        const req = el.requestFullscreen || el.webkitRequestFullscreen;
+                        if (req) req.call(el);
+                    } else {
+                        const exit = document.exitFullscreen || document.webkitExitFullscreen;
+                        if (exit) exit.call(document);
+                    }
+                } catch (e) { /* fullscreen indisponível (ex.: iPhone) */ }
+            }
+
+            syncFullscreenButton() {
+                const fs = this.isFullscreen();
+                this.fullscreenBtn.setAttribute('aria-pressed', String(fs));
+                this.fullscreenBtn.textContent = fs ? '🗕' : '⛶';
+                this.fullscreenBtn.title = fs ? 'Sair da tela inteira' : 'Tela inteira';
+                this.scheduleReflow();
+            }
+
+            registerFocusLoss() { if (this.state.isRunning && !this.state.isPaused) this.state.focusLossCount++; }
 
             observeCanvasResize() {
                 if (typeof ResizeObserver === 'undefined') {
                     window.addEventListener('resize', () => this.scheduleReflow());
-                    window.addEventListener('orientationchange', () => setTimeout(() => this.scheduleReflow(), 200));
+                    window.addEventListener('orientationchange', () => setTimeout(() => this.scheduleReflow(), 220));
                     return;
                 }
                 this.lastCanvasSize = null;
                 this.resizeObserver = new ResizeObserver((entries) => {
                     const cr = entries[0].contentRect;
                     if (this.lastCanvasSize && this.state.isRunning) {
-                        const dW = Math.abs(cr.width - this.lastCanvasSize.w);
-                        const dH = Math.abs(cr.height - this.lastCanvasSize.h);
-                        if (dW > 40 || dH > 40) {
+                        if (Math.abs(cr.width - this.lastCanvasSize.w) > 40 || Math.abs(cr.height - this.lastCanvasSize.h) > 40) {
                             this.state.resizeDuringTest = true;
                             this.showMessage('Tela redimensionada durante o teste (registrado como ressalva de validade).', 'warning');
                         }
@@ -1184,55 +891,40 @@
             }
 
             populateAgeSelector() {
-                Object.keys(NORMATIVE_DATA).forEach(ageGroup => {
-                    const option = document.createElement('option');
-                    option.value = ageGroup;
-                    option.textContent = `${ageGroup} anos`;
-                    this.ageRangeSelector.appendChild(option);
+                Object.keys(NORMATIVE_DATA).forEach(g => {
+                    const o = document.createElement('option');
+                    o.value = g; o.textContent = `${g} anos`;
+                    this.ageRangeSelector.appendChild(o);
                 });
             }
 
-            updatePhase(phaseNumber) {
-                Object.values(this.phases).forEach(phase => {
-                    phase.classList.remove('active', 'completed');
-                });
-                for (let i = 1; i < phaseNumber; i++) {
-                    this.phases[i].classList.add('completed');
-                }
-                this.phases[phaseNumber].classList.add('active');
+            updatePhase(n) {
+                Object.values(this.phases).forEach(p => p.classList.remove('active', 'completed'));
+                for (let i = 1; i < n; i++) this.phases[i].classList.add('completed');
+                this.phases[n].classList.add('active');
             }
 
             showCountdown(callback) {
-                const countdownOverlay = document.createElement('div');
-                countdownOverlay.className = 'countdown-overlay';
-                this.canvas.appendChild(countdownOverlay);
-
+                const overlay = document.createElement('div');
+                overlay.className = 'countdown-overlay';
+                this.canvas.appendChild(overlay);
                 let count = 3;
-                countdownOverlay.textContent = count;
-
+                overlay.textContent = count;
                 const interval = setInterval(() => {
                     count--;
-                    if (count > 0) {
-                        countdownOverlay.textContent = count;
-                    } else if (count === 0) {
-                        countdownOverlay.textContent = 'JÁ!';
-                    } else {
-                        clearInterval(interval);
-                        if (countdownOverlay.parentNode) countdownOverlay.remove();
-                        callback();
-                    }
+                    if (count > 0) overlay.textContent = count;
+                    else if (count === 0) overlay.textContent = 'JÁ!';
+                    else { clearInterval(interval); if (overlay.parentNode) overlay.remove(); callback(); }
                 }, 1000);
             }
 
-            // seleção determinística e cíclica das formas (mitiga aprendizado, mantém distâncias)
             nextFormIndex() {
                 let idx = 0;
                 try {
                     idx = parseInt(localStorage.getItem('tmt-form-index') || '0', 10) || 0;
                     localStorage.setItem('tmt-form-index', String((idx + 1) % FORMS.length));
                 } catch (e) {
-                    idx = this._memFormIdx || 0;
-                    this._memFormIdx = (idx + 1) % FORMS.length;
+                    idx = this._memFormIdx || 0; this._memFormIdx = (idx + 1) % FORMS.length;
                 }
                 return ((idx % FORMS.length) + FORMS.length) % FORMS.length;
             }
@@ -1243,17 +935,11 @@
                 this.state.isPractice = true;
                 this.state.phase = 'practice';
                 this.state.formIndex = 'P';
-
                 this.showMessage('Preparando aquecimento...', 'info');
                 this.loadForm(PRACTICE_FORM);
-
                 this.practiceBtn.style.display = 'none';
                 this.startBtn.disabled = true;
-
-                this.showCountdown(() => {
-                    this.container.classList.add('test-in-progress');
-                    this.startTimer();
-                });
+                this.showCountdown(() => { this.card.classList.add('test-in-progress'); this.startTimer(); });
             }
 
             startTest() {
@@ -1262,19 +948,13 @@
                 this.state.isPractice = false;
                 this.state.phase = 'test';
                 this.state.formIndex = this.nextFormIndex();
-
                 this.showMessage('Preparando teste...', 'info');
                 this.loadForm(FORMS[this.state.formIndex]);
-
                 this.practiceBtn.style.display = 'none';
                 this.startBtn.style.display = 'none';
                 this.pauseBtn.style.display = 'inline-block';
                 this.resultsBtn.style.display = 'none';
-
-                this.showCountdown(() => {
-                    this.container.classList.add('test-in-progress');
-                    this.startTimer();
-                });
+                this.showCountdown(() => { this.card.classList.add('test-in-progress'); this.startTimer(); });
             }
 
             shuffle(arr) {
@@ -1291,13 +971,10 @@
                 this.state.trails = [];
                 this.state.currentNumber = 1;
                 this.state.positions = formCoords.map((c, i) => ({ xNorm: c[0], yNorm: c[1], number: i + 1 }));
-
                 const els = this.state.positions.map(p => this.createNode(p));
-                // ordem de inserção no DOM embaralhada => navegação por teclado não é trivial (1->2->3)
                 const order = els.map((_, i) => i);
                 this.shuffle(order);
                 order.forEach(i => this.canvas.appendChild(els[i]));
-
                 this.renderPositions();
                 this.updateProgress();
             }
@@ -1309,120 +986,87 @@
                 node.dataset.number = position.number;
                 node.textContent = position.number;
                 node.setAttribute('aria-label', 'Número ' + position.number);
-
                 node.addEventListener('pointerdown', (e) => {
                     const ts = now();
-                    e.preventDefault();
-                    e.stopPropagation();
+                    e.preventDefault(); e.stopPropagation();
                     this.handleNodeClick(position.number, ts, e.pointerType || 'mouse');
                 });
                 node.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
-                        const ts = now();
-                        e.preventDefault();
+                        const ts = now(); e.preventDefault();
                         this.handleNodeClick(position.number, ts, 'keyboard');
                     }
                 });
-
                 this.state.nodes.push(node);
                 return node;
             }
 
-            // área quadrada centralizada => distâncias iguais independentemente da proporção da tela
-            squareArea() {
+            // a arena é quadrada (aspect-ratio 1/1): lado S = largura == altura
+            squareSize() {
                 const rect = this.canvas.getBoundingClientRect();
-                const W = rect.width;
-                const H = rect.height;
-                const S = Math.min(W, H) * CONFIG.SQUARE_RATIO;
-                const ox = (W - S) / 2;
-                const oy = (H - S) / 2;
-                return { W, H, S, ox, oy };
+                return Math.min(rect.width, rect.height) || rect.width;
             }
 
             renderPositions() {
-                const { S, ox, oy } = this.squareArea();
-                const ns = Math.max(22, Math.min(60, Math.round(CONFIG.MIN_PAIR_NORM * S * CONFIG.NODE_RATIO)));
+                const S = this.squareSize();
+                const floor = this.deviceType === 'desktop' ? 22 : 30;
+                const ns = Math.max(floor, Math.min(58, Math.round(CONFIG.MIN_PAIR_NORM * S * CONFIG.NODE_RATIO)));
                 this.renderedNodeSize = ns;
                 document.documentElement.style.setProperty('--node-size', ns + 'px');
-
                 this.state.nodes.forEach((node, i) => {
                     const p = this.state.positions[i];
-                    node.style.left = (ox + p.xNorm * S - ns / 2) + 'px';
-                    node.style.top = (oy + p.yNorm * S - ns / 2) + 'px';
+                    node.style.left = (p.xNorm * S - ns / 2) + 'px';
+                    node.style.top = (p.yNorm * S - ns / 2) + 'px';
                 });
-
-                this.redrawTrails(S, ox, oy);
+                this.redrawTrails(S);
             }
 
-            centerPx(index, S, ox, oy) {
+            centerPx(index, S) {
                 const p = this.state.positions[index];
-                return { x: ox + p.xNorm * S, y: oy + p.yNorm * S };
+                return { x: p.xNorm * S, y: p.yNorm * S };
             }
 
             handlePointerMove(e) {
                 if (!this.state.isRunning || this.state.isPaused) return;
                 const t = now();
-                const x = e.clientX;
-                const y = e.clientY;
-
+                const x = e.clientX, y = e.clientY;
                 if (this.state.lastMove) {
-                    const dx = x - this.state.lastMove.x;
-                    const dy = y - this.state.lastMove.y;
+                    const dx = x - this.state.lastMove.x, dy = y - this.state.lastMove.y;
                     this.state.movementDistance += Math.sqrt(dx * dx + dy * dy);
                 }
                 this.state.lastMove = { x, y };
-
                 if (this.state.segMoveStart === null) this.state.segMoveStart = t;
-
                 if (t - this.state.lastSampleTime > 40 && this.state.trajectory.length < 3000) {
                     const rect = this.canvas.getBoundingClientRect();
-                    this.state.trajectory.push({
-                        x: Math.round(x - rect.left),
-                        y: Math.round(y - rect.top),
-                        t: Math.round(t - this.state.startTime)
-                    });
+                    this.state.trajectory.push({ x: Math.round(x - rect.left), y: Math.round(y - rect.top), t: Math.round(t - this.state.startTime) });
                     this.state.lastSampleTime = t;
                 }
             }
 
             handleNodeClick(number, ts, pointerType) {
                 if (!this.state.isRunning || this.state.isPaused) return;
-
                 const timestamp = (typeof ts === 'number') ? ts : now();
                 const reactionTime = timestamp - this.state.lastCorrectTime;
-
                 this.state.pointerCounts[pointerType] = (this.state.pointerCounts[pointerType] || 0) + 1;
-
                 const click = {
-                    number: number,
-                    expected: this.state.currentNumber,
+                    number, expected: this.state.currentNumber,
                     tFromStart: timestamp - this.state.startTime,
                     correct: number === this.state.currentNumber,
-                    reactionTime: reactionTime,
-                    pointerType: pointerType
+                    reactionTime, pointerType
                 };
                 this.state.clicks.push(click);
                 this.state.lastClickTime = timestamp;
-
-                if (number > 1 && reactionTime > 0 && reactionTime < CONFIG.FAST_RT_THRESHOLD) {
-                    this.state.fastResponses++;
-                }
-
-                if (click.correct) {
-                    this.handleCorrectClick(number, reactionTime, timestamp);
-                } else {
-                    this.handleIncorrectClick(number, timestamp);
-                }
+                if (number > 1 && reactionTime > 0 && reactionTime < CONFIG.FAST_RT_THRESHOLD) this.state.fastResponses++;
+                if (click.correct) this.handleCorrectClick(number, reactionTime, timestamp);
+                else this.handleIncorrectClick(number, timestamp);
             }
 
             handleCorrectClick(number, reactionTime, timestamp) {
                 const node = this.state.nodes[number - 1];
                 node.classList.add('correct');
-
                 if (number > 1) {
                     this.drawTrail(number - 1, number);
                     this.state.reactionTimes.push(reactionTime);
-
                     if (this.state.segMoveStart !== null) {
                         const decision = this.state.segMoveStart - this.state.lastCorrectTime;
                         const movement = timestamp - this.state.segMoveStart;
@@ -1432,39 +1076,26 @@
                         }
                     }
                 }
-
                 this.state.segMoveStart = null;
                 this.state.lastCorrectTime = timestamp;
-
-                this.playSound('success');
+                this.playSound('correct');
                 this.state.currentNumber++;
-
                 const maxNumber = this.state.isPractice ? CONFIG.PRACTICE_NUMBERS : CONFIG.TOTAL_NUMBERS;
-                if (this.state.currentNumber > maxNumber) {
-                    this.completeTest();
-                } else {
-                    this.updateProgress();
-                }
+                if (this.state.currentNumber > maxNumber) this.completeTest();
+                else this.updateProgress();
             }
 
             handleIncorrectClick(number, timestamp) {
                 const node = this.state.nodes[number - 1];
                 node.classList.add('error');
                 setTimeout(() => node.classList.remove('error'), 400);
-
-                const error = {
-                    timestamp: timestamp,
-                    clicked: number,
-                    expected: this.state.currentNumber,
-                    type: this.classifyError(number),
-                    timeSinceStart: timestamp - this.state.startTime
-                };
-
-                this.state.errors.push(error);
+                this.state.errors.push({
+                    timestamp, clicked: number, expected: this.state.currentNumber,
+                    type: this.classifyError(number), timeSinceStart: timestamp - this.state.startTime
+                });
                 this.errorsDisplay.textContent = this.state.errors.length;
-
                 this.playSound('error');
-                this.showMessage(`Clique no número ${this.state.currentNumber}`, 'warning');
+                this.showMessage(`Toque no número ${this.state.currentNumber}`, 'warning');
             }
 
             classifyError(clicked) {
@@ -1474,43 +1105,30 @@
                 return 'sequence';
             }
 
-            drawTrail(from, to, S, ox, oy) {
-                if (S == null) {
-                    const a = this.squareArea();
-                    S = a.S; ox = a.ox; oy = a.oy;
-                }
-                const a = this.centerPx(from - 1, S, ox, oy);
-                const b = this.centerPx(to - 1, S, ox, oy);
-
+            drawTrail(from, to, S) {
+                if (S == null) S = this.squareSize();
+                const a = this.centerPx(from - 1, S);
+                const b = this.centerPx(to - 1, S);
                 const trail = document.createElement('div');
                 trail.className = 'trail-line';
-
-                const dx = b.x - a.x;
-                const dy = b.y - a.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-
-                trail.style.width = distance + 'px';
+                const dx = b.x - a.x, dy = b.y - a.y;
+                trail.style.width = Math.sqrt(dx * dx + dy * dy) + 'px';
                 trail.style.left = a.x + 'px';
                 trail.style.top = a.y + 'px';
-                trail.style.transform = `rotate(${angle}deg)`;
-
+                trail.style.transform = `rotate(${Math.atan2(dy, dx) * 180 / Math.PI}deg)`;
                 this.canvas.appendChild(trail);
                 this.state.trails.push(trail);
             }
 
-            redrawTrails(S, ox, oy) {
+            redrawTrails(S) {
                 this.canvas.querySelectorAll('.trail-line').forEach(t => t.remove());
                 this.state.trails = [];
-                for (let k = 2; k <= this.state.currentNumber - 1; k++) {
-                    this.drawTrail(k - 1, k, S, ox, oy);
-                }
+                for (let k = 2; k <= this.state.currentNumber - 1; k++) this.drawTrail(k - 1, k, S);
             }
 
             updateProgress() {
                 const maxNumber = this.state.isPractice ? CONFIG.PRACTICE_NUMBERS : CONFIG.TOTAL_NUMBERS;
                 const progress = ((this.state.currentNumber - 1) / maxNumber) * 100;
-                this.progressBar.style.width = progress + '%';
                 this.progressDisplay.textContent = Math.round(progress) + '%';
             }
 
@@ -1523,45 +1141,25 @@
                 this.startTicker();
             }
 
-            // Liga apenas o intervalo de exibição, sem redefinir timestamps.
-            // Usado no início e ao retomar de uma pausa (preserva o tempo decorrido).
             startTicker() {
                 this.state.isRunning = true;
-
-                if (this.audioContext && this.audioContext.state === 'suspended') {
-                    this.audioContext.resume().catch(() => {});
-                }
-
+                if (this.audioContext && this.audioContext.state === 'suspended') this.audioContext.resume().catch(() => {});
                 this.timer = setInterval(() => {
                     const elapsed = now() - this.state.startTime;
-                    if (elapsed > CONFIG.MAX_TIME) {
-                        this.timeout();
-                        return;
-                    }
-                    const minutes = Math.floor(elapsed / 60000);
-                    const seconds = Math.floor((elapsed % 60000) / 1000);
-                    this.timerDisplay.textContent =
-                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    if (elapsed > CONFIG.MAX_TIME) { this.timeout(); return; }
+                    const m = Math.floor(elapsed / 60000), s = Math.floor((elapsed % 60000) / 1000);
+                    this.timerDisplay.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
                 }, 100);
             }
 
-            stopTimer() {
-                if (this.timer) {
-                    clearInterval(this.timer);
-                    this.timer = null;
-                }
-                this.state.isRunning = false;
-            }
+            stopTimer() { if (this.timer) { clearInterval(this.timer); this.timer = null; } this.state.isRunning = false; }
 
             togglePause() {
                 if (this.state.isPaused) {
-                    const pauseDuration = now() - this.state.pauseStartTime;
-                    this.state.startTime += pauseDuration;
-                    this.state.lastCorrectTime += pauseDuration;
-                    this.state.lastClickTime += pauseDuration;
+                    const d = now() - this.state.pauseStartTime;
+                    this.state.startTime += d; this.state.lastCorrectTime += d; this.state.lastClickTime += d;
                     this.state.isPaused = false;
-                    this.state.segMoveStart = null;
-                    this.state.lastMove = null;
+                    this.state.segMoveStart = null; this.state.lastMove = null;
                     this.pauseBtn.textContent = 'Pausar';
                     this.removePauseOverlay();
                     this.showMessage('Teste retomado', 'info');
@@ -1578,24 +1176,20 @@
 
             showPauseOverlay() {
                 this.removePauseOverlay();
-                const overlay = document.createElement('div');
-                overlay.className = 'pause-overlay';
-                overlay.id = 'pauseOverlay';
-                overlay.innerHTML = 'PAUSADO<span>Os números estão ocultos. Clique em "Retomar" para continuar.</span>';
-                this.canvas.appendChild(overlay);
+                const o = document.createElement('div');
+                o.className = 'pause-overlay';
+                o.id = 'pauseOverlay';
+                o.innerHTML = 'PAUSADO<span>Os números estão ocultos. Toque em "Retomar" para continuar.</span>';
+                this.canvas.appendChild(o);
             }
 
-            removePauseOverlay() {
-                const overlay = document.getElementById('pauseOverlay');
-                if (overlay) overlay.remove();
-            }
+            removePauseOverlay() { const o = document.getElementById('pauseOverlay'); if (o) o.remove(); }
 
             completeTest() {
                 this.stopTimer();
                 this.state.endTime = now();
                 this.state.phase = 'completed';
-                this.container.classList.remove('test-in-progress');
-
+                this.card.classList.remove('test-in-progress');
                 if (this.state.isPractice) {
                     this.practiceCompleted = true;
                     this.evaluatePractice();
@@ -1612,27 +1206,21 @@
                     this.resultsBtn.style.display = 'inline-block';
                     this.showResults();
                 }
-
                 this.playSound('complete');
             }
 
             evaluatePractice() {
                 const errs = this.state.errors.length;
-                if (errs > CONFIG.PRACTICE_MAX_ERRORS) {
-                    this.showMessage(
-                        `Aquecimento concluído com ${errs} erro(s). Recomenda-se repetir o aquecimento antes do teste.`,
-                        'warning'
-                    );
-                } else {
-                    this.showMessage('Aquecimento concluído com sucesso! Pronto para o teste principal.', 'success');
-                }
+                if (errs > CONFIG.PRACTICE_MAX_ERRORS)
+                    this.showMessage(`Aquecimento concluído com ${errs} erro(s). Recomenda-se repetir antes do teste.`, 'warning');
+                else
+                    this.showMessage('Aquecimento concluído! Pronto para o teste principal.', 'success');
             }
 
             timeout() {
                 this.stopTimer();
                 this.state.endTime = now();
-                this.container.classList.remove('test-in-progress');
-
+                this.card.classList.remove('test-in-progress');
                 if (this.state.isPractice) {
                     this.showMessage('Tempo do aquecimento esgotado. Tente novamente.', 'error');
                     this.pauseBtn.style.display = 'none';
@@ -1641,7 +1229,6 @@
                     this.clearCanvas();
                     return;
                 }
-
                 this.updatePhase(4);
                 this.showMessage('Tempo esgotado!', 'error');
                 this.calculateResults();
@@ -1651,29 +1238,22 @@
             }
 
             calculateOptimalDistance() {
-                const { S, ox, oy } = this.squareArea();
+                const S = this.squareSize();
                 let optimal = 0;
                 for (let i = 1; i < this.state.positions.length; i++) {
-                    const prev = this.centerPx(i - 1, S, ox, oy);
-                    const curr = this.centerPx(i, S, ox, oy);
+                    const prev = this.centerPx(i - 1, S), curr = this.centerPx(i, S);
                     optimal += Math.sqrt(Math.pow(curr.x - prev.x, 2) + Math.pow(curr.y - prev.y, 2));
                 }
                 return optimal;
             }
 
-            mean(arr) {
-                return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
-            }
+            mean(arr) { return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0; }
 
             dominantPointerType() {
                 const counts = this.state.pointerCounts;
-                let best = '-';
-                let max = -1;
-                Object.keys(counts).forEach(k => {
-                    if (counts[k] > max) { max = counts[k]; best = k; }
-                });
-                const map = { mouse: 'Mouse', touch: 'Toque', pen: 'Caneta', keyboard: 'Teclado' };
-                return map[best] || best;
+                let best = '-', max = -1;
+                Object.keys(counts).forEach(k => { if (counts[k] > max) { max = counts[k]; best = k; } });
+                return { mouse: 'Mouse', touch: 'Toque', pen: 'Caneta', keyboard: 'Teclado' }[best] || best;
             }
 
             calculateResults() {
@@ -1687,20 +1267,13 @@
                 const avgReactionTime = this.mean(rts);
                 const minReactionTime = rts.length ? Math.min(...rts) : 0;
                 const maxReactionTime = rts.length ? Math.max(...rts) : 0;
+                const variance = rts.length > 1 ? rts.reduce((s, t) => s + Math.pow(t - avgReactionTime, 2), 0) / (rts.length - 1) : 0;
+                const cv = avgReactionTime > 0 ? (Math.sqrt(variance) / avgReactionTime) * 100 : 0;
 
-                const variance = rts.length > 1
-                    ? rts.reduce((sum, time) => sum + Math.pow(time - avgReactionTime, 2), 0) / (rts.length - 1)
-                    : 0;
-                const stdDev = Math.sqrt(variance);
-                const cv = avgReactionTime > 0 ? (stdDev / avgReactionTime) * 100 : 0;
-
-                const thirdSize = Math.floor(rts.length / 3);
-                const firstThird = rts.slice(0, thirdSize);
-                const middleThird = rts.slice(thirdSize, thirdSize * 2);
-                const lastThird = rts.slice(thirdSize * 2);
-                const initialSpeed = this.mean(firstThird);
-                const middleSpeed = this.mean(middleThird);
-                const finalSpeed = this.mean(lastThird);
+                const third = Math.floor(rts.length / 3);
+                const initialSpeed = this.mean(rts.slice(0, third));
+                const middleSpeed = this.mean(rts.slice(third, third * 2));
+                const finalSpeed = this.mean(rts.slice(third * 2));
                 const fatigueIndex = initialSpeed > 0 ? ((finalSpeed - initialSpeed) / initialSpeed) * 100 : 0;
 
                 const avgDecision = this.mean(this.state.decisionTimes);
@@ -1712,151 +1285,88 @@
                 const dominant = this.dominantPointerType();
                 const hasTrajectory = movementDistance > 0 && this.state.trajectory.length > 5 && dominant === 'Mouse';
                 let efficiency = null;
-                if (hasTrajectory && optimalDistance > 0) {
-                    efficiency = Math.min(100, (optimalDistance / movementDistance) * 100);
-                }
+                if (hasTrajectory && optimalDistance > 0) efficiency = Math.min(100, (optimalDistance / movementDistance) * 100);
 
                 const errorsByType = { repetition: 0, anticipation: 0, sequence: 0 };
-                this.state.errors.forEach(error => { errorsByType[error.type]++; });
-
-                const avgTimeToError = this.state.errors.length > 0
-                    ? this.mean(this.state.errors.map(e => e.timeSinceStart)) / 1000
-                    : 0;
-
+                this.state.errors.forEach(e => errorsByType[e.type]++);
+                const avgTimeToError = this.state.errors.length > 0 ? this.mean(this.state.errors.map(e => e.timeSinceStart)) / 1000 : 0;
                 const attemptsPerNumber = completed > 0 ? totalClicks / completed : 0;
                 const errorRate = totalClicks > 0 ? (this.state.errors.length / totalClicks) * 100 : 0;
 
-                const normativeComparison = this.compareToNorms(totalTime);
-                const validity = this.computeValidity(totalTime, completed, errorRate);
-
                 this.results = {
-                    formIndex: this.state.formIndex,
-                    totalTime,
-                    completed,
-                    totalClicks,
-                    correctClicks,
-                    accuracy,
-                    totalErrors: this.state.errors.length,
-                    errorRate,
+                    formIndex: this.state.formIndex, deviceType: this.deviceType,
+                    totalTime, completed, totalClicks, correctClicks, accuracy,
+                    totalErrors: this.state.errors.length, errorRate,
                     avgConnectionTime: avgReactionTime / 1000,
-                    avgDecisionTime: avgDecision / 1000,
-                    avgMovementTime: avgMovement / 1000,
-                    motorSeparable,
-                    minReactionTime: minReactionTime / 1000,
-                    maxReactionTime: maxReactionTime / 1000,
+                    avgDecisionTime: avgDecision / 1000, avgMovementTime: avgMovement / 1000, motorSeparable,
+                    minReactionTime: minReactionTime / 1000, maxReactionTime: maxReactionTime / 1000,
                     variability: cv,
-                    initialSpeed: initialSpeed / 1000,
-                    middleSpeed: middleSpeed / 1000,
-                    finalSpeed: finalSpeed / 1000,
-                    fatigueIndex,
-                    efficiency,
-                    optimalDistance,
-                    movementDistance,
-                    errorsByType,
-                    avgTimeToError,
-                    attemptsPerNumber,
-                    normativeComparison,
-                    validity,
-                    dominantPointer: dominant,
-                    refreshRate: this.refreshRate,
-                    fastResponses: this.state.fastResponses,
-                    focusLossCount: this.state.focusLossCount,
+                    initialSpeed: initialSpeed / 1000, middleSpeed: middleSpeed / 1000, finalSpeed: finalSpeed / 1000, fatigueIndex,
+                    efficiency, optimalDistance, movementDistance,
+                    errorsByType, avgTimeToError, attemptsPerNumber,
+                    normativeComparison: this.compareToNorms(totalTime),
+                    validity: this.computeValidity(totalTime, completed, errorRate),
+                    dominantPointer: dominant, refreshRate: this.refreshRate,
+                    fastResponses: this.state.fastResponses, focusLossCount: this.state.focusLossCount,
                     resizeDuringTest: this.state.resizeDuringTest,
-                    clicks: this.state.clicks,
-                    reactionTimes: this.state.reactionTimes,
-                    decisionTimes: this.state.decisionTimes,
-                    movementTimes: this.state.movementTimes
+                    clicks: this.state.clicks, reactionTimes: this.state.reactionTimes,
+                    decisionTimes: this.state.decisionTimes, movementTimes: this.state.movementTimes
                 };
             }
 
             computeValidity(totalTime, completed, errorRate) {
                 const reasons = [];
-                if (completed < CONFIG.TOTAL_NUMBERS) {
-                    reasons.push(`Teste não concluído (${completed}/${CONFIG.TOTAL_NUMBERS}).`);
-                }
-                if (this.state.fastResponses >= 2) {
-                    reasons.push(`${this.state.fastResponses} resposta(s) implausivelmente rápida(s) (< ${CONFIG.FAST_RT_THRESHOLD} ms).`);
-                }
-                if (this.state.focusLossCount > 0) {
-                    reasons.push(`A janela perdeu o foco ${this.state.focusLossCount} vez(es) durante o teste.`);
-                }
-                if (this.state.resizeDuringTest) {
-                    reasons.push('A tela foi redimensionada durante o teste (cronometria pode ter sido afetada).');
-                }
-                if (errorRate > 25) {
-                    reasons.push(`Taxa de erro elevada (${errorRate.toFixed(1)}%).`);
-                }
+                if (completed < CONFIG.TOTAL_NUMBERS) reasons.push(`Teste não concluído (${completed}/${CONFIG.TOTAL_NUMBERS}).`);
+                if (this.state.fastResponses >= 2) reasons.push(`${this.state.fastResponses} resposta(s) implausivelmente rápida(s) (< ${CONFIG.FAST_RT_THRESHOLD} ms).`);
+                if (this.state.focusLossCount > 0) reasons.push(`A janela perdeu o foco ${this.state.focusLossCount} vez(es) durante o teste.`);
+                if (this.state.resizeDuringTest) reasons.push('A tela foi redimensionada durante o teste (cronometria pode ter sido afetada).');
+                if (errorRate > 25) reasons.push(`Taxa de erro elevada (${errorRate.toFixed(1)}%).`);
                 return { valid: reasons.length === 0, reasons };
             }
 
             compareToNorms(time) {
                 const comparisons = {};
-                Object.entries(NORMATIVE_DATA).forEach(([ageGroup, data]) => {
-                    const zScore = (time - data.mean) / data.sd;
-                    const percentile = 100 - this.zScoreToPercentile(zScore);
-                    comparisons[ageGroup] = {
-                        mean: data.mean,
-                        sd: data.sd,
-                        zScore,
-                        percentile,
-                        classification: this.classifyPerformance(percentile)
-                    };
+                Object.entries(NORMATIVE_DATA).forEach(([g, d]) => {
+                    const z = (time - d.mean) / d.sd;
+                    const percentile = 100 - this.zScoreToPercentile(z);
+                    comparisons[g] = { mean: d.mean, sd: d.sd, zScore: z, percentile, classification: this.classifyPerformance(percentile) };
                 });
                 return comparisons;
             }
 
             zScoreToPercentile(z) {
-                const a1 =  0.254829592;
-                const a2 = -0.284496736;
-                const a3 =  1.421413741;
-                const a4 = -1.453152027;
-                const a5 =  1.061405429;
-                const p  =  0.3275911;
-
+                const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
                 const sign = z < 0 ? -1 : 1;
                 z = Math.abs(z) / Math.sqrt(2);
-
                 const t = 1 / (1 + p * z);
                 const erf = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * Math.exp(-z * z);
-
-                const percentile = (1 + sign * erf) / 2 * 100;
-                return Math.round(percentile);
+                return Math.round((1 + sign * erf) / 2 * 100);
             }
 
-            classifyPerformance(percentile) {
-                if (percentile >= 98) return { label: 'Muito Superior', badge: 'badge-superior' };
-                if (percentile >= 84) return { label: 'Superior', badge: 'badge-superior' };
-                if (percentile >= 25) return { label: 'Médio', badge: 'badge-average' };
-                if (percentile >= 16) return { label: 'Médio Inferior', badge: 'badge-average' };
-                if (percentile >= 2) return { label: 'Limítrofe', badge: 'badge-below' };
+            classifyPerformance(p) {
+                if (p >= 98) return { label: 'Muito Superior', badge: 'badge-superior' };
+                if (p >= 84) return { label: 'Superior', badge: 'badge-superior' };
+                if (p >= 25) return { label: 'Médio', badge: 'badge-average' };
+                if (p >= 16) return { label: 'Médio Inferior', badge: 'badge-average' };
+                if (p >= 2) return { label: 'Limítrofe', badge: 'badge-below' };
                 return { label: 'Muito Baixo', badge: 'badge-below' };
             }
 
-            setText(id, value) {
-                const el = document.getElementById(id);
-                if (el) el.textContent = value;
-            }
-
-            formLabel(idx) {
-                return (idx === 'P') ? 'Aquecimento' : `#${Number(idx) + 1} de ${FORMS.length}`;
-            }
+            setText(id, value) { const el = document.getElementById(id); if (el) el.textContent = value; }
+            formLabel(idx) { return (idx === 'P') ? 'Aquecimento' : `#${Number(idx) + 1} de ${FORMS.length}`; }
 
             showResults() {
                 if (!this.results) return;
                 const r = this.results;
-
                 const banner = document.getElementById('validity-banner');
                 if (r.validity.valid) {
                     banner.className = 'validity-banner validity-ok';
                     banner.textContent = '✓ Sem sinais de invalidação detectados nesta aplicação.';
                 } else {
                     banner.className = 'validity-banner validity-warn';
-                    banner.innerHTML = '⚠️ Resultado a interpretar com cautela:' +
-                        '<ul class="validity-reasons">' +
-                        r.validity.reasons.map(x => `<li>${x}</li>`).join('') +
-                        '</ul>';
+                    banner.innerHTML = '⚠️ Resultado a interpretar com cautela:<ul class="validity-reasons">' +
+                        r.validity.reasons.map(x => `<li>${x}</li>`).join('') + '</ul>';
                 }
-
                 this.setText('result-time', `${r.totalTime.toFixed(2)}s`);
                 this.setText('result-connected', `${r.completed}/${CONFIG.TOTAL_NUMBERS}`);
                 this.setText('result-errors', r.totalErrors);
@@ -1873,21 +1383,17 @@
                 this.setText('metric-initial-speed', `${r.initialSpeed.toFixed(3)}s`);
                 this.setText('metric-middle-speed', `${r.middleSpeed.toFixed(3)}s`);
                 this.setText('metric-final-speed', `${r.finalSpeed.toFixed(3)}s`);
-
-                const fatigueText = r.fatigueIndex > 0
-                    ? `+${r.fatigueIndex.toFixed(1)}% (lentidão)`
-                    : `${r.fatigueIndex.toFixed(1)}% (aceleração)`;
-                this.setText('metric-fatigue', fatigueText);
+                this.setText('metric-fatigue', r.fatigueIndex > 0 ? `+${r.fatigueIndex.toFixed(1)}% (lentidão)` : `${r.fatigueIndex.toFixed(1)}% (aceleração)`);
 
                 this.setText('result-error-rate', `${r.errorRate.toFixed(1)}%`);
                 this.setText('result-error-rep', r.errorsByType.repetition);
                 this.setText('result-error-ant', r.errorsByType.anticipation);
                 this.setText('result-error-seq', r.errorsByType.sequence);
-
                 this.setText('metric-time-to-error', r.avgTimeToError > 0 ? `${r.avgTimeToError.toFixed(2)}s` : 'N/A');
                 this.setText('metric-attempts-per-number', `${r.attemptsPerNumber.toFixed(2)}`);
 
                 this.setText('env-form', this.formLabel(r.formIndex));
+                this.setText('env-device', this.deviceLabel());
                 this.setText('env-pointer', r.dominantPointer);
                 this.setText('env-refresh', r.refreshRate ? `${r.refreshRate} Hz` : 'N/D');
                 this.setText('env-fast', r.fastResponses);
@@ -1900,47 +1406,32 @@
             fillNormativeTable() {
                 const tbody = document.getElementById('normative-data');
                 tbody.innerHTML = '';
-                Object.entries(this.results.normativeComparison).forEach(([ageGroup, data]) => {
+                Object.entries(this.results.normativeComparison).forEach(([g, d]) => {
                     const row = document.createElement('tr');
-                    row.dataset.ageGroup = ageGroup;
-                    const classification = data.classification;
-                    row.innerHTML = `
-                        <td>${ageGroup} anos</td>
-                        <td>${data.mean.toFixed(2)}</td>
-                        <td>${data.sd.toFixed(2)}</td>
-                        <td>${data.percentile}</td>
-                        <td>
-                            ${classification.label}
-                            <span class="performance-badge ${classification.badge}">
-                                P${data.percentile}
-                            </span>
-                        </td>
-                    `;
+                    row.dataset.ageGroup = g;
+                    const c = d.classification;
+                    row.innerHTML = `<td>${g} anos</td><td>${d.mean.toFixed(2)}</td><td>${d.sd.toFixed(2)}</td><td>${d.percentile}</td>
+                        <td>${c.label}<span class="performance-badge ${c.badge}">P${d.percentile}</span></td>`;
                     tbody.appendChild(row);
                 });
             }
 
-            highlightNormativeRow(ageGroup) {
-                const rows = document.querySelectorAll('#normative-data tr');
-                rows.forEach(row => {
+            highlightNormativeRow(g) {
+                document.querySelectorAll('#normative-data tr').forEach(row => {
                     row.classList.remove('highlighted');
-                    if (row.dataset.ageGroup === ageGroup) {
-                        row.classList.add('highlighted');
-                    }
+                    if (row.dataset.ageGroup === g) row.classList.add('highlighted');
                 });
             }
 
-            hideModal() {
-                this.modal.classList.remove('show');
-            }
+            hideModal() { this.modal.classList.remove('show'); }
 
             exportToCSV() {
                 if (!this.results) return;
                 const r = this.results;
-
                 let csv = 'Trail Making Test A - Resultados Detalhados\n\n';
                 csv += 'Categoria,Metrica,Valor\n';
                 csv += `Geral,Forma (versao),${this.formLabel(r.formIndex)}\n`;
+                csv += `Geral,Tipo de dispositivo,${this.deviceLabel()}\n`;
                 csv += `Desempenho,Tempo Total (s),${r.totalTime.toFixed(3)}\n`;
                 csv += `Desempenho,Numeros Conectados,${r.completed}\n`;
                 csv += `Desempenho,Total de Cliques,${r.totalClicks}\n`;
@@ -1948,7 +1439,6 @@
                 csv += `Desempenho,Taxa de Acerto (%),${r.accuracy.toFixed(2)}\n`;
                 csv += `Desempenho,Total de Erros,${r.totalErrors}\n`;
                 csv += `Desempenho,Taxa de Erro (%),${r.errorRate.toFixed(2)}\n`;
-
                 csv += `Tempo,Tempo Medio por Conexao (s),${r.avgConnectionTime.toFixed(3)}\n`;
                 csv += `Tempo,Tempo de Decisao Medio (s),${r.motorSeparable ? r.avgDecisionTime.toFixed(3) : 'NA'}\n`;
                 csv += `Tempo,Tempo de Movimento Medio (s),${r.motorSeparable ? r.avgMovementTime.toFixed(3) : 'NA'}\n`;
@@ -1956,18 +1446,15 @@
                 csv += `Tempo,Maior Tempo por Conexao (s),${r.maxReactionTime.toFixed(3)}\n`;
                 csv += `Tempo,Variabilidade CV (%),${r.variability.toFixed(2)}\n`;
                 csv += `Tempo,Eficiencia de Trajetoria (%),${r.efficiency != null ? r.efficiency.toFixed(2) : 'NA'}\n`;
-
                 csv += `Velocidade,Velocidade Inicial (s),${r.initialSpeed.toFixed(3)}\n`;
                 csv += `Velocidade,Velocidade Mediana (s),${r.middleSpeed.toFixed(3)}\n`;
                 csv += `Velocidade,Velocidade Final (s),${r.finalSpeed.toFixed(3)}\n`;
                 csv += `Velocidade,Indice de Fadiga (%),${r.fatigueIndex.toFixed(2)}\n`;
-
                 csv += `Erros,Erros de Repeticao,${r.errorsByType.repetition}\n`;
                 csv += `Erros,Erros de Antecipacao,${r.errorsByType.anticipation}\n`;
                 csv += `Erros,Erros de Sequencia,${r.errorsByType.sequence}\n`;
                 csv += `Erros,Tempo Medio ate Erro (s),${r.avgTimeToError.toFixed(3)}\n`;
                 csv += `Erros,Tentativas por Numero,${r.attemptsPerNumber.toFixed(3)}\n`;
-
                 csv += `Validade,Valido,${r.validity.valid ? 'Sim' : 'Nao'}\n`;
                 csv += `Validade,Ressalvas,"${r.validity.reasons.join('; ').replace(/"/g, "'")}"\n`;
                 csv += `Ambiente,Modalidade Predominante,${r.dominantPointer}\n`;
@@ -1975,66 +1462,42 @@
                 csv += `Ambiente,Respostas <150ms,${r.fastResponses}\n`;
                 csv += `Ambiente,Perdas de Foco,${r.focusLossCount}\n`;
                 csv += `Ambiente,Redimensionou Durante Teste,${r.resizeDuringTest ? 'Sim' : 'Nao'}\n`;
-
                 csv += '\n\nDados Trial-by-Trial\n';
                 csv += 'Clique,Numero,Esperado,Correto,Modalidade,Tempo desde Inicio (ms),Tempo Conexao (ms)\n';
-                r.clicks.forEach((click, index) => {
-                    csv += `${index + 1},${click.number},${click.expected},${click.correct},${click.pointerType},${click.tFromStart.toFixed(1)},${(click.reactionTime || 0).toFixed(1)}\n`;
+                r.clicks.forEach((c, i) => {
+                    csv += `${i + 1},${c.number},${c.expected},${c.correct},${c.pointerType},${c.tFromStart.toFixed(1)},${(c.reactionTime || 0).toFixed(1)}\n`;
                 });
-
                 csv += '\n\nTempos por Conexao Individuais (ms)\n';
-                r.reactionTimes.forEach((time, index) => {
-                    csv += `${index + 1},${time.toFixed(1)}\n`;
-                });
-
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                this.downloadBlob(blob, `TMT-A_Detalhado_${new Date().toISOString().slice(0, 10)}.csv`);
+                r.reactionTimes.forEach((t, i) => { csv += `${i + 1},${t.toFixed(1)}\n`; });
+                this.downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8;' }), `TMT-A_Detalhado_${new Date().toISOString().slice(0, 10)}.csv`);
             }
 
             exportToJSON() {
                 if (!this.results) return;
                 const data = {
-                    test: 'Trail Making Test A',
-                    version: '6.0',
-                    date: new Date().toISOString(),
-                    formIndex: this.results.formIndex,
+                    test: 'Trail Making Test A', version: '7.0', date: new Date().toISOString(),
+                    formIndex: this.results.formIndex, profile: PROFILE,
                     device: this.collectDeviceMetadata(true),
-                    results: this.results,
-                    trajectory: this.state.trajectory,
-                    positions: this.state.positions
+                    results: this.results, trajectory: this.state.trajectory, positions: this.state.positions
                 };
-                const json = JSON.stringify(data, null, 2);
-                const blob = new Blob([json], { type: 'application/json' });
-                this.downloadBlob(blob, `TMT-A_Completo_${new Date().toISOString().slice(0, 10)}.json`);
+                this.downloadBlob(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), `TMT-A_Completo_${new Date().toISOString().slice(0, 10)}.json`);
             }
 
             downloadBlob(blob, filename) {
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url;
-                a.download = filename;
-                a.click();
+                a.href = url; a.download = filename; a.click();
                 URL.revokeObjectURL(url);
             }
 
             saveToLocal() {
                 if (!this.results) return;
                 const key = `tmt-a-${Date.now()}`;
-                const data = {
-                    date: new Date().toISOString(),
-                    results: this.results,
-                    device: this.collectDeviceMetadata(false)
-                };
-
+                const data = { date: new Date().toISOString(), results: this.results, device: this.collectDeviceMetadata(false) };
                 try {
                     localStorage.setItem(key, JSON.stringify(data));
                     let index = JSON.parse(localStorage.getItem('tmt-a-index') || '[]');
-                    index.push({
-                        key,
-                        date: data.date,
-                        time: this.results.totalTime,
-                        errors: this.results.totalErrors
-                    });
+                    index.push({ key, date: data.date, time: this.results.totalTime, errors: this.results.totalErrors });
                     localStorage.setItem('tmt-a-index', JSON.stringify(index));
                     this.showMessage('Resultados salvos neste dispositivo.', 'success');
                 } catch (e) {
@@ -2042,48 +1505,37 @@
                 }
             }
 
-            playSound(type) {
+            playSound(kind) {
+                if (!this.state.soundOn) return;
                 try {
                     if (!this.audioContext) {
                         const Ctx = window.AudioContext || window.webkitAudioContext;
                         if (!Ctx) return;
                         this.audioContext = new Ctx();
                     }
-                    if (this.audioContext.state === 'suspended') {
-                        this.audioContext.resume().catch(() => {});
-                    }
-
-                    const oscillator = this.audioContext.createOscillator();
-                    const gainNode = this.audioContext.createGain();
-                    oscillator.connect(gainNode);
-                    gainNode.connect(this.audioContext.destination);
-
-                    switch (type) {
-                        case 'success':
-                            oscillator.frequency.value = 800;
-                            gainNode.gain.value = 0.1;
-                            break;
-                        case 'error':
-                            oscillator.frequency.value = 300;
-                            gainNode.gain.value = 0.15;
-                            break;
-                        case 'complete':
-                            oscillator.frequency.value = 1000;
-                            gainNode.gain.value = 0.2;
-                            break;
-                    }
-
-                    oscillator.start();
-                    oscillator.stop(this.audioContext.currentTime + 0.1);
-                } catch (e) {
-                    console.warn('Audio não suportado', e);
-                }
+                    const ctx = this.audioContext;
+                    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+                    const t0 = ctx.currentTime;
+                    let notes, vol;
+                    if (kind === 'correct') { notes = [{ f: 587.33, t: 0, type: 'sine' }, { f: 880, t: 0.11, type: 'sine' }]; vol = 0.18; }
+                    else if (kind === 'error') { notes = [{ f: 196, t: 0, type: 'square' }, { f: 130.81, t: 0.13, type: 'square' }]; vol = 0.14; }
+                    else { notes = [{ f: 880, t: 0, type: 'sine' }, { f: 1174.66, t: 0.1, type: 'sine' }, { f: 1567.98, t: 0.2, type: 'sine' }]; vol = 0.16; }
+                    notes.forEach(n => {
+                        const osc = ctx.createOscillator(), g = ctx.createGain();
+                        osc.type = n.type; osc.frequency.value = n.f;
+                        osc.connect(g); g.connect(ctx.destination);
+                        const st = t0 + n.t;
+                        g.gain.setValueAtTime(0.0001, st);
+                        g.gain.linearRampToValueAtTime(vol, st + 0.02);
+                        g.gain.exponentialRampToValueAtTime(0.0001, st + 0.18);
+                        osc.start(st); osc.stop(st + 0.2);
+                    });
+                } catch (e) { /* áudio indisponível */ }
             }
 
             showMessage(text, type) {
                 this.messageBox.textContent = text;
                 this.messageBox.className = `message-box message-${type}`;
-
                 if (type !== 'error' && type !== 'warning') {
                     setTimeout(() => {
                         if (this.messageBox.textContent === text) {
@@ -2094,20 +1546,17 @@
                 }
             }
 
-            clearCanvas() {
-                this.canvas.innerHTML = '';
-                this.state.trails = [];
-            }
+            clearCanvas() { this.canvas.innerHTML = ''; this.state.trails = []; }
 
             reset(fullReset = true) {
                 this.stopTimer();
                 this.clearCanvas();
-                this.container.classList.remove('test-in-progress');
-
+                this.card.classList.remove('test-in-progress');
                 const wasPracticeCompleted = this.practiceCompleted;
+                const soundOn = this.state ? this.state.soundOn : true;
                 this.initializeState();
+                this.state.soundOn = soundOn;
                 this.practiceCompleted = wasPracticeCompleted;
-
                 if (fullReset) {
                     this.practiceCompleted = false;
                     this.updatePhase(1);
@@ -2117,130 +1566,61 @@
                     this.startBtn.disabled = true;
                     this.pauseBtn.style.display = 'none';
                     this.resultsBtn.style.display = 'none';
-
-                    this.showMessage('Bem-vindo! Clique em "Começar Aquecimento".', 'info');
+                    this.showMessage('Bem-vindo! Toque em "Começar Aquecimento".', 'info');
                 }
-
                 this.timerDisplay.textContent = '00:00';
                 this.errorsDisplay.textContent = '0';
                 this.progressDisplay.textContent = '0%';
-                this.progressBar.style.width = '0%';
             }
         }
 
         window.TMTUtils = {
-            _readIndex() {
-                try {
-                    return JSON.parse(localStorage.getItem('tmt-a-index') || '[]');
-                } catch (e) {
-                    return [];
-                }
+            _readIndex() { try { return JSON.parse(localStorage.getItem('tmt-a-index') || '[]'); } catch (e) { return []; } },
+            _sessions() {
+                return this._readIndex().map(i => { try { return JSON.parse(localStorage.getItem(i.key)).results; } catch (e) { return null; } }).filter(Boolean);
             },
-
             analyzeAllSessions() {
-                const index = this._readIndex();
-                if (index.length === 0) {
-                    console.log('Nenhuma sessão encontrada');
-                    return;
-                }
-                const sessions = index
-                    .map(item => {
-                        try { return JSON.parse(localStorage.getItem(item.key)).results; }
-                        catch (e) { return null; }
-                    })
-                    .filter(Boolean);
-
-                if (!sessions.length) { console.log('Nenhuma sessão válida'); return; }
-
-                const avgTime = sessions.reduce((sum, s) => sum + s.totalTime, 0) / sessions.length;
-                const avgErrors = sessions.reduce((sum, s) => sum + s.totalErrors, 0) / sessions.length;
-                const avgAccuracy = sessions.reduce((sum, s) => sum + s.accuracy, 0) / sessions.length;
-
+                const s = this._sessions();
+                if (!s.length) { console.log('Nenhuma sessão encontrada'); return; }
                 console.table({
-                    'Total de Sessões': sessions.length,
-                    'Tempo Médio (s)': avgTime.toFixed(2),
-                    'Erros Médios': avgErrors.toFixed(2),
-                    'Acurácia Média (%)': avgAccuracy.toFixed(2),
-                    'Melhor Tempo (s)': Math.min(...sessions.map(s => s.totalTime)).toFixed(2),
-                    'Pior Tempo (s)': Math.max(...sessions.map(s => s.totalTime)).toFixed(2)
+                    'Total de Sessões': s.length,
+                    'Tempo Médio (s)': (s.reduce((a, b) => a + b.totalTime, 0) / s.length).toFixed(2),
+                    'Erros Médios': (s.reduce((a, b) => a + b.totalErrors, 0) / s.length).toFixed(2),
+                    'Acurácia Média (%)': (s.reduce((a, b) => a + b.accuracy, 0) / s.length).toFixed(2),
+                    'Melhor Tempo (s)': Math.min(...s.map(x => x.totalTime)).toFixed(2),
+                    'Pior Tempo (s)': Math.max(...s.map(x => x.totalTime)).toFixed(2)
                 });
-                return sessions;
+                return s;
             },
-
             clearAllData() {
                 if (!confirm('Tem certeza que deseja limpar todos os dados?')) return;
-                const index = this._readIndex();
-                index.forEach(item => localStorage.removeItem(item.key));
+                this._readIndex().forEach(i => localStorage.removeItem(i.key));
                 localStorage.removeItem('tmt-a-index');
                 localStorage.removeItem('tmt-form-index');
                 console.log('Todos os dados foram removidos');
             },
-
             exportAllData() {
-                const index = this._readIndex();
-                const allData = index
-                    .map(item => {
-                        try { return JSON.parse(localStorage.getItem(item.key)); }
-                        catch (e) { return null; }
-                    })
-                    .filter(Boolean);
-
-                const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+                const all = this._readIndex().map(i => { try { return JSON.parse(localStorage.getItem(i.key)); } catch (e) { return null; } }).filter(Boolean);
+                const blob = new Blob([JSON.stringify(all, null, 2)], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url;
-                a.download = `TMT-A_Todas_Sessoes_${new Date().toISOString().slice(0, 10)}.json`;
-                a.click();
+                a.href = url; a.download = `TMT-A_Todas_Sessoes_${new Date().toISOString().slice(0, 10)}.json`; a.click();
                 URL.revokeObjectURL(url);
             },
-
             getStatistics() {
-                const index = this._readIndex();
-                if (index.length === 0) {
-                    console.log('Nenhuma sessão encontrada');
-                    return null;
-                }
-                const sessions = index
-                    .map(item => {
-                        try { return JSON.parse(localStorage.getItem(item.key)).results; }
-                        catch (e) { return null; }
-                    })
-                    .filter(Boolean);
-
-                const times = sessions.map(s => s.totalTime);
-                const errors = sessions.map(s => s.totalErrors);
-                const accuracies = sessions.map(s => s.accuracy);
-
-                return {
-                    sessions: sessions.length,
-                    time: {
-                        mean: times.reduce((a, b) => a + b, 0) / times.length,
-                        min: Math.min(...times),
-                        max: Math.max(...times),
-                        recent: times.slice(-5)
-                    },
-                    errors: {
-                        mean: errors.reduce((a, b) => a + b, 0) / errors.length,
-                        min: Math.min(...errors),
-                        max: Math.max(...errors),
-                        recent: errors.slice(-5)
-                    },
-                    accuracy: {
-                        mean: accuracies.reduce((a, b) => a + b, 0) / accuracies.length,
-                        min: Math.min(...accuracies),
-                        max: Math.max(...accuracies),
-                        recent: accuracies.slice(-5)
-                    }
-                };
+                const s = this._sessions();
+                if (!s.length) { console.log('Nenhuma sessão encontrada'); return null; }
+                const times = s.map(x => x.totalTime), errors = s.map(x => x.totalErrors), acc = s.map(x => x.accuracy);
+                const agg = a => ({ mean: a.reduce((x, y) => x + y, 0) / a.length, min: Math.min(...a), max: Math.max(...a), recent: a.slice(-5) });
+                return { sessions: s.length, time: agg(times), errors: agg(errors), accuracy: agg(acc) };
             }
         };
 
         document.addEventListener('DOMContentLoaded', () => {
             const tmt = new TMTTest();
             window.tmtInstance = tmt;
-
-            console.log('%cTMT-A v6.0 - Formas padronizadas (trilha sem cruzamento, distância constante)', 'color: #2196F3; font-size: 14px; font-weight: bold;');
-            console.log('%cUse TMTUtils.analyzeAllSessions() para análise de histórico', 'color: #666; font-size: 12px;');
+            console.log('%cTMT-A v7.0 — 6 formas paralelas (perfil de distâncias compartilhado, variado dentro de cada forma)', 'color:#3b82f6;font-size:14px;font-weight:bold;');
+            console.log('%cTMTUtils.analyzeAllSessions() para histórico', 'color:#9ca3af;font-size:12px;');
         });
     </script>
 </body>
