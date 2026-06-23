@@ -15,19 +15,21 @@ e as **boas práticas de adaptação papel→digital** (AACN/NAN; ITC; AERA/APA 
 
 ## ✨ Características da Padronização
 
-  * **6 versões paralelas (equivalentes):** os 25 estímulos seguem **formas pré-definidas e
-    verificadas**, não posições aleatórias. As seis versões compartilham o **mesmo perfil de
-    distâncias** `d₁…d₂₄` — ou seja, a distância entre o 1 e o 2 (e entre cada par i→i+1) é **idêntica
-    nas seis versões**, garantindo dificuldade equivalente. São aplicadas em rodízio automático a cada
-    tentativa, mitigando o **efeito de aprendizado** em reteste.
-  * **Distâncias variadas dentro de cada versão:** ao contrário de uma grade regular, dentro de uma
-    mesma versão os saltos i→i+1 **variam** (curtos e longos). Isso torna a busca visual menos
-    previsível e o teste menos fácil — preservando a comparabilidade entre versões.
-  * **Trilha que tende a não se cruzar:** o caminho 1→25 é uma poligonal simples (sem auto-interseções
-    nas formas distribuídas), gerada por caminhada auto-evitante de passos prescritos.
+  * **Formas paralelas equivalentes ao original:** os 25 estímulos vêm de **formas geradas e vetadas**
+    por `layoutGenerator.js`, **geometricamente equivalentes** à figura clássica do TMT-A (Reitan).
+    Em vez de casar distância por distância, as versões casam os **invariantes que determinam a
+    dificuldade** (comprimento de trilha, variância de distância, distribuição angular, cobertura por
+    convex hull, densidade de near-distractors), dentro de janelas de tolerância. São aplicadas em
+    rodízio a cada tentativa, mitigando o **efeito de aprendizado** sem alterar a dificuldade.
+  * **Geometria realista (como o original):** distâncias **variadas** (saltos curtos e longos, dp alto)
+    e **viradas acentuadas** do caminho (média ~110°), reproduzindo a carga de busca visual da folha
+    clássica — e não um traçado suave e previsível.
+  * **Trilha-solução sem auto-cruzamento:** o caminho 1→25 é uma poligonal simples (invariante #1,
+    garantido por construção e verificado).
+  * **Reprodutibilidade por seed:** cada forma é função determinística de um *seed* (registrado em
+    `FORM_META` e no relatório/export), permitindo recriar exatamente qualquer instância.
   * **Arena quadrada responsiva:** a área de teste é sempre um quadrado que se ajusta à viewport
-    (`min(92vw, 62vh)`), de modo que as distâncias permanecem proporcionais em qualquer tela; ao
-    redimensionar/girar, o layout reescala sem sobreposição e sem sair da área.
+    (`min(92vw, 62vh)`); ao redimensionar/girar, reescala sem sobreposição e sem sair da área.
   * **Interface escura e imersiva:** fundo preto, alto contraste, fonte Inter, com **feedback sonoro**
     (tons distintos para acerto/erro/conclusão), **modo tela inteira** e **adaptação ao dispositivo**
     (celular, tablet ou computador — inclusive alvos de toque maiores em telas sensíveis).
@@ -62,6 +64,65 @@ e as **boas práticas de adaptação papel→digital** (AACN/NAN; ITC; AERA/APA 
 
 -----
 
+## 🧩 Gerador de Formas Paralelas (`layoutGenerator.js`)
+
+Módulo **offline**, sem dependências, determinístico por *seed*, que produz arranjos de 25 itens via
+**amostragem-com-rejeição sobre grade**, controlando os invariantes geométricos que tornam duas formas
+estatisticamente equivalentes para reteste longitudinal (Reitan; Vickers et al. 1996/1998; Gaudino et
+al. 1995; TMT-L/Rodewald 2020).
+
+### Invariantes controlados
+1. **Não-cruzamento** — a trilha-solução 1→25 é uma poligonal simples (rejeita candidato cujo novo
+   segmento cruze um anterior).
+2. **Não-sobreposição** — distância mínima entre centros ≥ `minDist` (diâmetro do círculo + margem).
+3. **Cobertura (convex hull)** — área do *hull* dentro de uma janela (default **58–72%**, casando o
+   original medido ~66%).
+4. **Deslocamento controlado** — passo N→N+1 ~ **Poisson(μ)** em unidades de grade grosseira, com
+   **piso/teto**. Com μ=5 e grade de 1/16, o passo médio ≈ 0.31 — igual ao original (0.304 ± 0.120).
+5. **Near-distractors** — densidade média de itens não-alvo num raio crítico por passo (parâmetro
+   casável entre formas, não acaso).
+6. **Distribuição angular** — as mudanças de direção são amostradas de um histograma calibrado ao
+   original (viradas predominantemente 120–180°), e registradas para casamento.
+
+### Referência e equivalência
+`REFERENCE_TMT_A` guarda as coordenadas digitalizadas da figura clássica; `REFERENCE_METRICS` o seu
+vetor de invariantes. `isEquivalent(metricsA, metricsB, tolerances)` aceita uma forma só se ela cair
+nas janelas de tolerância de **todos** os invariantes. As tolerâncias default vivem em
+`DEFAULT_TOLERANCES` (hull ±0.06; comprimento ±12%; passo médio ±0.035; dp ±0.045; viradas ±18°;
+near-distractors ±0.6; cruzamentos = 0).
+
+### Métricas expostas (objeto + CSV/JSON)
+`computeMetrics(points)` retorna: comprimento total da trilha; distância média e desvio entre
+consecutivos; nº de cruzamentos (0); área do convex hull (absoluta e % do campo); near-distractors em
+R∈{0.15, 0.20, 0.25}; média e histograma das mudanças de direção.
+
+### Como gerar um conjunto equivalente (CLI)
+```bash
+# 6 formas equivalentes à referência, a partir do seed 1, + forma de aquecimento
+node layoutGenerator.js --count 6 --seedStart 1 --out forms.generated.json
+```
+Saída: tabela de métricas (referência + cada forma) no console e o banco em `forms.generated.json`
+(coordenadas + métricas + *seed* de cada forma). Para **reproduzir uma forma exata**, basta o seed:
+```js
+const G = require('./layoutGenerator.js');
+const forma = G.generateLayout({ seed: 19 });        // determinístico
+const set   = G.generateEquivalentSet({ count: 6, seedStart: 1, tolerances: { turnMean: 15 } });
+```
+
+### QA visual (`qa.html`)
+Abra `qa.html` no navegador: ele carrega `layoutGenerator.js`, gera N formas a partir de um *seed*,
+mostra **referência + formas lado a lado** (SVG) e uma **tabela de métricas com selo de equivalência**
+(vermelho = invariante fora da janela). Botões exportam CSV/JSON. Use para inspecionar/casar formas
+antes de "congelar" o banco no app.
+
+### Como o banco entra no app
+As coordenadas vetadas são **congeladas** em `index.html` (constante `FORMS` + `FORM_META` com o seed e
+as métricas de cada forma) e `forms.generated.json` fica versionado para rastreabilidade. O app **não**
+gera em runtime (escolha de padronização clínica); toda a administração — cronometria, ordem de
+cliques, detecção de erro, validade, export — permanece intacta.
+
+-----
+
 ## 🚀 Como Usar
 
 A aplicação é independente e não requer instalação nem conexão de rede.
@@ -78,10 +139,13 @@ A aplicação é independente e não requer instalação nem conexão de rede.
 
 ## 🛠️ Tecnologias
 
-Construído sem dependências externas, em um único arquivo:
+Construído sem dependências externas:
 
-  * **HTML5**, **CSS3** (variáveis, Grid/Flexbox, *media queries*) e **JavaScript (ES6+)** puro,
-    organizado na classe `TMTTest`.
+  * **HTML5**, **CSS3** (variáveis, Grid/Flexbox, *media queries*) e **JavaScript (ES6+)** puro.
+  * `index.html` — aplicação (classe `TMTTest`): administração, cronometria, render e relatório.
+  * `layoutGenerator.js` — gerador offline de formas paralelas (Node + browser), determinístico.
+  * `qa.html` — página de QA visual da equivalência.
+  * `forms.generated.json` — banco congelado de formas vetadas (coordenadas + métricas + seeds).
 
 -----
 
@@ -117,7 +181,10 @@ Utilitários disponíveis no console do navegador:
 
 ## 📂 Estrutura do Projeto
 
-  * `index.html` — estrutura HTML, estilos CSS e lógica JavaScript (tudo em um arquivo).
+  * `index.html` — aplicação completa (HTML + CSS + JS na classe `TMTTest`); embute o banco vetado.
+  * `layoutGenerator.js` — gerador offline de formas paralelas (módulo + CLI), determinístico por seed.
+  * `qa.html` — QA visual: referência + formas lado a lado, métricas e selo de equivalência.
+  * `forms.generated.json` — banco congelado (coordenadas, métricas e seeds das formas vetadas).
 
 -----
 
